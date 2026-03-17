@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlassya - Verification Protocol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Roboto:wght@400;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{
+    --gold:#FFD700;
+    --dark-purple:#1a0229;
+    --neon-pink:#ff00ff;
+    --glow-gold:rgba(255,215,0,0.7);
+    --hover-cyan: #019aa9;   
+    --text-teal: #368280;    
+    --box-black: #010100;
+    --btn-bg: #2a0e38;    
+}
+
+@keyframes background-pan{0%{background-position:0% 0%}100%{background-position:100% 100%}}
+body{
+    background-color: var(--dark-purple);
+    background-image: linear-gradient(rgba(255, 0, 255, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 0, 255, 0.2) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: background-pan 30s linear infinite;
+    color:#fff;
+    font-family:'Roboto',sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    height: 100vh;
+    width: 100vw;
+    margin:0;
+    overflow: hidden; 
+    padding:0; 
+    box-sizing:border-box;
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="%23ffffff" stroke="%23000000" stroke-width="1.5" stroke-linejoin="round"><path d="M12,2c-1.1,0-2,0.9-2,2v7H8c-1.1,0-2,0.9-2,2v4c0,1.1,0.9,2,2,2h1v2c0,1.1,0.9,2,2,2h2c1.1,0,2-0.9,2-2v-2h1c1.1,0,2-0.9,2-2v-4c0-1.1-0.9-2-2-2h-2V4C14,2.9,13.1,2,12,2z"/></svg>') 16 2, auto; 
+}
+
+.hidden { display: none !important; }
+
+/* --- PUZZLE EKRANI --- */
+#puzzle-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: url('code/yapbozarka.png'); 
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+    animation: none !important;
+    isolation: isolate;
+    z-index: 100000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Press Start 2P', cursive;
+}
+#puzzle-title { 
+    margin-bottom: 30px; 
+    color: #fff; 
+    text-align: center; 
+    line-height: 1.5; 
+    background: rgba(0,0,0,0.7);
+    padding: 10px;
+    border-radius: 5px;
+    text-shadow: 0 0 10px var(--gold);
+}
+.puzzle-container {
+    width: 306px; 
+    height: 306px;
+    border: 3px solid #666;
+    display: flex;
+    flex-wrap: wrap;
+    background: rgba(0,0,0,0.8);
+    position: relative;
+    box-shadow: 0 0 30px rgba(0,0,0,1);
+}
+.puzzle-slot {
+    width: 100px; height: 100px;
+    border: 1px solid #444;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.puzzle-piece {
+    width: 100px; height: 100px;
+    position: absolute; 
+    cursor: grab;
+    background-image: url('code/yapboz.png'); 
+    background-size: 300px 300px;
+    background-attachment: scroll;
+    animation: none !important;
+    box-shadow: 0 0 5px rgba(0,0,0,0.8);
+    z-index: 100;
+    transition: transform 0.1s;
+}
+.puzzle-piece:active { cursor: grabbing; transform: scale(1.1); z-index: 101; }
+
+/* --- NARRATIVE EKRANI --- */
+#narrative-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: #000; 
+    z-index: 90000;
+    display: none; 
+    font-family: 'Roboto', sans-serif; 
+    overflow: hidden;
+    perspective: 1000px; 
+}
+
+.screen-content {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: url('code/arkaplan.png');
+    background-size: cover;
+    background-position: center;
+    transform: scale(1.05); 
+    z-index: 1;
+}
+
+#npc-character {
+    position: absolute;
+    bottom: 0;
+    left: 15%; 
+    height: 85vh; 
+    width: auto;
+    filter: brightness(0.65) contrast(1.15) drop-shadow(0 0 30px #000);
+    transition: opacity 0.2s ease;
+}
+
+#fisheye-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle, rgba(0,0,0,0) 50%, rgba(0,0,0,0.4) 100%), 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,255,0,0.02), rgba(0,0,255,0.06));
+    background-size: 100% 100%, 100% 4px, 3px 100%;
+    pointer-events: none; 
+    z-index: 20; 
+}
+
+#vignette-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at center, transparent 40%, black 95%);
+    pointer-events: none;
+    z-index: 21; 
+}
+
+.dialogue-interface {
+    position: absolute;
+    right: 10%; 
+    top: 50%;
+    transform: translateY(-50%);
+    width: 42%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    align-items: center;
+    z-index: 100;
+}
+
+.npc-box {
+    background-color: var(--box-black); 
+    border: none;
+    width: 100%;
+    height: 250px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    box-sizing: border-box;
+    box-shadow: 0 0 30px rgba(54, 130, 128, 0.1);
+}
+
+.npc-text {
+    color: var(--text-teal); 
+    font-size: 2rem; 
+    line-height: 1.4;
+    font-weight: 600;
+    text-align: center;
+    text-shadow: 
+        3px 3px 0px #000, 
+        0 0 15px rgba(1, 154, 169, 0.4); 
+    animation: none; 
+}
+
+.player-options {
+    display: flex;
+    width: 100%;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.option-btn {
+    background-color: var(--box-black);
+    border: none; 
+    color: var(--text-teal); 
+    padding: 20px 30px;
+    cursor: pointer;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.3rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 10px rgba(0,0,0,0.9);
+    flex-grow: 1; 
+    min-width: 180px;
+    text-shadow: 0 0 4px var(--text-teal);
+}
+
+.option-btn:hover {
+    background-color: rgba(1, 154, 169, 0.1); 
+    color: #fff; 
+    text-shadow: 0 0 5px #fff, 0 0 15px var(--hover-cyan), 0 0 30px var(--hover-cyan);
+    box-shadow: 0 0 20px var(--hover-cyan), inset 0 0 15px var(--hover-cyan);
+    transform: scale(1.02); 
+    z-index: 25;
+}
+
+#click-hint {
+    display: none;
+    margin-top: 20px;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    color: rgba(54, 130, 128, 0.5); 
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: blink-hint 2s infinite;
+}
+
+@keyframes blink-hint {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+}
+
+/* --- KAR EFEKTİ --- */
+.snow-container { position: fixed; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; z-index: 40; overflow: hidden; display: block;}
+.snow-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100vh; background: transparent; will-change: transform; }
+.snow-layer::after { content: ""; position: absolute; top: -100vh; left: 0; width: 100%; height: 100%; background: transparent; box-shadow: inherit; }
+#snow1 { width: 1px; height: 1px; opacity: 0.8; animation: fall 15s linear infinite; }
+#snow2 { width: 2px; height: 2px; opacity: 0.6; animation: fall 22s linear infinite; }
+#snow3 { width: 3px; height: 3px; opacity: 0.4; animation: fall 30s linear infinite; }
+@keyframes fall { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(20px, 100vh, 0); } }
+
+/* --- ANA ARAYÜZ --- */
+#main-interface { 
+    width: 100%; 
+    height: 100vh;
+    overflow-y: auto; 
+    overflow-x: hidden;
+    display: none; 
+    flex-direction: column; 
+    align-items: center; 
+    padding: 40px 20px; 
+    position: relative; 
+    z-index: 10; 
+}
+
+.main-title{font-family:'Cinzel',serif;font-size:4.5rem;font-weight:700;text-align:center;color:var(--gold);text-shadow:0 0 5px var(--glow-gold), 0 0 10px var(--glow-gold), 0 0 20px var(--glow-gold), 0 0 40px #ff8000;margin-bottom:20px;letter-spacing: 2px; animation: text-flicker 2s infinite alternate;}
+@keyframes text-flicker { 0%, 100% { opacity: 1; text-shadow: 0 0 5px var(--glow-gold), 0 0 10px var(--glow-gold), 0 0 20px var(--glow-gold), 0 0 40px #ff8000; } 50% { opacity: 0.8; text-shadow: 0 0 5px var(--glow-gold), 0 0 10px var(--glow-gold); } }
+
+.wheel-area-wrapper{position:relative;width:100%;display:flex;justify-content:center;align-items:center;margin:30px 0}
+.wheel-container{position:relative;width:380px;height:380px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background: #1a0505; border-radius: 50%; padding: 15px; box-shadow: 0 0 50px rgba(255, 0, 255, 0.3), inset 0 0 20px rgba(0,0,0,0.5);}
+#wheelCanvas{border-radius:50%;border:8px solid var(--gold);box-shadow:0 0 25px var(--glow-gold) inset;}
+.wheel-hub { position: absolute; width: 80px; height: 80px; background: #f0f0f0; border-radius: 50%; border: 4px solid #b8860b; box-shadow: 0 0 25px var(--glow-gold) inset, 0 0 15px #000; z-index: 5; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.eyelid-top, .eyelid-bottom { position: absolute; left: 0; width: 100%; height: 0%; background-color: var(--dark-purple); z-index: 4; transition: height 0.1s ease-in-out; }
+.eyelid-top { top: 0; border-bottom: 2px solid #000; }
+.eyelid-bottom { bottom: 0; border-top: 2px solid #000; }
+.wheel-hub.blink .eyelid-top { height: 50%; }
+.wheel-hub.blink .eyelid-bottom { height: 50%; }
+.eye-iris { width: 40px; height: 40px; background: radial-gradient(circle, #4facfe 0%, #00f2fe 80%, #003366 100%); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 8px rgba(0,0,0,0.7); z-index: 2; }
+.eye-iris::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 18px; height: 18px; background: #000; border-radius: 50%; }
+.eye-shine { position: absolute; top: 20%; left: 25%; width: 12px; height: 12px; background: rgba(255, 255, 255, 0.9); border-radius: 50%; z-index: 3; pointer-events: none; }
+.pointer{position:absolute;top:-25px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;border-top:50px solid var(--gold);z-index:10;filter:drop-shadow(0 0 10px var(--glow-gold));}
+
+/* 3D BUTON */
+.spin-btn-container { display: flex; align-items: center; justify-content: center; background-color: transparent; padding: 6px; border-radius: 8px; height: 94px; margin-top: 30px; cursor: pointer; position: relative; transition: opacity 0.3s, filter 0.3s; }
+.spin-btn-container.disabled { pointer-events: none; opacity: 0.6; filter: grayscale(0.8); }
+.spin-btn-container input { display: none; }
+.spin-btn-container .label { width: 140px; height: 80px; background-color: #2a2a2a; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 8px 6px; border-top: 1px solid #383838; transition: all 0.1s linear; position: relative; z-index: 2; cursor: pointer; box-shadow: 6px 6px 0px 0px #000; }
+.spin-btn-container .label .back-side { position: absolute; top: -10px; left: 0px; background-color: #2a2a2a; border-radius: 4px 4px 2px 2px; width: 100%; height: 14px; box-shadow: inset 0 5px 3px 1px rgba(0, 0, 0, 0.5), inset 0px -5px 2px 0px rgba(255, 215, 0, 0.1); transform: perspective(300px) rotateX(50deg); z-index: 1; opacity: 0; transition: all 0.1s linear; }
+.spin-btn-container .label:active .back-side, .spin-btn-container.pressed .label .back-side { opacity: 1; }
+.spin-btn-container .label:active, .spin-btn-container.pressed .label { transform: perspective(200px) rotateX(-18deg) translateY(5px); transform-origin: 50% 40%; box-shadow: inset 0px -20px 15px 0px rgba(0, 0, 0, 0.5); border-top: 1px solid rgba(255, 215, 0, 0.4); margin-top: 6px; border-radius: 0 0 4px 4px; }
+.spin-btn-container .label .text { color: #fff; font-family: 'Press Start 2P', cursive; font-size: 1.3rem; line-height: 1.5; margin-top: 15px; font-weight: 800; text-transform: uppercase; transition: all 0.1s linear; text-shadow: -1px -1px 1px rgb(224, 224, 224, 0.1); }
+.spin-btn-container .label:active .text, .spin-btn-container.pressed .label .text { color: var(--gold); text-shadow: 0px 0px 8px var(--glow-gold), 1px 1px 2px rgb(0, 0, 0, 1); }
+.spin-btn-container .label .bottom-line { width: 100%; height: 4px; border-radius: 999px; background-color: #2a2a2a; box-shadow: 0 0 3px 0px rgb(19, 19, 19); border-top: 1px solid #383838; transition: all 0.1s linear; }
+.spin-btn-container .label:active .bottom-line, .spin-btn-container.pressed .label .bottom-line { background-color: #1a1a1a; border-top: 1px solid rgba(255, 215, 0, 0.4); }
+
+/* SONUÇ GÖSTERİMİ */
+#resultDisplay{
+    margin-top:30px;
+    width:90%;
+    max-width:950px;
+    text-align:center;
+    display:none;
+    perspective:1000px;
+    position:relative;
+    z-index: 500; 
+}
+#resultDisplay.show-result{display:block}
+.chest{position:relative;width:200px;height:120px;margin:40px auto 0;transform-style:preserve-3d}
+.chest-base{width:100%;height:100%;background:#6b4226;border:5px solid #4a2d17;box-sizing:border-box;border-radius:5px;position:relative}
+.chest-lid{position:absolute;width:100%;height:50px;background:#6b4226;border:5px solid #4a2d17;box-sizing:border-box;border-radius:10px 10px 0 0;top:-50px;left:0;transform-origin:bottom center;transition:transform 1s ease-in-out}
+#resultDisplay.show-result .chest-lid{animation:open-chest 1s forwards 0.5s}
+@keyframes open-chest{0%{transform:rotateX(0deg)}100%{transform:rotateX(-120deg)}}
+.chest-glow{position:absolute;top:0;left:50%;width:300px;height:200px;background:radial-gradient(circle,var(--glow-gold) 0%,transparent 70%);transform:translate(-50%,-70%);opacity:0;transition:opacity 1s ease}
+#resultDisplay.show-result .chest-glow{animation:show-glow 2s forwards 1s}
+@keyframes show-glow{0%{opacity:0;transform:translate(-50%,-70%) scale(0.5)}50%{opacity:0.9}100%{opacity:0.7;transform:translate(-50%,-80%) scale(1.2)}}
+.game-info{position:absolute;bottom:110%;left:50%;transform:translateX(-50%);width:100%;padding:25px;background:rgba(26, 2, 41, 0.95);border:4px solid var(--gold);border-radius:10px;box-shadow:0 0 30px var(--glow-gold);opacity:0;z-index:1001;position:relative;max-height:80vh;overflow-y:auto;}
+#resultDisplay.show-result .game-info{animation:show-info 1s forwards 1.5s}
+@keyframes show-info{0%{opacity:0;transform:translate(-50%,20px)}100%{opacity:1;transform:translate(-50%,0)}}
+.game-info h2{color:var(--gold);text-shadow:0 0 10px var(--glow-gold);margin-top:0;font-size:2.2rem;margin-bottom:15px}
+.result-content-wrapper{display:flex;gap:30px;align-items:flex-start}
+.result-game-details{text-align:left;flex-grow:1}
+.result-game-image{width:400px;height:auto;border:3px solid var(--gold);border-radius:8px;box-shadow:0 0 15px var(--glow-gold);flex-shrink:0;margin-bottom:0}
+.close-result-btn{position:absolute;top:10px;right:15px;background:none;border:none;color:white;font-size:2.5rem;font-weight:bold;line-height:1;cursor:pointer;opacity:0.7;transition:opacity 0.2s,transform 0.2s;z-index:1002}
+.close-result-btn:hover{opacity:1;transform:scale(1.1)}
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999}
+@keyframes confetti-fall{0%{transform:translateY(-10vh) rotateZ(0deg);opacity:1}100%{transform:translateY(110vh) rotateZ(720deg);opacity:0}}
+.confetti{position:absolute;background-color:var(--gold);opacity:0;animation-name:confetti-fall;animation-timing-function:linear;animation-fill-mode:forwards}
+
+/* --- BUTONLAR VE AYARLAR --- */
+.top-left-container{position:absolute;top:20px;left:20px;display:flex;gap:10px;z-index:100}
+.top-left-container button{ background-color: rgba(76, 6, 119, 0.8); border: 3px solid var(--gold); color: var(--gold); padding: 12px 15px; font-family: 'Press Start 2P', cursive; font-size: 0.7rem; cursor: pointer; border-radius: 0; box-shadow: 4px 4px 0px 0px #000; transition: transform 0.1s, box-shadow 0.1s; text-transform: uppercase; line-height: 1.2; }
+.top-left-container button:hover:not(:disabled){ background-color: var(--gold); color: #1a0229; transform: translate(-1px, -1px); box-shadow: 6px 6px 0px 0px #000; }
+.top-left-container button:active:not(:disabled){ transform: translate(2px, 2px); box-shadow: 2px 2px 0px 0px #000; }
+
+/* AYARLAR MENÜSÜ GÜNCEL TASARIM */
+#settings-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.85);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+}
+.settings-content {
+    background: #1a0229;
+    border: 4px solid var(--gold);
+    padding: 30px;
+    width: 700px;
+    max-width: 95%;
+    color: #fff;
+    font-family: 'Roboto', sans-serif;
+    position: relative;
+    box-shadow: 0 0 30px var(--glow-gold);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.settings-content h2 { font-family: 'Cinzel', serif; color: var(--gold); text-align: center; margin-top: 0; margin-bottom: 25px; font-size: 2.5rem; text-shadow: 0 0 10px var(--glow-gold); }
+.setting-group { margin-bottom: 25px; border-bottom: 1px solid #444; padding-bottom: 15px; }
+.setting-title { font-weight: bold; color: var(--neon-pink); margin-bottom: 15px; display: block; font-family: 'Press Start 2P', cursive; font-size: 0.9rem; text-align: left;}
+
+.radio-options { display: flex; flex-wrap: wrap; gap: 15px; justify-content: flex-start; }
+.radio-option { position: relative; flex-grow: 1; }
+.radio-option input[type="radio"], .radio-option input[type="checkbox"] { position: absolute; opacity: 0; cursor: pointer; }
+.radio-option label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--btn-bg);
+    border: 2px solid #555;
+    padding: 15px 10px;
+    cursor: pointer;
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+    color: #aaa;
+    transition: all 0.2s;
+    box-shadow: 0 4px 0 #000;
+    text-transform: uppercase;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 0.9rem;
+}
+.radio-option input:checked + label {
+    background-color: var(--gold);
+    color: #1a0229;
+    border-color: #fff;
+    box-shadow: 0 0 15px var(--glow-gold);
+    transform: translateY(2px);
+}
+.radio-option label:hover {
+    border-color: var(--hover-cyan);
+    color: #fff;
+}
+.close-settings-btn { position: absolute; top: 10px; right: 20px; background: none; border: none; color: #fff; font-size: 2.5rem; cursor: pointer; transition: transform 0.2s;}
+.close-settings-btn:hover { transform: scale(1.2); color: var(--gold); }
+
+/* VOLUME SLIDER STYLE */
+.volume-control-container { width: 100%; margin-top: 15px; padding: 0 10px; box-sizing: border-box; }
+input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 25px; width: 25px; border-radius: 50%; background: var(--gold); cursor: pointer; margin-top: -10px; box-shadow: 0 0 5px #000; border: 2px solid #fff; }
+input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: #444; border-radius: 3px; border: 1px solid #000; }
+input[type=range]:focus { outline: none; }
+
+/* LISTE GÖSTERİM */
+.game-display-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.9);z-index:1002;overflow-y:auto;padding:20px;box-sizing:border-box}
+.game-display-content{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;max-width:1200px;margin:40px auto}
+.game-item{ position: relative; text-align:center; color:#fff; width: 280px; cursor: pointer; }
+.game-item:hover { transform: scale(1.05); transition: transform 0.2s; }
+.game-item img.game-thumb { width:280px; height:130px; border:3px solid var(--gold); border-radius:5px; margin-bottom:10px; object-fit:cover; display: block; }
+.game-item .game-name{ font-size:1.1rem; font-weight:bold; color:var(--gold); }
+.close-overlay-btn{position:fixed;top:20px;right:30px;background:none;border:none;color:white;font-size:3rem;font-weight:bold;cursor:pointer;z-index:1003}
+.heart-overlay { position: absolute; top: 5px; right: 5px; width: 35px; height: auto; z-index: 10; filter: drop-shadow(0 0 3px rgba(0,0,0,0.8)); pointer-events: none; }
+.overlay-icon { position: absolute; top: -5px; left: -5px; width: 50px; height: auto; z-index: 15; filter: drop-shadow(2px 2px 2px black); }
+
+/* ZAR OYUNU */
+#dice-interface { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 99999; flex-direction: column; align-items: center; justify-content: center; background-color: rgba(0,0,0,0.9); }
+.game-wrapper { position: relative; width: 507px; height: 507px; }
+.table-bg { width: 100%; height: 100%; background-image: url('code/masa.png'); background-size: cover; image-rendering: pixelated; box-shadow: 0 0 20px rgba(0,0,0,0.8); border-radius: 10px; position: relative; }
+.dice-area { position: absolute; width: 44px; height: 44px; top: 225px; }
+#dice-1 { left: 190px; }
+#dice-2 { left: 272px; }
+.dot { width: 11px; height: 12px; background-image: url('code/zar.png'); background-size: cover; position: absolute; image-rendering: pixelated; display: none; opacity: 0.9; }
+.p-1 { top: 4px; left: 4px; }
+.p-2 { top: 16px; left: 4px; }
+.p-3 { top: 28px; left: 4px; }
+.p-4 { top: 16px; left: 16.5px; }
+.p-5 { top: 4px; left: 29px; }
+.p-6 { top: 16px; left: 29px; }
+.p-7 { top: 28px; left: 29px; }
+#roll-btn { display: block; margin: 20px auto; padding: 15px 40px; font-family: 'Press Start 2P', cursive; font-size: 1.2rem; background-color: #4a5c4a; color: #dcdcdc; border: 4px solid #2e3b2e; cursor: pointer; font-weight: bold; text-transform: uppercase; box-shadow: 0 5px 0 #232d23; }
+#roll-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #232d23; }
+#diceResultText { text-align: center; color: var(--gold); font-family: 'Press Start 2P', cursive; margin-top: 15px; font-size: 1.5rem; text-shadow: 2px 2px #000; min-height: 2rem; }
+
+/* GAME DETAIL MODAL */
+#detail-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.95);
+    z-index: 10010;
+    justify-content: center;
+    align-items: center;
+}
+.detail-content {
+    background: #1a0229;
+    border: 4px solid var(--gold);
+    padding: 30px;
+    width: 500px;
+    max-width: 90%;
+    color: #fff;
+    font-family: 'Roboto', sans-serif;
+    position: relative;
+    box-shadow: 0 0 30px var(--glow-gold);
+    text-align: center;
+}
+.detail-content h2 { font-family: 'Cinzel', serif; color: var(--gold); margin-bottom: 20px; font-size: 2rem; text-shadow: 0 0 10px var(--glow-gold); }
+.detail-content p { font-size: 1.1rem; line-height: 1.6; margin: 10px 0; color: #ddd; }
+.detail-content strong { color: var(--hover-cyan); }
+.close-detail-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
+
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:#1a0229}
+::-webkit-scrollbar-thumb{background:var(--gold);border-radius:5px}
+
+</style>
+</head>
+<body>
+
+<div id="puzzle-screen">
+    <div id="puzzle-title">SİSTEM DOĞRULAMA<br>PROTOKOLÜ</div>
+    <div class="puzzle-container" id="puzzleContainer">
+        <div class="puzzle-slot" data-id="0"></div>
+        <div class="puzzle-slot" data-id="1"></div>
+        <div class="puzzle-slot" data-id="2"></div>
+        <div class="puzzle-slot" data-id="3"></div>
+        <div class="puzzle-slot" data-id="4"></div>
+        <div class="puzzle-slot" data-id="5"></div>
+        <div class="puzzle-slot" data-id="6"></div>
+        <div class="puzzle-slot" data-id="7"></div>
+        <div class="puzzle-slot" data-id="8"></div>
+    </div>
+</div>
+
+<div id="narrative-screen">
+    <div class="screen-content">
+        <img id="npc-character" src="code/adam.png" alt="Visitor">
+        <div id="fisheye-overlay"></div>
+        <div id="vignette-overlay"></div>
+    </div>
+    <div class="dialogue-interface">
+        <div class="npc-box">
+            <div class="npc-text" id="npcText">...</div>
+        </div>
+        <div id="click-hint">Geçmek için tıkla</div>
+        <div class="player-options" id="playerOptions"></div>
+    </div>
+</div>
+
+<div class="snow-container" id="snowContainer">
+    <div id="snow1" class="snow-layer"></div>
+    <div id="snow2" class="snow-layer"></div>
+    <div id="snow3" class="snow-layer"></div>
+</div>
+
+<div id="main-interface">
+    <div class="top-left-container">
+        <button id="btnSettings">AYARLAR</button>
+        <button id="wishlistBtn">İstek Listesi</button>
+        <button id="completedBtn">Biten Oyunlar</button>
+        <button id="currentWheelBtn">Çarktaki Oyunlar</button>
+        <button id="luckyBtn">Kendimi Şanslı Hissediyorum</button>
+    </div>
+
+    <h1 class="main-title">ATLASSYA</h1>
+
+    <div class="wheel-area-wrapper">
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <div class="wheel-hub" id="hubElement">
+                <div class="eye-iris"><div class="eye-shine"></div></div>
+                <div class="eyelid-top"></div>
+                <div class="eyelid-bottom"></div>
+            </div>
+            <canvas id="wheelCanvas" width="380" height="380"></canvas>
+        </div>
+    </div>
+
+    <div id="spinButton" class="spin-btn-container">
+      <label class="label">
+        <div class="back-side"></div>
+        <input type="checkbox" id="spinCheckbox" />
+        <span class="text">ÇEVİR</span>
+        <span class="bottom-line"></span>
+      </label>
+    </div>
+
+    <div id="resultDisplay">
+        <div class="game-info"><button id="closeResultButton" class="close-result-btn">&times;</button></div>
+        <div class="chest"><div class="chest-base"></div><div class="chest-lid"></div><div class="chest-glow"></div></div>
+    </div>
+
+    <div class="confetti-container" id="confetti-container"></div>
+    
+    <div class="game-display-overlay" id="wishlistOverlay"><button class="close-overlay-btn" id="closeWishlist">&times;</button><div class="game-display-content" id="wishlistContent"></div></div>
+    <div class="game-display-overlay" id="completedOverlay"><button class="close-overlay-btn" id="closeCompleted">&times;</button><div class="game-display-content" id="completedContent"></div></div>
+    <div class="game-display-overlay" id="currentWheelOverlay"><button class="close-overlay-btn" id="closeCurrentWheel">&times;</button><div class="game-display-content" id="currentWheelContent"></div></div>
+</div>
+
+<div id="settings-modal">
+    <div class="settings-content">
+        <button class="close-settings-btn" id="closeSettings">&times;</button>
+        <h2>AYARLAR</h2>
+
+        <div class="setting-group">
+            <span class="setting-title">SES EFEKTLERİ</span>
+            <div class="radio-options">
+                <div class="radio-option"><input type="radio" name="opt_sound" value="on" checked id="sound_on"><label for="sound_on">AÇIK</label></div>
+                <div class="radio-option"><input type="radio" name="opt_sound" value="off" id="sound_off"><label for="sound_off">KAPALI</label></div>
+            </div>
+            <div class="volume-control-container">
+                <label for="volumeSlider" style="font-size: 0.8rem; color: #aaa; margin-bottom:5px; display:block;">SES ŞİDDETİ</label>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5">
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <span class="setting-title">FAVORİLER</span>
+            <div class="radio-options">
+                <div class="radio-option"><input type="radio" name="opt_fav" value="all" checked id="fav_all"><label for="fav_all">HEPSİ</label></div>
+                <div class="radio-option"><input type="radio" name="opt_fav" value="only" id="fav_only"><label for="fav_only">SADECE KALPLİ</label></div>
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <span class="setting-title">ANOMALİLER</span>
+            <div class="radio-options">
+                <div class="radio-option"><input type="radio" name="opt_anomaly" value="all" checked id="anom_all"><label for="anom_all">HEPSİ</label></div>
+                <div class="radio-option"><input type="radio" name="opt_anomaly" value="exclude" id="anom_exclude"><label for="anom_exclude">GİZLE</label></div>
+                <div class="radio-option"><input type="radio" name="opt_anomaly" value="only" id="anom_only"><label for="anom_only">SADECE ANOMALİ</label></div>
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <span class="setting-title">JAPON KORKU</span>
+            <div class="radio-options">
+                <div class="radio-option"><input type="radio" name="opt_japan" value="all" checked id="japan_all"><label for="japan_all">HEPSİ</label></div>
+                <div class="radio-option"><input type="radio" name="opt_japan" value="exclude" id="japan_exclude"><label for="japan_exclude">GİZLE</label></div>
+                <div class="radio-option"><input type="radio" name="opt_japan" value="only" id="japan_only"><label for="japan_only">SADECE JAPON</label></div>
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <span class="setting-title">DEMO OYUNLAR</span>
+            <div class="radio-options">
+                <div class="radio-option"><input type="radio" name="opt_demo" value="all" checked id="demo_all"><label for="demo_all">HEPSİ</label></div>
+                <div class="radio-option"><input type="radio" name="opt_demo" value="exclude" id="demo_exclude"><label for="demo_exclude">GİZLE</label></div>
+                <div class="radio-option"><input type="radio" name="opt_demo" value="only" id="demo_only"><label for="demo_only">SADECE DEMO</label></div>
+            </div>
+        </div>
+
+        <div class="setting-group">
+            <span class="setting-title">SÜRE FİLTRESİ (ÇOKLU SEÇİM)</span>
+            <div class="radio-options">
+                <div class="radio-option"><input type="checkbox" name="opt_time" value="short" id="time_short"><label for="time_short">&lt; 1 SAAT</label></div>
+                <div class="radio-option"><input type="checkbox" name="opt_time" value="medium" id="time_medium"><label for="time_medium">1 - 2 SAAT</label></div>
+                <div class="radio-option"><input type="checkbox" name="opt_time" value="long" id="time_long"><label for="time_long">&gt; 2 SAAT</label></div>
+            </div>
+        </div>
+
+        <div class="setting-group" style="border-bottom:none;">
+            <span class="setting-title">ATMOSFER</span>
+            <div class="radio-options">
+                <div class="radio-option"><input type="radio" name="opt_snow" value="on" checked id="snow_on"><label for="snow_on">KARLI</label></div>
+                <div class="radio-option"><input type="radio" name="opt_snow" value="off" id="snow_off"><label for="snow_off">NORMAL</label></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="detail-modal">
+    <div class="detail-content">
+        <button class="close-detail-btn" id="closeDetail">&times;</button>
+        <h2 id="detailTitle">Oyun Başlığı</h2>
+        <div id="detailBody">
+            <p><strong>Tür:</strong> <span id="detailType"></span></p>
+            <p><strong>Süre:</strong> <span id="detailTime"></span></p>
+            <p><strong>Açıklama:</strong> <span id="detailDesc"></span></p>
+        </div>
+    </div>
+</div>
+
+<div id="dice-interface">
+    <div class="game-wrapper">
+        <div class="table-bg">
+            <div id="dice-1" class="dice-area">
+                <div class="dot p-1"></div><div class="dot p-2"></div><div class="dot p-3"></div><div class="dot p-4"></div><div class="dot p-5"></div><div class="dot p-6"></div><div class="dot p-7"></div>
+            </div>
+            <div id="dice-2" class="dice-area">
+                <div class="dot p-1"></div><div class="dot p-2"></div><div class="dot p-3"></div><div class="dot p-4"></div><div class="dot p-5"></div><div class="dot p-6"></div><div class="dot p-7"></div>
+            </div>
+        </div>
+    </div>
+    <div id="diceResultText"></div>
+    <button id="roll-btn">ZAR AT</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- GAME DATA ---
+    // TERRORO (id:7) ve CAPTURED 2 (id:101) KALDIRILDI
+    const games = [
+        {id:4,name:'DREAD FLATS',type:'korku, bulmaca, japon',releaseDate:'2025',playtime:'2 saat',description:'granny tarzı', steamId: '3114900'},
+        {id:5,name:'CLINK',type:'Korku',releaseDate:'2025',playtime:'1 saat',description:'bir kadın, kedinle birlikte bir evde inzivaya çekilmişsin...', steamId: '3494130', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3494130/079f1a0c06f0186e132c815f3353543514a3cc44/header.jpg?t=1749669037'},
+        {id:9,name:'THE KIDNAP',type:'gerilim, japon korku',releaseDate:'2023',playtime:'1 saat',description:'Bir kaçırılma olayını konu alan bir Japon korku oyunudur.', steamId: '2593900'},
+        {id:10,name:'THE EXIT 8',type:'anomali',releaseDate:'2023',playtime:'30 dakika',description:'Sonsuz bir yeraltı geçidinde mahsur kaldınız.', steamId: '2653790'},
+        {id:11,name:'SHINKANSE 0',type:'zor anomali',releaseDate:'2024',playtime:'1-2 saat',description:'Shinkansen trenindeki anomalileri bulmakla görevlendirildiğiniz oyun.', steamId: '2793370'},
+        {id:13,name:'WE HARVEST SHADOWS',type:'indie demo korku',releaseDate:'demo',playtime:'2 saat',description:'Gündüzleri çiftçi oyunu geceleri korku', steamId: '1559720'},
+        {id:15,name:'THE STALKED 2',type:'indie korku',releaseDate:'2025',playtime:'1 saat',description:'Doğa yürüyüşüne tutku duyan Rachel\'ı oynadığın devam oyunu.', steamId: '2976490'},
+        {id:19,name:'THE STAIRWAY 7',type:'anomali, kedy',releaseDate:'2024',playtime:'1 saat',description:'Kedi ile sonsuz merdiven döngüsü.', steamId: '2911820'},
+        {id:22,name:'BROKENLORE: DON\'T WATCH',type:'korku',releaseDate:'2025',playtime:'1 saat',description:'Shinji\'nin korkutucu dünyasına dalın.', steamId: '2351330'},
+        {id:23,name:'Platform 8',type:'anomali',releaseDate:'2024',playtime:'20 dakika',description:'Sonsuza kadar giden trende anomalileri bul.', steamId: '2903560'},
+        {id:25,name:'The Closing Shift',type:'japon korku',releaseDate:'2022',playtime:'1-2 saat',description:'Boba Teashop tarzında', steamId: '1843090'},
+        {id:27,name:'PARASOCIAL',type:'japon korku',releaseDate:'2023',playtime:'1-1,5 saat',description:'Canlı yayıncıların hayatını konu alan oyun.', steamId: '2314720'},
+        {id:28,name:'THE CONVENIENCE STORE',type:'japon korku',releaseDate:'2020',playtime:'1 saat',description:'Gece vardiyasındaki üniversiteli kız.', steamId: '1228520'},
+        {id:31,name:'THE KARAOKE',type:'japon korku',releaseDate:'2023',playtime:'1 saat',description:'Liseli kızın Karaoke macerası.', steamId: '2200190'},
+        {id:34,name:'Skull Hotel',type:'anomali',releaseDate:'2025',playtime:'1 Saat',description:'otel odalarını temizlerken yaratıkların saklanıp seni öldürmek için beklediği bir korku oyunudur', steamId: '3739730', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3739730/c3f9088f09dabf6f07eb3595b6687b680a1cacbf/header.jpg?t=1761749116'},
+        {id:36,name:'No, I\'m not a Human',type:'gizem',releaseDate:'2025',playtime:'2,50 saat - sonsuz saat',description:'Dünya bir kıyamet yaşadı. İnsan olduğunu kanıtla.', steamId: '3180070'},
+        {id:99,name:'HELLMART',type:'korku',releaseDate:'2026',playtime:'3 saat',description:'Cehennem marketi.', steamId: '3762550', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3762550/8d5561f21bb46dd76d7a8b863c901d6a05e19204/header.jpg?t=1770292620'},
+        {id:100,name:'Last Report',type:'korku, psikolojik',releaseDate:'2025',playtime:'1.50 - 2.50 saat',description:'Son rapor.', steamId: '3209480'},
+        {id:102,name:'We Used to Play Here',type:'korku',releaseDate:'2025',playtime:'1.5 saat',description:'Gizemli ve korkunç bir deneyim.', steamId: '3998890', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3998890/13a794115c7891c71f83393c21e2ebc53df5f25b/header.jpg?t=1766131439'}
+    ];
+
+    const wishlist =[
+        {name:'Dispatch', steamId:'2592160'}, {name:'AT DEAD OF NIGHT', steamId:'1450830'},
+        {name:'Fears The Fathom', steamId:'1671340'}, {name:'Luto', steamId:'1729740'}, {name:'MARTHA IS DEAD', steamId:'515960'},
+        {name:'the quarry', steamId:'1577120'}, {name:'cronos', steamId:'2101960'},
+        {name:'madison', steamId:'1670870'}, {name:'high on life', steamId:'1583230'}, {name:'Date or Destiny Kiss or Miss', steamId:'2127030', image:'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2127030/f447ac90059534b1397b5de6fc2b004e5729d6cf/header.jpg?t=1751035600'},
+        {name:'silent hill f', steamId:'2947440', image:'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2947440/7e5d923ac622bd1775ebc9b5d4b5b0a24bf5ed40/header.jpg?t=1770169624'}, {name:'Katana ZERO', steamId:'460950'},
+        {name: 'Half-Life (Türkçe Dublaj)', steamId: '70', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/70/header.jpg?t=1745368462', overlayIcon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Roundel_flag_of_Turkey.svg/500px-Roundel_flag_of_Turkey.svg.png'},
+        {name: 'Paranormal Tales', steamId: '2193600', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2193600/header.jpg?t=1760022653'},
+        {name: 'Perceptum', steamId: '4124340', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4124340/6a7fed1f457e84212554c79eaf3e90c25b056b0f/header.jpg?t=1770842900'},
+        {name: 'Goodnight Universe', steamId: '2416100', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2416100/header.jpg?t=1763335395'},
+        {name: 'The Walking Dead', steamId: '207610', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/207610/header.jpg?t=1729702559'},
+        {name: 'High On Life 2', steamId: '2069250', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2069250/14a0a45da992ca33d59eb318b5cb9598c070e1c1/header.jpg?t=1771480792'}
+    ];
+
+    const completedGames =[
+        {name:'poppy playtime', steamId:'1721470'}, {name:'Resident Evil Requiem', steamId:'3764200', image:'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3764200/ce5437442768e38eb575f205ab9397d0264017b0/header.jpg?t=1769125588'},
+        {id:8,name:'BAD PARENTING',type:'psikolojik',releaseDate:'2024',playtime:'30 dakika',description:'Bay Kırmızı Yüz, bir anda gerçek olur.', steamId: '3205080'},
+        {name:'PSALM 5:9-13', steamId:'1837220', image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1837220/header.jpg'},
+        {name:'Subliminal', steamId:'2300840'}, {name:'THE STALKED', steamId:'2587770'},
+        {name:'VIGIL', steamId:'3817090', image:'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3817090/d4398e8d2199777df46d60e4bf7b2ac7c19a0c62/header.jpg?t=1755251991'},
+        {name:'Who s at the door', steamId:'3690010', image:'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3690010/0f806f79ec822e9b3b6832b29afcc36cd7f64c3a/header.jpg?t=1761884747'}, {name:'whisper of the house', steamId:'2589500'}, {name:'CURSED DIGICAM', steamId:'3334550'},
+        {name:'SUITE 776', steamId:'1197370'}, {name:'THE BATHHOUSE', steamId:'2989950'}, {name:'The Boba Teashop', steamId:'3461920'},
+        {name:'THIN THREADS', steamId:'3506630'}, {name:'SEPTEMBER 7TH', steamId:'2249160'}, {name:'CAPTURED', steamId:'3114010'},
+        {name:'the last of us part 1', steamId:'1888930'}, {name:'the last of us part 2', steamId:'2531310'}, {name:'what remains of edith finch', steamId:'501300'},
+        {name:'resident evil 4', steamId:'2050650'}, {name:'little nightmares', steamId:'424840'}, {name:'goose goose duck', steamId:'1568590'},
+        {name:'resident evil 3', steamId:'952060'}, {name:'resident evil 2', steamId:'883710'}, {name:'amenti', steamId:'3292260'},
+        {name:'miside', steamId:'2527500'}, {name:'until dawn', steamId:'2172010'}, {name:'layers of fear', steamId:'391720'},
+        {name:'the wolf among us', steamId:'250320'}, {name:'outlast', steamId:'238320'}, {name:'outlast 2', steamId:'414700'},
+        {name:'My Child Lebensborn', steamId:'1114070'}, {name:'beyond two souls', steamId:'960990'}, {name:'speed dates', steamId:'2273570'},
+        {name:'detroit become human', steamId:'1222140'}, {name:'12 minutes', steamId:'1097200'}, {name:'resident evil village', steamId:'1196590'},
+        {name:'resident evil 7', steamId:'418370'}, {name:'SHHH', steamId:'2709940'}, {name:'mafia: the old country', steamId:'1941540'},
+        {name:'Little Nightmares 2', steamId:'860510'}, {name:'Little Nightmares 3', steamId:'1392860'}, 
+        {name:'Gas Station Case', steamId:'3902800', image:'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3902800/07a48d0c3ff7fff12498691c296dda2b25359da7/header.jpg?t=1769804370'}, {name:'The Maid', steamId:'3456720'}, {name:'CRIMSON SNOW', steamId:'2067790'},
+        {name:'The Sims 4', steamId:'1222670'}, {name:'Quizei', steamId:'quizei', image:'https://cdn.quizei.com/game/68235bedf72d0f4bc7e59390/cover_image/original/image.webp?v=1769990400_42d20'}, {name:'Cyberpunk 2077', steamId:'1091500'},
+        {name:'Arcade Paradise', steamId:'1388870'}, {name:'Grounded', steamId:'962130'}, {name:'Minecraft', steamId:'minecraft', image:'https://img.redbull.com/images/c_limit,w_1500,h_1000/f_auto,q_auto/redbullcom/2022/3/1/fda3pk48b4x7rgir9xzj/minecraft'},
+        {name:'Stranded Deep', steamId:'313120'}, {name:'Escape the Backrooms', steamId:'1943950'}, {name:'Planet Zoo', steamId:'703080'},
+        {name:'Dale & Dawson Stationery Supplies', steamId:'2920570'}, {name:'Shadows of Doubt', steamId:'986130'}, {name:'R.E.P.O.', steamId:'3241660'},
+        {name:'Cookie Clicker', steamId:'1454400'}, {name:'Granny Remake', steamId:'2110820'}, {name:'Dead Signal', steamId:'2599300'},
+        {name:'Among Us', steamId:'945360'}, {name:'Ifrit', steamId:'2124810'}, {name:'A Dance of Fire and Ice', steamId:'977950'},
+        {name:'Gartic Phone', steamId:'gartic', image:'https://garticphone.com/images/thumb.png'},
+        {name:'Stardew Valley', steamId:'413150'}, {name:'House Flipper 2', steamId:'1190970'}, {name:'Slime Rancher 2', steamId:'1657630'},
+        {name:'Raft', steamId:'648800'}, {name:'Amnesia: The Bunker', steamId:'1944430'}, {name:'Gym Simulator 24', steamId:'2559270'},
+        {name:'Phasmophobia', steamId:'739630'}, {name:'Only Climb', steamId:'2380080', image:'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2500750/header.jpg?t=1747040357'}, {name:'Portal 2', steamId:'620'},
+        {name:'Lethal Company', steamId:'1966720'}, {name:'SEKIRO', steamId:'814380'}, {name:'Mortuary Assistant', steamId:'1295920'},
+        {name:'Viscera Cleanup', steamId:'246900'}, {name:'Palworld', steamId:'1623730'}, {name:'Petshop Sim', steamId:'2650890'},
+        {name:'Pummel Party', steamId:'880940'}, {name:'Visage', steamId:'594330'}, {name:'Incredibox', steamId:'1545450'},
+        {name:'Content Warning', steamId:'2881650'}, {name:'Clothing Store', steamId:'2923390'}, {name:'PICO PARK', steamId:'1509960'},
+        {name:'One-Armed Cook', steamId:'1459640'}, {name:'LoL', steamId:'lol', image:'https://media-cdn.t24.com.tr/media/library/2021/03/1614849266035-1.jpg'}, {name:'iBLiS', steamId:'1735950'},
+        {name:'Gartic Show', steamId:'garticshow', image:'https://gartic.show/images/thumb.png'}, {name:'Slender', steamId:'252330'}, {name:'Kitty Powers', steamId:'285740'},
+        {name:'Party Hard', steamId:'356570'}, {name:'Y. Village', steamId:'2561230'}, {name:'SILENT BREATH', steamId:'2643890'},
+        {name:'My Dream Setup', steamId:'2200780'}, {name:'Şükür', steamId:'2717390'}, {name:'Fractured Mind', steamId:'2655960'},
+        {name:'The Bunker', steamId:'481110'}, {name:'Pacify', steamId:'967050'}, {name:'Tabletop Sim', steamId:'286160'},
+        {name:'DONT SCREAM', steamId:'2497900'}, {name:'Kowloon', steamId:'2515240'}, {name:'FNaF 1', steamId:'319510'},
+        {name:'ROBLOX', steamId:'roblox', image:'https://images.tynker.com/blog/wp-content/uploads/20250401220809/robloxxjpg-1.jpg'}, {name:'Whos Your Daddy', steamId:'383840'}, {name:'Casino Boss', steamId:'2556530'},
+        {name:'Elevated Dread', steamId:'2505500', image:'https://i.ytimg.com/vi/sinZUlld0PI/maxresdefault.jpg'}, {name:'One-Armed Robber', steamId:'2551020'}, {name:'Boil Noodles', steamId:'2795320'},
+        {name:'Unolingo', steamId:'2762690'}, {name:'Business Tour', steamId:'397900'}, {name:'Paranormal Entities', steamId:'2526540'},
+        {name:'House in Woods', steamId:'2461060', image:'https://i.ytimg.com/vi/5Mn6r6h_UsI/maxresdefault.jpg'}, {name:'Go to Bed', steamId:'2460180', image:'https://img.itch.zone/aW1nLzEzNTMyNDk4LnBuZw==/original/yRSrjd.png'}, {name:'Late Night Mop', steamId:'2451960', image:'https://i.ytimg.com/vi/_gacJEE7hVM/maxresdefault.jpg'},
+        {name:'Wrong Floor', steamId:'2452280'}, {name:'Rinse and Repeat', steamId:'2446700'}, {name:'Infinite Pizza', steamId:'2445850', image:'https://i.ytimg.com/vi/3K7hqOU-7dc/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBFYLEPrzZETZbgvIemUwfdn956fw'},
+        {name:'DIY Fashion', steamId:'fashion', image:'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2876240/header.jpg?t=1739647391'}, {name:'Slime Rancher', steamId:'433340'}
+    ]; 
+
+    const favoriteGames =[
+        'Subliminal', 
+        'The Maid', 
+        'Gas Station Case', 
+        'Skull Hotel', 
+        'No, I\'m not a Human',
+        'THE STALKED 2',
+        'HELLMART', 
+        'Last Report',
+        'We Used to Play Here'
+    ];
+    
+    // --- WEB AUDIO API SYSTEM ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let soundEnabled = localStorage.getItem('atlassya_sound') !== 'off';
+    let masterVolume = 0.5; 
+    let zarBuffer = null; 
+
+    const volumeSlider = document.getElementById('volumeSlider');
+    volumeSlider.addEventListener('input', (e) => { masterVolume = parseFloat(e.target.value); });
+
+    function initAudio() {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        if (!zarBuffer) {
+            fetch('code/zar.MP3')
+                .then(response => response.arrayBuffer())
+                .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
+                .then(decodedAudio => { zarBuffer = decodedAudio; })
+                .catch(e => console.error("Zar sesi yüklenemedi:", e));
+        }
+    }
+    document.addEventListener('click', initAudio, { once: true });
+    document.addEventListener('touchstart', initAudio, { once: true });
+
+    function playSound(type) {
+        if (!soundEnabled) return;
+        if (type === 'click') {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1 * masterVolume, audioCtx.currentTime); 
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        } else if (type === 'tick') {
+            if (zarBuffer) {
+                const source = audioCtx.createBufferSource();
+                source.buffer = zarBuffer;
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.value = masterVolume;
+                source.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                source.start(0);
+            }
+        }
+    }
+
+    // --- VARIABLES ---
+    let availableGames =[];
+    let luckyBonus = 0;
+    let currentRotation = 0;
+    const colors = ['#b31010','#1a1a1a'];
+
+    // --- DOM REFERENCES ---
+    const puzzleScreen = document.getElementById('puzzle-screen');
+    const narrativeScreen = document.getElementById('narrative-screen');
+    const mainInterface = document.getElementById('main-interface');
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const resultDisplay = document.getElementById('resultDisplay');
+    const gameInfoContainer = resultDisplay.querySelector('.game-info');
+    const closeResultButton = document.getElementById('closeResultButton');
+    const spinBtnContainer = document.getElementById('spinButton');
+    const clickHint = document.getElementById('click-hint');
+    const detailModal = document.getElementById('detail-modal');
+    
+    // --- PHASE 1: PUZZLE LOGIC ---
+    function initPuzzle() {
+        const slots = document.querySelectorAll('.puzzle-slot');
+        const positions =[
+            '0px 0px', '-100px 0px', '-200px 0px',
+            '0px -100px', '-100px -100px', '-200px -100px',
+            '0px -200px', '-100px -200px', '-200px -200px'
+        ];
+        for(let i=0; i<9; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'puzzle-piece';
+            piece.style.backgroundPosition = positions[i];
+            piece.dataset.id = i; 
+            const rx = Math.random() * (window.innerWidth - 120);
+            const ry = Math.random() * (window.innerHeight - 120);
+            piece.style.left = rx + 'px';
+            piece.style.top = ry + 'px';
+            document.getElementById('puzzle-screen').appendChild(piece);
+            makeDraggable(piece, slots);
+        }
+    }
+
+    let placedPieces = 0;
+    function makeDraggable(piece, slots) {
+        let isDragging = false;
+        let startX, startY;
+        piece.addEventListener('mousedown', startDrag);
+        piece.addEventListener('touchstart', startDrag, {passive: false});
+
+        function startDrag(e) {
+            isDragging = true;
+            piece.style.transition = 'none';
+            piece.style.zIndex = 1000;
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+            const rect = piece.getBoundingClientRect();
+            startX = clientX - rect.left;
+            startY = clientY - rect.top;
+            document.addEventListener('mousemove', moveDrag);
+            document.addEventListener('touchmove', moveDrag, {passive: false});
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchend', stopDrag);
+        }
+        function moveDrag(e) {
+            if(!isDragging) return;
+            e.preventDefault();
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+            piece.style.left = (clientX - startX) + 'px';
+            piece.style.top = (clientY - startY) + 'px';
+        }
+        function stopDrag() {
+            if(!isDragging) return;
+            isDragging = false;
+            document.removeEventListener('mousemove', moveDrag);
+            document.removeEventListener('touchmove', moveDrag);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchend', stopDrag);
+            checkDrop(piece, slots);
+        }
+    }
+
+    function checkDrop(piece, slots) {
+        const pieceRect = piece.getBoundingClientRect();
+        const pId = piece.dataset.id;
+        let snapped = false;
+        slots.forEach(slot => {
+            if (slot.dataset.id === pId) {
+                const slotRect = slot.getBoundingClientRect();
+                const dist = Math.hypot(pieceRect.left - slotRect.left, pieceRect.top - slotRect.top);
+                if (dist < 50) { 
+                    piece.style.left = slotRect.left + 'px';
+                    piece.style.top = slotRect.top + 'px';
+                    piece.style.pointerEvents = 'none';
+                    piece.style.border = '1px solid #000';
+                    snapped = true;
+                    placedPieces++;
+                    playSound('click'); 
+                    if(placedPieces === 9) setTimeout(showPuzzleComplete, 500);
+                }
+            }
+        });
+        if (!snapped) piece.style.transition = 'all 0.3s ease';
+    }
+
+    function showPuzzleComplete() {
+        const btn = document.createElement('button');
+        btn.id = 'puzzle-enter-btn';
+        btn.innerText = 'GİRİŞ';
+        btn.style.cssText = `
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 18px 60px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.1rem;
+            background: transparent;
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            cursor: pointer;
+            text-shadow: 0 0 10px var(--glow-gold);
+            box-shadow: 0 0 20px var(--glow-gold);
+            animation: blink-hint 1.5s infinite;
+            letter-spacing: 4px;
+            white-space: nowrap;
+            z-index: 100001;
+        `;
+        btn.addEventListener('click', () => { playSound('click'); finishPuzzle(); });
+        document.getElementById('puzzle-screen').appendChild(btn);
+    }
+
+    function finishPuzzle() {
+        puzzleScreen.style.transition = 'opacity 1s';
+        puzzleScreen.style.opacity = '0';
+        setTimeout(() => {
+            puzzleScreen.style.display = 'none';
+            startNarrative();
+        }, 1000);
+    }
+
+    // --- PHASE 2: NARRATIVE LOGIC ---
+    const npcText = document.getElementById('npcText');
+    const playerOptions = document.getElementById('playerOptions');
+    window.currentNextNode = null;
+
+    const dialogueTree = {
+        start: {
+            text: "Hey… yalnız mısın?",
+            choices:[
+                { label: "Evet, yalnızım.", next: 'alone' },
+                { label: "Hayır, yalnız değilim.", next: 'not_alone' }
+            ]
+        },
+        alone: { text: "Şanslısın… Bu sıcakta kalabalık çekilmiyor. Ankara'nın sıcağı artık derimizi yakıyor. İnsan dışarıda beş dakika durunca nefesi kesiliyor.", next: 'stream_q' },
+        not_alone: { text: "Öyle mi… İlginç. İçeriden sesler geliyor gibi.", next: 'ankara_heat' },
+        ankara_heat: { text: "Bu sıcakta kalabalık çekilmiyor. Ankara'nın sıcağı artık derimizi yakıyor. İnsan dışarıda beş dakika durunca nefesi kesiliyor.", next: 'stream_q' },
+        stream_q: { text: "Seni daha önce bir yerde görmüş gibiyim… Yayıncı mısın?", choices:[ { label: "Evet, yayın yapıyorum.", next: 'stream_yes' }, { label: "Hayır.", next: 'stream_no' } ] },
+        stream_yes: { text: "Vay be… Ben de eskiden yayın yapardım. Ama o günler çok geride kaldı.", next: 'final' },
+        stream_no: { text: "Anladım… Eskiden ben de yayın yapardım. Ama o günler çok geride kaldı.", next: 'final' },
+        final: { text: "Oyunları seçmende belki sana yardımcı olurum. Neden beni içeri almıyorsun?", choices:[ { label: "İçeri gel.", next: 'enter' }, { label: "Git buradan.", next: 'enter' } ] },
+        enter: { action: finishNarrative }
+    };
+
+    function startNarrative() { narrativeScreen.style.display = 'block'; showDialogue('start'); }
+
+    function showDialogue(nodeKey) {
+        document.removeEventListener('click', advanceDialogue);
+        window.currentNextNode = null;
+        const node = dialogueTree[nodeKey];
+        const npcImg = document.getElementById('npc-character');
+        if (nodeKey === 'alone' || nodeKey === 'stream_yes' || nodeKey === 'enter') npcImg.src = 'code/mutluadam.png';
+        else if (nodeKey === 'not_alone' || nodeKey === 'stream_no') npcImg.src = 'code/uzgunadam.png';
+        else npcImg.src = 'code/adam.png';
+
+        npcText.innerHTML = node.text || "";
+        playerOptions.innerHTML = '';
+        clickHint.style.display = 'none';
+        if (node.choices && node.choices.length > 0) {
+            node.choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = choice.label;
+                btn.onclick = (e) => { e.stopPropagation(); playSound('click'); showDialogue(choice.next); };
+                playerOptions.appendChild(btn);
+            });
+        } else if (node.next) {
+            clickHint.style.display = 'block';
+            window.currentNextNode = node.next;
+            setTimeout(() => { document.addEventListener('click', advanceDialogue, { once: true }); }, 100);
+        } else if (node.action) { node.action(); }
+    }
+    function advanceDialogue() { if(window.currentNextNode) { playSound('click'); showDialogue(window.currentNextNode); } }
+    function finishNarrative() {
+        narrativeScreen.style.transition = 'opacity 1s';
+        narrativeScreen.style.opacity = '0';
+        setTimeout(() => {
+            narrativeScreen.style.display = 'none';
+            mainInterface.style.display = 'flex';
+            drawWheel();
+            createOptimizedSnow();
+        }, 1000);
+    }
+
+    // --- PHASE 3: SETTINGS & FILTER LOGIC ---
+    const btnSettings = document.getElementById('btnSettings');
+    const settingsModal = document.getElementById('settings-modal');
+    const closeSettings = document.getElementById('closeSettings');
+    if(soundEnabled) document.getElementById('sound_on').checked = true;
+    else document.getElementById('sound_off').checked = true;
+
+    function getRadioValue(name) {
+        for (let r of document.getElementsByName(name)) if (r.checked) return r.value;
+        return 'all';
+    }
+
+    function parseDuration(durStr) {
+        const lower = durStr.toLowerCase();
+        if (lower.includes('sonsuz')) return 999; 
+        const matches = lower.match(/[\d\.]+/g);
+        if (matches) {
+            const numbers = matches.map(n => parseFloat(n));
+            const maxVal = Math.max(...numbers);
+            if(lower.includes('dakika') && maxVal > 10) return maxVal / 60; 
+            return maxVal;
+        }
+        return 0; 
+    }
+
+    function isAnomaly(g) { return g.type.toLowerCase().includes('anomali'); }
+    function isJapan(g) { return g.type.toLowerCase().includes('japon'); }
+    function isDemo(g) { return g.type.toLowerCase().includes('demo') || g.releaseDate.toLowerCase().includes('demo'); }
+
+    function updateAvailableGames() {
+        const anomalyOpt = getRadioValue('opt_anomaly'); 
+        const japanOpt = getRadioValue('opt_japan');
+        const demoOpt = getRadioValue('opt_demo');
+        const favOpt = getRadioValue('opt_fav');
+        const timeCheckboxes = document.querySelectorAll('input[name="opt_time"]:checked');
+        const selectedTimes = Array.from(timeCheckboxes).map(cb => cb.value);
+
+        let filtered = games.filter(g => {
+            const durVal = parseDuration(g.playtime);
+            if (favOpt === 'only' && !favoriteGames.includes(g.name)) return false;
+            if (anomalyOpt === 'exclude' && isAnomaly(g)) return false;
+            if (japanOpt === 'exclude' && isJapan(g)) return false;
+            if (demoOpt === 'exclude' && isDemo(g)) return false;
+            if (selectedTimes.length > 0) {
+                let timeMatch = false;
+                if (selectedTimes.includes('short') && durVal < 1) timeMatch = true;
+                if (selectedTimes.includes('medium') && durVal >= 1 && durVal <= 2) timeMatch = true;
+                if (selectedTimes.includes('long') && durVal > 2) timeMatch = true;
+                if (!timeMatch) return false;
+            }
+            return true;
+        });
+
+        const activeOnlyFilters =[];
+        if (anomalyOpt === 'only') activeOnlyFilters.push('anomaly');
+        if (japanOpt === 'only') activeOnlyFilters.push('japan');
+        if (demoOpt === 'only') activeOnlyFilters.push('demo');
+
+        if (activeOnlyFilters.length > 0) {
+            filtered = filtered.filter(g => {
+                let match = false;
+                if (activeOnlyFilters.includes('anomaly') && isAnomaly(g)) match = true;
+                if (activeOnlyFilters.includes('japan') && isJapan(g)) match = true;
+                if (activeOnlyFilters.includes('demo') && isDemo(g)) match = true;
+                return match;
+            });
+        }
+        availableGames = filtered;
+        drawWheel();
+    }
+
+    btnSettings.addEventListener('click', () => { playSound('click'); settingsModal.style.display = 'flex'; });
+    closeSettings.addEventListener('click', () => { playSound('click'); settingsModal.style.display = 'none'; });
+    document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(r => {
+        r.addEventListener('change', () => { playSound('click'); if (r.name === 'opt_snow') document.getElementById('snowContainer').style.display = (r.value === 'on') ? 'block' : 'none'; else if (r.name === 'opt_sound') { soundEnabled = (r.value === 'on'); localStorage.setItem('atlassya_sound', soundEnabled ? 'on' : 'off'); } else updateAvailableGames(); });
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') { settingsModal.style.display = 'none'; document.querySelectorAll('.game-display-overlay').forEach(o => o.style.display = 'none'); resultDisplay.classList.remove('show-result'); detailModal.style.display = 'none'; }
+    });
+
+    // --- STANDARD GAME LOGIC ---
+    function drawWheel(){
+        const n=availableGames.length;
+        if(n===0){
+            ctx.clearRect(0,0,380,380); ctx.save(); ctx.fillStyle='#333'; ctx.beginPath(); ctx.arc(190,190,170,0,2*Math.PI); ctx.fill();
+            ctx.fillStyle='white'; ctx.font='20px Roboto'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('Oyun Kalmadı!',190,190); ctx.restore();
+            spinBtnContainer.classList.add('disabled'); return;
+        }
+        spinBtnContainer.classList.remove('disabled'); const a=2*Math.PI/n; ctx.clearRect(0,0,380,380);
+        for(let i=0;i<n;i++){
+            ctx.beginPath(); ctx.moveTo(190,190); ctx.arc(190,190,190,i*a,(i+1)*a); ctx.closePath();
+            ctx.fillStyle=colors[i%colors.length]; ctx.fill(); ctx.strokeStyle='#c49102'; ctx.lineWidth=2; ctx.stroke();
+            ctx.save(); ctx.translate(190,190); ctx.rotate(i*a+a/2); ctx.textAlign="right"; ctx.fillStyle="#fff"; ctx.font="bold 14px Arial"; ctx.fillText(i,170,5); ctx.restore();
+        }
+    }
+
+    function getGameImagePath(g) {
+        if (g.image) return g.image; 
+        if (g.steamId && !isNaN(g.steamId)) return `https://cdn.cloudflare.steamstatic.com/steam/apps/${g.steamId}/header.jpg`;
+        return `https://via.placeholder.com/460x215/1a0229/FFD700?text=${encodeURIComponent(g.name)}`;
+    }
+
+    function spin(){
+        if(availableGames.length<1) return;
+        playSound('click'); spinBtnContainer.classList.add('disabled'); spinBtnContainer.classList.add('pressed'); resultDisplay.classList.remove('show-result');
+        let ti;
+
+        // İlk spin'de THE STALKED 2 zorla çıksın — sadece bir kere (sessionStorage ile takip)
+        const firstSpinDone = sessionStorage.getItem('atlassya_first_spin_done');
+        if (!firstSpinDone) {
+            sessionStorage.setItem('atlassya_first_spin_done', '1');
+            const stalked2Index = availableGames.findIndex(g => g.name.toLowerCase() === 'the stalked 2');
+            if (stalked2Index !== -1) {
+                ti = stalked2Index;
+            } else {
+                ti = Math.floor(Math.random() * availableGames.length);
+            }
+        } else if (luckyBonus > 0) {
+            const favIndices =[]; availableGames.forEach((g, index) => { if (favoriteGames.includes(g.name)) favIndices.push(index); });
+            if (favIndices.length > 0 && Math.random() < 0.5) ti = favIndices[Math.floor(Math.random() * favIndices.length)]; else ti = Math.floor(Math.random() * availableGames.length);
+        } else ti = Math.floor(Math.random() * availableGames.length);
+
+        const sliceDeg = 360 / availableGames.length; const extraRotations = 360 * (5 + Math.floor(Math.random() * 5)); 
+        let targetAngleBase = (270 - (ti * sliceDeg) + 360) % 360; 
+        let currentMod = currentRotation % 360; let distToTarget = (targetAngleBase - currentMod + 360) % 360;
+        let totalSpin = extraRotations + distToTarget; let startRotation = currentRotation; let finalRotation = startRotation + totalSpin;
+        let startTime = null; const duration = 8000; let lastTickIndex = Math.floor(startRotation / sliceDeg);
+
+        function animateWheel(timestamp) {
+            if (!startTime) startTime = timestamp; const elapsed = timestamp - startTime; const progress = Math.min(elapsed / duration, 1);
+            const ease = 1 - Math.pow(1 - progress, 4); currentRotation = startRotation + (totalSpin * ease); canvas.style.transform = `rotate(${currentRotation}deg)`;
+            let currentTickIndex = Math.floor(currentRotation / sliceDeg); if (currentTickIndex > lastTickIndex) { playSound('tick'); lastTickIndex = currentTickIndex; }
+            if (progress < 1) requestAnimationFrame(animateWheel); else {
+                currentRotation = finalRotation; canvas.style.transform = `rotate(${currentRotation}deg)`;
+                displayResult(availableGames[ti]); spinBtnContainer.classList.remove('disabled'); spinBtnContainer.classList.remove('pressed');
+            }
+        }
+        requestAnimationFrame(animateWheel);
+    }
+
+    function displayResult(g){
+        playSound('click'); const img=getGameImagePath(g);
+        gameInfoContainer.innerHTML=closeResultButton.outerHTML+`<div class="result-content-wrapper"><img src="${img}" class="result-game-image" onerror="this.src='https://via.placeholder.com/400x200?text=Resim+Yok'"><div class="result-game-details"><h2>${g.name}</h2><p><strong>Türü:</strong> ${g.type}</p><p><strong>Çıkış:</strong> ${g.releaseDate}</p><p><strong>Süre:</strong> ${g.playtime}</p><p>${g.description}</p></div></div>`;
+        document.getElementById('closeResultButton').addEventListener('click',resetWheelView); resultDisplay.classList.add('show-result'); triggerConfetti();
+    }
+    
+    function resetWheelView(){ playSound('click'); resultDisplay.classList.remove('show-result'); }
+    function triggerConfetti(){for(let i=0;i<150;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.animationDuration=(Math.random()*2+3)+'s';c.style.animationDelay=(Math.random()*2)+'s';if(Math.random()>0.5){c.style.width='10px';c.style.height='10px'}else{c.style.width='12px';c.style.height='12px';c.style.borderRadius='50%'}document.getElementById('confetti-container').appendChild(c);setTimeout(()=>c.remove(),5000)}}
+    function createOptimizedSnow() {
+        const layers =[{ id: 'snow1', count: 350 }, { id: 'snow2', count: 180 }, { id: 'snow3', count: 100 }];
+        layers.forEach(layer => {
+            let boxShadow = ''; for (let i = 0; i < layer.count; i++) boxShadow += `${Math.random() * 100}vw ${Math.random() * 100}vh #FFF, `;
+            const el = document.getElementById(layer.id); if(el) el.style.boxShadow = boxShadow.slice(0, -2);
+        });
+    }
+
+    spinBtnContainer.addEventListener('click', () => { if(!spinBtnContainer.classList.contains('disabled')) spin(); });
+    function showGameDetails(game) {
+        playSound('click'); document.getElementById('detailTitle').innerText = game.name; document.getElementById('detailType').innerText = game.type || "Bilinmiyor";
+        document.getElementById('detailTime').innerText = game.playtime || "Bilinmiyor"; document.getElementById('detailDesc').innerText = game.description || "Açıklama yok.";
+        detailModal.style.display = 'flex';
+    }
+    document.getElementById('closeDetail').addEventListener('click', () => { playSound('click'); detailModal.style.display = 'none'; });
+    
+    document.getElementById('currentWheelBtn').addEventListener('click', () => {
+        playSound('click'); const c = document.getElementById('currentWheelContent'); c.innerHTML = '';
+        availableGames.forEach(g => { 
+            let heartOverlay = favoriteGames.includes(g.name) ? '<img class="heart-overlay" src="code/kalp.png" alt="fav">' : '';
+            const itemDiv = document.createElement('div'); itemDiv.className = 'game-item';
+            itemDiv.innerHTML = `${heartOverlay}<img class="game-thumb" src="${getGameImagePath(g)}"/><div class="game-name">${g.name}</div>`;
+            itemDiv.addEventListener('click', () => showGameDetails(g)); c.appendChild(itemDiv);
+        });
+        document.getElementById('currentWheelOverlay').style.display = 'block';
+    });
+
+    const showOverlay = (btnId, overlayId, contentId, listData) => {
+        document.getElementById(btnId).addEventListener('click',()=>{
+            playSound('click'); const c=document.getElementById(contentId); c.innerHTML='';
+            listData.forEach(g=>{ 
+                let overlayHtml = g.overlayIcon ? `<img src="${g.overlayIcon}" class="overlay-icon">` : '';
+                c.innerHTML+=`<div class="game-item">${overlayHtml}<img src="${getGameImagePath(g)}" class="game-thumb"/><div class="game-name">${g.name}</div></div>` 
+            });
+            document.getElementById(overlayId).style.display='block';
+        });
+    };
+    showOverlay('wishlistBtn', 'wishlistOverlay', 'wishlistContent', wishlist);
+    showOverlay('completedBtn', 'completedOverlay', 'completedContent', completedGames);
+    document.querySelectorAll('.close-overlay-btn').forEach(btn => btn.addEventListener('click', e => { playSound('click'); e.target.closest('.game-display-overlay').style.display = 'none'; }));
+
+    const diceInterface = document.getElementById('dice-interface');
+    document.getElementById('luckyBtn').addEventListener('click', () => {
+        playSound('click'); mainInterface.style.display = 'none'; diceInterface.style.display = 'flex';
+        document.getElementById('diceResultText').innerText = ""; document.getElementById('roll-btn').disabled = false; document.getElementById('roll-btn').innerText = "ZAR AT";
+    });
+    const dotPatterns = {1:['.p-4'],2:['.p-1','.p-7'],3:['.p-1','.p-4','.p-7'],4:['.p-1','.p-5','.p-3','.p-7'],5:['.p-1','.p-5','.p-3','.p-7','.p-4'],6:['.p-1','.p-2','.p-3','.p-5','.p-6','.p-7']};
+    function showNumber(id,n){const d=document.getElementById(id);d.querySelectorAll('.dot').forEach(x=>x.style.display='none');dotPatterns[n].forEach(s=>d.querySelector(s).style.display='block');}
+    document.getElementById('roll-btn').addEventListener('click', () => {
+        playSound('click'); if (soundEnabled) { let zarAudio = new Audio('code/zar.mp3'); zarAudio.volume = masterVolume; zarAudio.play(); }
+        const btn = document.getElementById('roll-btn'); btn.disabled = true; btn.innerText = "ATILIYOR...";
+        const interval = setInterval(() => { showNumber('dice-1', Math.floor(Math.random()*6)+1); showNumber('dice-2', Math.floor(Math.random()*6)+1); }, 80);
+        setTimeout(() => {
+            clearInterval(interval); const f1 = Math.floor(Math.random()*6)+1, f2 = Math.floor(Math.random()*6)+1; showNumber('dice-1', f1); showNumber('dice-2', f2);
+            luckyBonus = (f1+f2)*2; document.getElementById('diceResultText').innerText = `ŞANSIN %${luckyBonus} ARTTI!`;
+            setTimeout(() => { diceInterface.style.display = 'none'; mainInterface.style.display = 'flex'; const lb = document.getElementById('luckyBtn'); lb.disabled = true; lb.innerText = `%${luckyBonus} ŞANS`; lb.style.backgroundColor = '#d4af37'; }, 1500);
+        }, 700);
+    });
+
+    updateAvailableGames(); initPuzzle();
+    document.addEventListener('mousemove', (e) => {
+        const iris = document.querySelector('.eye-iris'); const rect = document.querySelector('.wheel-hub').getBoundingClientRect();
+        const dx = e.clientX - (rect.left + rect.width/2), dy = e.clientY - (rect.top + rect.height/2);
+        const angle = Math.atan2(dy, dx), dist = Math.min(Math.sqrt(dx*dx+dy*dy), 15);
+        iris.style.transform = `translate(calc(-50% + ${Math.cos(angle)*dist}px), calc(-50% + ${Math.sin(angle)*dist}px))`;
+    });
+    setInterval(() => { const h = document.getElementById('hubElement'); h.classList.add('blink'); setTimeout(() => h.classList.remove('blink'), 150); }, 4000);
+});
+</script>
+</body>
+</html>
