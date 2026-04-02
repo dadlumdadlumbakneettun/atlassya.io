@@ -1,1389 +1,826 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atlassya - Çark Odası</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Roboto:wght@400;700&family=Press+Start+2P&family=VT323&display=swap"
-        rel="stylesheet">
+    <title>Atlassya - Ultimate Edition</title>
     <style>
-        :root {
-            --gold: #FFD700;
-            --dark-purple: #1a0229;
-            --neon-pink: #ff00ff;
-            --glow-gold: rgba(255, 215, 0, 0.7);
-            --hover-cyan: #019aa9;
-            --text-teal: #368280;
-            --btn-bg: #2a0e38;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            overflow: hidden;
-            background-color: #1a0229;
-            font-family: 'Roboto', sans-serif;
-            user-select: none;
-            color: #fff;
-        }
-
-        #gameCanvas {
-            width: 100vw;
-            height: 100vh;
-            display: block;
-        }
-
-        #blocker {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: radial-gradient(ellipse at center, rgba(26, 2, 41, 0.85) 0%, rgba(5, 0, 10, 0.97) 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-
-        #instructions {
-            text-align: center;
-            cursor: pointer;
-            border: 2px solid var(--gold);
-            padding: 50px 60px;
-            background: rgba(10, 0, 20, 0.7);
-            box-shadow: 0 0 40px rgba(255, 215, 0, 0.15), inset 0 0 60px rgba(0, 0, 0, 0.5);
-        }
-
-        #instructions h1 {
-            font-size: 42px;
-            color: var(--gold);
-            text-shadow: 0 0 20px var(--glow-gold), 2px 2px 0px #1a0229;
-            letter-spacing: 6px;
-            margin: 0 0 15px 0;
-            font-family: 'Cinzel', serif;
-        }
-
-        #instructions p {
-            font-size: 16px;
-            color: #a080c0;
-            margin: 8px 0;
-            letter-spacing: 1px;
-        }
-
-        #instructions .hint {
-            font-size: 13px;
-            color: #604080;
-            margin-top: 20px;
-        }
-
-        #crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 5px;
-            height: 5px;
-            background-color: rgba(255, 215, 0, 0.6);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            pointer-events: none;
-            box-shadow: 0 0 6px rgba(255, 215, 0, 0.3);
-        }
-
-        #interactText {
-            position: absolute;
-            top: 56%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 11px;
-            color: var(--gold);
-            text-shadow: 1px 1px 2px #000;
-            display: none;
-            z-index: 10;
-            pointer-events: none;
-            letter-spacing: 3px;
-            font-family: 'Press Start 2P', cursive;
-            border: 1px solid rgba(255, 215, 0, 0.4);
-            padding: 6px 16px;
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        #vignette {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 45%, rgba(5, 0, 10, 0.75) 100%);
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        /* WHEEL SPIN OVERLAY - appears when clicking the wheel in 3D */
-        #wheelSpinOverlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 200;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .wheel-spin-title {
-            font-family: 'Cinzel', serif;
-            font-size: 2.5rem;
-            color: var(--gold);
-            text-shadow: 0 0 15px var(--glow-gold);
-            margin-bottom: 10px;
-            animation: text-flicker 2s infinite alternate;
-        }
-
-        @keyframes text-flicker {
-
-            0%,
-            100% {
-                opacity: 1;
-                text-shadow: 0 0 5px var(--glow-gold), 0 0 10px var(--glow-gold), 0 0 20px var(--glow-gold);
-            }
-
-            50% {
-                opacity: 0.8;
-                text-shadow: 0 0 5px var(--glow-gold);
-            }
-        }
-
-        .wheel-container {
-            position: relative;
-            width: 380px;
-            height: 380px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            background: #1a0505;
-            border-radius: 50%;
-            padding: 15px;
-            box-shadow: 0 0 50px rgba(255, 0, 255, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.5);
-            cursor: grab;
-        }
-
-        .wheel-container:active {
-            cursor: grabbing;
-        }
-
-        #wheelCanvas {
-            border-radius: 50%;
-            border: 8px solid var(--gold);
-            box-shadow: 0 0 25px var(--glow-gold) inset;
-            pointer-events: none;
-        }
-
-        .wheel-hub {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            background: #f0f0f0;
-            border-radius: 50%;
-            border: 4px solid #b8860b;
-            box-shadow: 0 0 25px var(--glow-gold) inset, 0 0 15px #000;
-            z-index: 5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .eyelid-top,
-        .eyelid-bottom {
-            position: absolute;
-            left: 0;
-            width: 100%;
-            height: 0%;
-            background-color: var(--dark-purple);
-            z-index: 4;
-            transition: height 0.1s ease-in-out;
-        }
-
-        .eyelid-top {
-            top: 0;
-            border-bottom: 2px solid #000;
-        }
-
-        .eyelid-bottom {
-            bottom: 0;
-            border-top: 2px solid #000;
-        }
-
-        .wheel-hub.blink .eyelid-top {
-            height: 50%;
-        }
-
-        .wheel-hub.blink .eyelid-bottom {
-            height: 50%;
-        }
-
-        .eye-iris {
-            width: 40px;
-            height: 40px;
-            background: radial-gradient(circle, #4facfe 0%, #00f2fe 80%, #003366 100%);
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
-            z-index: 2;
-        }
-
-        .eye-iris::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 18px;
-            height: 18px;
-            background: #000;
-            border-radius: 50%;
-        }
-
-        .eye-shine {
-            position: absolute;
-            top: 20%;
-            left: 25%;
-            width: 12px;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 50%;
-            z-index: 3;
-            pointer-events: none;
-        }
-
-        .pointer {
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-top: 50px solid var(--gold);
-            z-index: 10;
-            filter: drop-shadow(0 0 10px var(--glow-gold));
-            pointer-events: none;
-        }
-
-        .drag-hint {
-            color: var(--gold);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.6rem;
-            text-align: center;
-            margin-top: 15px;
-            opacity: 0.6;
-            animation: blink-hint 2s infinite;
-            letter-spacing: 1px;
-        }
-
-        @keyframes blink-hint {
-
-            0%,
-            100% {
-                opacity: 0.3;
-            }
-
-            50% {
-                opacity: 0.7;
-            }
-        }
-
-        .close-spin-btn {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 3rem;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 210;
-            transition: transform 0.2s;
-        }
-
-        .close-spin-btn:hover {
-            transform: scale(1.2);
-            color: var(--gold);
-        }
-
-        /* RESULT */
-        #resultDisplay {
-            margin-top: 15px;
-            width: 90%;
-            max-width: 950px;
-            text-align: center;
-            display: none;
-            perspective: 1000px;
-            position: relative;
-            z-index: 500;
-        }
-
-        #resultDisplay.show-result {
-            display: block
-        }
-
-        .game-info {
-            position: relative;
-            padding: 25px;
-            background: rgba(26, 2, 41, 0.95);
-            border: 4px solid var(--gold);
-            border-radius: 10px;
-            box-shadow: 0 0 30px var(--glow-gold);
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        .game-info h2 {
-            color: var(--gold);
-            text-shadow: 0 0 10px var(--glow-gold);
-            margin-top: 0;
-            font-size: 2rem;
-            margin-bottom: 15px
-        }
-
-        .result-content-wrapper {
-            display: flex;
-            gap: 30px;
-            align-items: flex-start
-        }
-
-        .result-game-details {
-            text-align: left;
-            flex-grow: 1
-        }
-
-        .result-game-image {
-            width: 350px;
-            height: auto;
-            border: 3px solid var(--gold);
-            border-radius: 8px;
-            box-shadow: 0 0 15px var(--glow-gold);
-            flex-shrink: 0
-        }
-
-        .close-result-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 2.5rem;
-            font-weight: bold;
-            line-height: 1;
-            cursor: pointer;
-            opacity: 0.7;
-            z-index: 1002
-        }
-
-        .close-result-btn:hover {
-            opacity: 1;
-            transform: scale(1.1)
-        }
-
-        .confetti-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9999
-        }
-
-        @keyframes confetti-fall {
-            0% {
-                transform: translateY(-10vh) rotateZ(0deg);
-                opacity: 1
-            }
-
-            100% {
-                transform: translateY(110vh) rotateZ(720deg);
-                opacity: 0
-            }
-        }
-
-        .confetti {
-            position: absolute;
-            background-color: var(--gold);
-            opacity: 0;
-            animation-name: confetti-fall;
-            animation-timing-function: linear;
-            animation-fill-mode: forwards
-        }
-
-        /* SETTINGS */
-        #settings-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .settings-content {
-            background: #1a0229;
-            border: 4px solid var(--gold);
-            padding: 30px;
-            width: 700px;
-            max-width: 95%;
-            color: #fff;
-            font-family: 'Roboto', sans-serif;
-            position: relative;
-            box-shadow: 0 0 30px var(--glow-gold);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .settings-content h2 {
-            font-family: 'Cinzel', serif;
-            color: var(--gold);
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 25px;
-            font-size: 2.5rem;
-            text-shadow: 0 0 10px var(--glow-gold);
-        }
-
-        .setting-group {
-            margin-bottom: 18px;
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
-        }
-
-        .setting-title {
-            font-weight: bold;
-            color: var(--neon-pink);
-            margin-bottom: 10px;
-            display: block;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.75rem;
-        }
-
-        .radio-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .radio-option {
-            position: relative;
-            flex-grow: 1;
-        }
-
-        .radio-option input[type="radio"],
-        .radio-option input[type="checkbox"] {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .radio-option label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--btn-bg);
-            border: 2px solid #555;
-            padding: 10px 8px;
-            cursor: pointer;
-            font-weight: bold;
-            color: #aaa;
-            transition: all 0.2s;
-            box-shadow: 0 4px 0 #000;
-            text-transform: uppercase;
-            text-align: center;
-            width: 100%;
-            font-size: 0.8rem;
-        }
-
-        .radio-option input:checked+label {
-            background-color: var(--gold);
-            color: #1a0229;
-            border-color: #fff;
-            box-shadow: 0 0 15px var(--glow-gold);
-            transform: translateY(2px);
-        }
-
-        .radio-option label:hover {
-            border-color: var(--hover-cyan);
-            color: #fff;
-        }
-
-        .close-settings-btn {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 2.5rem;
-            cursor: pointer;
-        }
-
-        .close-settings-btn:hover {
-            transform: scale(1.2);
-            color: var(--gold);
-        }
-
-        .back-btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin-top: 10px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.7rem;
-            background: linear-gradient(135deg, #8b0000, #4a0000);
-            color: var(--gold);
-            border: 2px solid var(--gold);
-            cursor: pointer;
-            text-align: center;
-            letter-spacing: 2px;
-        }
-
-        .back-btn:hover {
-            background: linear-gradient(135deg, #b00, #6a0000);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-        }
-
-        .volume-control-container {
-            width: 100%;
-            margin-top: 8px;
-            padding: 0 10px;
-        }
-
-        input[type=range] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            background: transparent;
-        }
-
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 22px;
-            width: 22px;
-            border-radius: 50%;
-            background: var(--gold);
-            cursor: pointer;
-            margin-top: -8px;
-            border: 2px solid #fff;
-        }
-
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 6px;
-            background: #444;
-            border-radius: 3px;
-        }
-
-        /* GAME OVERLAYS */
-        .game-display-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            z-index: 1002;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .game-display-content {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-            max-width: 1200px;
-            margin: 40px auto
-        }
-
-        .game-item {
-            position: relative;
-            text-align: center;
-            color: #fff;
-            width: 280px;
-            cursor: pointer;
-        }
-
-        .game-item:hover {
-            transform: scale(1.05);
-            transition: transform 0.2s;
-        }
-
-        .game-item img.game-thumb {
-            width: 280px;
-            height: 130px;
-            border: 3px solid var(--gold);
-            border-radius: 5px;
-            margin-bottom: 10px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .game-item .game-name {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--gold);
-        }
-
-        .close-overlay-btn {
-            position: fixed;
-            top: 20px;
-            right: 30px;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 3rem;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1003
-        }
-
-        .heart-overlay {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 35px;
-            height: auto;
-            z-index: 10;
-            filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.8));
-            pointer-events: none;
-        }
-
-        .overlay-icon {
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            width: 50px;
-            height: auto;
-            z-index: 15;
-            filter: drop-shadow(2px 2px 2px black);
-        }
-
-        #detail-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
-            z-index: 10010;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .detail-content {
-            background: #1a0229;
-            border: 4px solid var(--gold);
-            padding: 30px;
-            width: 500px;
-            max-width: 90%;
-            color: #fff;
-            position: relative;
-            box-shadow: 0 0 30px var(--glow-gold);
-            text-align: center;
-        }
-
-        .detail-content h2 {
-            font-family: 'Cinzel', serif;
-            color: var(--gold);
-            margin-bottom: 20px;
-            font-size: 2rem;
-        }
-
-        .detail-content p {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin: 10px 0;
-            color: #ddd;
-        }
-
-        .detail-content strong {
-            color: var(--hover-cyan);
-        }
-
-        .close-detail-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 2rem;
-            cursor: pointer;
-        }
-
-        /* DICE */
-        #dice-interface {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 99999;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background-color: rgba(0, 0, 0, 0.9);
-        }
-
-        .dice-table {
-            width: 300px;
-            height: 200px;
-            background: linear-gradient(135deg, #2a1808, #1a0e05);
-            border: 3px solid #4a2e10;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 40px;
-            padding: 20px;
-        }
-
-        .dice-area {
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #666;
-            border-radius: 5px;
-            position: relative;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            background: radial-gradient(circle, #fff, #ccc);
-            border-radius: 50%;
-            position: absolute;
-            display: none;
-            box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
-        }
-
-        .p-1 {
-            top: 5px;
-            left: 5px;
-        }
-
-        .p-2 {
-            top: 22px;
-            left: 5px;
-        }
-
-        .p-3 {
-            top: 39px;
-            left: 5px;
-        }
-
-        .p-4 {
-            top: 22px;
-            left: 22px;
-        }
-
-        .p-5 {
-            top: 5px;
-            left: 39px;
-        }
-
-        .p-6 {
-            top: 22px;
-            left: 39px;
-        }
-
-        .p-7 {
-            top: 39px;
-            left: 39px;
-        }
-
-        #roll-btn {
-            margin: 20px auto;
-            padding: 15px 40px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 1rem;
-            background: #4a0e5a;
-            color: var(--gold);
-            border: 4px solid var(--gold);
-            cursor: pointer;
-            box-shadow: 0 5px 0 #1a0229;
-        }
-
-        #roll-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 1px 0 #1a0229;
-        }
-
-        #diceResultText {
-            text-align: center;
-            color: var(--gold);
-            font-family: 'Press Start 2P', cursive;
-            margin-top: 15px;
-            font-size: 1.3rem;
-            text-shadow: 2px 2px #000;
-            min-height: 2rem;
-        }
-
-        ::-webkit-scrollbar {
-            width: 10px
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #1a0229
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--gold);
-            border-radius: 5px
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Press+Start+2P&family=Roboto:wght@400;700&display=swap');
+
+        * { box-sizing: border-box; }
+        body { margin: 0; overflow: hidden; background-color: #1a0e05; font-family: 'Special Elite', 'Courier Prime', monospace; user-select: none; color: #e8d5b0; }
+        #gameCanvas { width: 100vw; height: 100vh; display: block; }
+
+        #blocker { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5,2,0,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; cursor: pointer; }
+        #instructions { text-align: center; border: 2px solid #c8832a; padding: 40px 60px; background: rgba(20,10,0,0.8); box-shadow: 0 0 30px rgba(200,150,50,0.2); transition: 0.2s; pointer-events: none; }
+        #titleText { font-size: 42px; color: #c8832a; text-shadow: 0 0 20px rgba(180,80,10,0.6); letter-spacing: 6px; margin: 0 0 15px 0; font-family: 'Special Elite', cursive; }
+        #clickText { font-size: 24px; color: #e8d5b0; font-weight: bold; letter-spacing: 2px; margin: 0 0 15px 0; font-family: 'Courier Prime', monospace; }
+        #instructions .hint { font-size: 13px; color: #806040; margin: 0; }
+
+        #crosshair { position: absolute; top: 50%; left: 50%; width: 5px; height: 5px; background-color: rgba(255,200,100,0.8); border-radius: 50%; transform: translate(-50%, -50%); z-index: 10; pointer-events: none; box-shadow: 0 0 8px rgba(255,200,100,0.5); }
+        #interactText { position: absolute; top: 55%; left: 50%; transform: translateX(-50%); font-size: 16px; color: #ffd700; text-shadow: 2px 2px 2px #000; display: none; z-index: 10; pointer-events: none; letter-spacing: 2px; background: rgba(0,0,0,0.6); padding: 5px 15px; border: 1px solid rgba(255,215,0,0.4); }
+        
+        #vignette { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(5,2,0,0.85) 100%); pointer-events: none; z-index: 5; }
+
+        #screenMessage { position: absolute; top: 15%; left: 50%; transform: translateX(-50%); font-size: 20px; color: #00ff00; font-family: 'Press Start 2P', cursive; text-shadow: 2px 2px 0 #000; opacity: 0; transition: opacity 0.3s; z-index: 15; pointer-events: none; text-align: center; }
+
+        /* Ayarlar Modalı */
+        .ui-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.85); z-index: 200; justify-content: center; align-items: center; }
+        .settings-content { background: #1a0229; border: 4px solid #FFD700; padding: 30px; width: 700px; max-width: 95%; color: #fff; font-family: 'Roboto', sans-serif; position: relative; box-shadow: 0 0 30px rgba(255,215,0,0.5); max-height: 90vh; overflow-y: auto; }
+        .settings-content h2 { font-family: 'Courier Prime', monospace; color: #FFD700; text-align: center; margin-top: 0; margin-bottom: 25px; font-size: 2.2rem; }
+        .setting-group { margin-bottom: 25px; border-bottom: 1px solid #444; padding-bottom: 15px; }
+        .setting-group:last-child { border-bottom: none; }
+        .setting-title { font-weight: bold; color: #ff00ff; margin-bottom: 15px; display: block; font-family: 'Press Start 2P', cursive; font-size: 0.8rem; }
+        .radio-options { display: flex; flex-wrap: wrap; gap: 15px; }
+        .radio-option { position: relative; flex-grow: 1; }
+        .radio-option input { position: absolute; opacity: 0; cursor: pointer; }
+        .radio-option label { display: flex; justify-content: center; background-color: #2a0e38; border: 2px solid #555; padding: 15px; cursor: pointer; font-family: 'Roboto', sans-serif; font-weight: bold; color: #aaa; box-shadow: 0 4px 0 #000; text-transform: uppercase; width: 100%; }
+        .radio-option input:checked + label { background-color: #FFD700; color: #1a0229; border-color: #fff; box-shadow: 0 0 15px rgba(255,215,0,0.7); transform: translateY(2px); }
+        .close-btn { position: absolute; top: 10px; right: 20px; background: none; border: none; color: #fff; font-size: 2.5rem; cursor: pointer; transition: transform 0.2s; z-index: 250;}
+        .close-btn:hover { transform: scale(1.2); color: #FFD700; }
+
+        /* Oyun Listeleri Modalı */
+        .game-display-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(5,2,10,0.95); z-index: 200; overflow-y: auto; padding: 20px; }
+        .game-display-title { text-align: center; color: #FFD700; font-family: 'Courier Prime', monospace; font-size: 2.5rem; border-bottom: 2px solid #333; padding-bottom: 10px; margin-top: 20px; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        .game-display-content { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; max-width: 1200px; margin: 40px auto; }
+        .game-item { position: relative; text-align: center; color: #fff; width: 280px; font-family: 'Roboto', sans-serif; transition: 0.2s; }
+        .game-item:hover { transform: scale(1.05); }
+        .game-item img.game-thumb { width: 280px; height: 130px; border: 3px solid #FFD700; border-radius: 5px; margin-bottom: 10px; object-fit: cover; box-shadow: 0 0 15px rgba(255,215,0,0.2); }
+        .game-item .game-name { font-size: 1.1rem; font-weight: bold; color: #FFD700; text-transform: uppercase; }
+        .heart-overlay { position: absolute; top: 5px; right: 5px; width: 35px; z-index: 10; pointer-events: none; filter: drop-shadow(0 0 3px rgba(0,0,0,0.8)); }
+        .overlay-icon { position: absolute; top: -5px; left: -5px; width: 50px; z-index: 15; filter: drop-shadow(2px 2px 2px black); }
+
+        /* Blackjack Modalı */
+        #blackjackUI { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(5,15,5,0.95); z-index: 250; flex-direction: column; align-items: center; justify-content: center; font-family: 'Courier Prime', monospace; color: #fff; }
+        .bj-table { background: #0a4a1a; border: 12px solid #2a1808; border-radius: 80px; width: 800px; height: 500px; position: relative; box-shadow: 0 0 60px #000 inset; display: flex; flex-direction: column; justify-content: space-between; padding: 40px; }
+        .bj-hand { display: flex; justify-content: center; gap: 10px; min-height: 120px; }
+        .bj-card { width: 80px; height: 115px; background: #fff; border-radius: 5px; border: 1px solid #333; display: flex; justify-content: center; align-items: center; font-size: 26px; font-weight: bold; color: #000; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
+        .bj-card.red { color: #d00; }
+        .bj-score { text-align: center; font-size: 18px; color: #FFD700; background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 10px; margin-top: 10px; width: fit-content; margin-left: auto; margin-right: auto; }
+        .bj-controls { text-align: center; margin-top: 20px; }
+        .bj-btn { background: #FFD700; color: #000; border: 2px solid #000; padding: 12px 35px; font-size: 18px; font-weight: bold; cursor: pointer; margin: 0 10px; border-radius: 5px; font-family: inherit; transition: 0.2s; }
+        .bj-btn:hover { background: #fff; transform: scale(1.05); }
+        #bjMessage { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); font-size: 36px; color: #fff; text-shadow: 2px 2px 0 #000; text-align: center; z-index: 10; background: rgba(0,0,0,0.85); padding: 30px; width: 100%; display: none; border-top: 2px solid #FFD700; border-bottom: 2px solid #FFD700; }
+
+        /* Dış Kapı ve Jumpscare */
+        #outerDoorUI { display: none; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(ellipse at center, #0a0603 0%, #050200 100%); z-index: 60; flex-direction: column; align-items: center; justify-content: center; }
+        .outer-door-title { font-size: 13px; color: #5a3a1a; letter-spacing: 5px; margin-bottom: 25px; text-transform: uppercase; }
+        .peephole-ring { width: 230px; height: 230px; border-radius: 50%; border: 3px solid #2a1808; box-shadow: 0 0 0 8px #0d0703, 0 0 0 10px #1a0e05, 0 0 60px rgba(0,0,0,0.9); overflow: hidden; }
+        .monster-silhouette { width: 100%; height: 100%; background: radial-gradient(ellipse at 50% 40%, #1a0a02 0%, #050200 55%, #000 100%); display: flex; align-items: center; justify-content: center; }
+        .eyes { display: flex; gap: 26px; margin-top: -15px; }
+        .eye { width: 9px; height: 9px; background: #aa3300; border-radius: 50%; box-shadow: 0 0 10px #dd4400, 0 0 20px rgba(200,50,0,0.3); animation: eyeBlink 5s infinite; }
+        .eye:nth-child(2) { animation-delay: 0.2s; }
+        @keyframes eyeBlink { 0%, 88%, 100% { opacity: 1; } 93% { opacity: 0; } }
+        .dialog-box { margin-top: 28px; width: 55%; max-width: 480px; background: rgba(10,5,0,0.8); border: 1px solid #2a1808; border-top: 1px solid #4a2e10; padding: 22px 28px; text-align: center; font-size: 16px; line-height: 1.7; color: #a08060; }
+        .action-buttons { margin-top: 22px; display: flex; gap: 16px; }
+        .action-buttons button { padding: 10px 22px; font-size: 14px; background: #0a0500; color: #a08060; border: 1px solid #3a2510; cursor: pointer; letter-spacing: 2px; }
+        .action-buttons button:hover { background: #1a0e05; border-color: #6b4c1e; color: #c8a060; }
+        #jumpscare { display: none; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 999; }
+        #jumpscare::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, transparent 1px, transparent 2px); animation: scanlines 0.1s infinite; }
+        @keyframes scanlines { 0% { background-position: 0 0; } 100% { background-position: 0 4px; } }
+        .jumpscare-eyes { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 80px; }
+        .js-eye { width: 60px; height: 60px; background: #cc2200; border-radius: 50%; box-shadow: 0 0 40px #ff4400, 0 0 80px rgba(200,50,0,0.5); animation: jsEyePulse 0.2s infinite alternate; }
+        @keyframes jsEyePulse { from { transform: scale(1); opacity: 0.8; } to { transform: scale(1.3); opacity: 1; } }
+
+        ::-webkit-scrollbar { width: 10px; } ::-webkit-scrollbar-track { background: #1a0229; } ::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 5px; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
 </head>
-
 <body>
+
+    <!-- Başlangıç Ekranı (Sadece bir kere çıkar) -->
     <div id="blocker">
         <div id="instructions">
-            <h1>ATLASSYA</h1>
-            <p>Çark Odasına Girmek İçin Tıkla</p>
-            <p class="hint">Hareket: W A S D &nbsp;|&nbsp; Etkileşim: Tıklama &nbsp;|&nbsp; Ayarlar: ESC</p>
+            <h1 id="titleText">I AM NOT HUMAN</h1>
+            <p id="clickText">OYNAMAK İÇİN TIKLA</p>
+            <p class="hint">Hareket: W A S D &nbsp;|&nbsp; Zıplama: BOŞLUK &nbsp;|&nbsp; Eğilme: SHIFT <br><br> Ayarlar/Menü Kapatma: ESC &nbsp;|&nbsp; Etkileşim: Tıkla</p>
         </div>
     </div>
+
+    <!-- UI Katmanları -->
     <div id="crosshair"></div>
     <div id="interactText">[ TIKLA ]</div>
     <div id="vignette"></div>
+    <div id="screenMessage"></div>
+
+    <!-- 3D Oyun Alanı -->
     <div id="gameCanvas"></div>
 
-    <!-- WHEEL SPIN OVERLAY -->
-    <div id="wheelSpinOverlay">
-        <button class="close-spin-btn" id="closeSpinOverlay">&times;</button>
-        <div class="wheel-spin-title">ATLASSYA</div>
-        <div class="wheel-container" id="wheelContainerEl">
-            <div class="pointer"></div>
-            <div class="wheel-hub" id="hubElement">
-                <div class="eye-iris">
-                    <div class="eye-shine"></div>
-                </div>
-                <div class="eyelid-top"></div>
-                <div class="eyelid-bottom"></div>
-            </div>
-            <canvas id="wheelCanvas" width="380" height="380"></canvas>
-        </div>
-        <div class="drag-hint">▲ ÇARKI FAREYLE TUTUP ÇEVİR ▲</div>
-        <div id="resultDisplay">
-            <div class="game-info"><button id="closeResultButton" class="close-result-btn">&times;</button></div>
-        </div>
-        <div class="confetti-container" id="confetti-container"></div>
-    </div>
-
-    <!-- OVERLAYS -->
-    <div class="game-display-overlay" id="wishlistOverlay"><button class="close-overlay-btn"
-            id="closeWishlist">&times;</button>
-        <div class="game-display-content" id="wishlistContent"></div>
-    </div>
-    <div class="game-display-overlay" id="completedOverlay"><button class="close-overlay-btn"
-            id="closeCompleted">&times;</button>
-        <div class="game-display-content" id="completedContent"></div>
-    </div>
-    <div class="game-display-overlay" id="currentWheelOverlay"><button class="close-overlay-btn"
-            id="closeCurrentWheel">&times;</button>
-        <div class="game-display-content" id="currentWheelContent"></div>
-    </div>
-
-    <!-- SETTINGS -->
-    <div id="settings-modal">
+    <!-- Ayarlar Modalı -->
+    <div id="settingsUI" class="ui-modal">
         <div class="settings-content">
-            <button class="close-settings-btn" id="closeSettings">&times;</button>
-            <h2>AYARLAR</h2>
-            <div class="setting-group"><span class="setting-title">SES EFEKTLERİ</span>
+            <button class="close-btn" onclick="closeModal('settingsUI')">&times;</button>
+            <h2 style="font-family: 'Press Start 2P', cursive;">AYARLAR</h2>
+            
+            <div class="setting-group">
+                <span class="setting-title">SES EFEKTLERİ</span>
                 <div class="radio-options">
-                    <div class="radio-option"><input type="radio" name="opt_sound" value="on" checked
-                            id="sound_on"><label for="sound_on">AÇIK</label></div>
-                    <div class="radio-option"><input type="radio" name="opt_sound" value="off" id="sound_off"><label
-                            for="sound_off">KAPALI</label></div>
-                </div>
-                <div class="volume-control-container"><label for="volumeSlider" style="font-size:0.8rem;color:#aaa;">SES
-                        ŞİDDETİ</label><input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5">
+                    <div class="radio-option"><input type="radio" name="opt_sound" value="on" checked id="sound_on"><label for="sound_on">AÇIK</label></div>
+                    <div class="radio-option"><input type="radio" name="opt_sound" value="off" id="sound_off"><label for="sound_off">KAPALI</label></div>
                 </div>
             </div>
-            <div class="setting-group"><span class="setting-title">FAVORİLER</span>
-                <div class="radio-options">
-                    <div class="radio-option"><input type="radio" name="opt_fav" value="all" checked id="fav_all"><label
-                            for="fav_all">HEPSİ</label></div>
-                    <div class="radio-option"><input type="radio" name="opt_fav" value="only" id="fav_only"><label
-                            for="fav_only">SADECE KALPLİ</label></div>
-                </div>
-            </div>
-            <div class="setting-group"><span class="setting-title">ANOMALİLER</span>
-                <div class="radio-options">
-                    <div class="radio-option"><input type="radio" name="opt_anomaly" value="all" checked
-                            id="anom_all"><label for="anom_all">HEPSİ</label></div>
-                    <div class="radio-option"><input type="radio" name="opt_anomaly" value="exclude"
-                            id="anom_exclude"><label for="anom_exclude">GİZLE</label></div>
-                    <div class="radio-option"><input type="radio" name="opt_anomaly" value="only" id="anom_only"><label
-                            for="anom_only">SADECE ANOMALİ</label></div>
-                </div>
-            </div>
-            <div class="setting-group"><span class="setting-title">JAPON KORKU</span>
-                <div class="radio-options">
-                    <div class="radio-option"><input type="radio" name="opt_japan" value="all" checked
-                            id="japan_all"><label for="japan_all">HEPSİ</label></div>
-                    <div class="radio-option"><input type="radio" name="opt_japan" value="exclude"
-                            id="japan_exclude"><label for="japan_exclude">GİZLE</label></div>
-                    <div class="radio-option"><input type="radio" name="opt_japan" value="only" id="japan_only"><label
-                            for="japan_only">SADECE JAPON</label></div>
-                </div>
-            </div>
-            <div class="setting-group"><span class="setting-title">DEMO OYUNLAR</span>
-                <div class="radio-options">
-                    <div class="radio-option"><input type="radio" name="opt_demo" value="all" checked
-                            id="demo_all"><label for="demo_all">HEPSİ</label></div>
-                    <div class="radio-option"><input type="radio" name="opt_demo" value="exclude"
-                            id="demo_exclude"><label for="demo_exclude">GİZLE</label></div>
-                    <div class="radio-option"><input type="radio" name="opt_demo" value="only" id="demo_only"><label
-                            for="demo_only">SADECE DEMO</label></div>
-                </div>
-            </div>
-            <div class="setting-group"><span class="setting-title">SÜRE FİLTRESİ</span>
-                <div class="radio-options">
-                    <div class="radio-option"><input type="checkbox" name="opt_time" value="short"
-                            id="time_short"><label for="time_short">&lt; 1 SAAT</label></div>
-                    <div class="radio-option"><input type="checkbox" name="opt_time" value="medium"
-                            id="time_medium"><label for="time_medium">1-2 SAAT</label></div>
-                    <div class="radio-option"><input type="checkbox" name="opt_time" value="long" id="time_long"><label
-                            for="time_long">&gt; 2 SAAT</label></div>
-                </div>
-            </div>
-            <button class="back-btn" id="backToCorridor">↩ KORİDORA GERİ DÖN</button>
-        </div>
-    </div>
 
-    <div id="detail-modal">
-        <div class="detail-content"><button class="close-detail-btn" id="closeDetail">&times;</button>
-            <h2 id="detailTitle"></h2>
-            <div id="detailBody">
-                <p><strong>Tür:</strong> <span id="detailType"></span></p>
-                <p><strong>Süre:</strong> <span id="detailTime"></span></p>
-                <p><strong>Açıklama:</strong> <span id="detailDesc"></span></p>
+            <div class="setting-group">
+                <span class="setting-title">FAVORİLER</span>
+                <div class="radio-options">
+                    <div class="radio-option"><input type="radio" name="opt_fav" value="all" checked id="fav_all"><label for="fav_all">HEPSİ</label></div>
+                    <div class="radio-option"><input type="radio" name="opt_fav" value="only" id="fav_only"><label for="fav_only">SADECE KALPLİ</label></div>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <span class="setting-title">ANOMALİLER</span>
+                <div class="radio-options">
+                    <div class="radio-option"><input type="radio" name="opt_anomaly" value="all" checked id="anom_all"><label for="anom_all">HEPSİ</label></div>
+                    <div class="radio-option"><input type="radio" name="opt_anomaly" value="exclude" id="anom_exclude"><label for="anom_exclude">GİZLE</label></div>
+                    <div class="radio-option"><input type="radio" name="opt_anomaly" value="only" id="anom_only"><label for="anom_only">SADECE ANOMALİ</label></div>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <span class="setting-title">JAPON KORKU</span>
+                <div class="radio-options">
+                    <div class="radio-option"><input type="radio" name="opt_japan" value="all" checked id="japan_all"><label for="japan_all">HEPSİ</label></div>
+                    <div class="radio-option"><input type="radio" name="opt_japan" value="exclude" id="japan_exclude"><label for="japan_exclude">GİZLE</label></div>
+                    <div class="radio-option"><input type="radio" name="opt_japan" value="only" id="japan_only"><label for="japan_only">SADECE JAPON</label></div>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <span class="setting-title">DEMO OYUNLAR</span>
+                <div class="radio-options">
+                    <div class="radio-option"><input type="radio" name="opt_demo" value="all" checked id="demo_all"><label for="demo_all">HEPSİ</label></div>
+                    <div class="radio-option"><input type="radio" name="opt_demo" value="exclude" id="demo_exclude"><label for="demo_exclude">GİZLE</label></div>
+                    <div class="radio-option"><input type="radio" name="opt_demo" value="only" id="demo_only"><label for="demo_only">SADECE DEMO</label></div>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <span class="setting-title">SÜRE FİLTRESİ</span>
+                <div class="radio-options">
+                    <div class="radio-option"><input type="checkbox" name="opt_time" value="short" id="time_short"><label for="time_short">&lt; 1 SAAT</label></div>
+                    <div class="radio-option"><input type="checkbox" name="opt_time" value="medium" id="time_medium"><label for="time_medium">1 - 2 SAAT</label></div>
+                    <div class="radio-option"><input type="checkbox" name="opt_time" value="long" id="time_long"><label for="time_long">&gt; 2 SAAT</label></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="dice-interface">
-        <div class="dice-table">
-            <div id="dice-1" class="dice-area">
-                <div class="dot p-1"></div>
-                <div class="dot p-2"></div>
-                <div class="dot p-3"></div>
-                <div class="dot p-4"></div>
-                <div class="dot p-5"></div>
-                <div class="dot p-6"></div>
-                <div class="dot p-7"></div>
+    <!-- Oyun Listesi Modalı -->
+    <div id="listUI" class="game-display-overlay">
+        <button class="close-btn" style="position: fixed; z-index: 300;" onclick="closeModal('listUI')">&times;</button>
+        <h2 class="game-display-title" id="listTitle">Oyunlar</h2>
+        <div class="game-display-content" id="listGrid"></div>
+    </div>
+
+    <!-- Blackjack Modalı (KART OYUNU) -->
+    <div id="blackjackUI">
+        <button class="close-btn" style="position: absolute; top: 20px; right: 40px; z-index:300;" onclick="closeModal('blackjackUI')">&times;</button>
+        <h2 style="font-family:'Courier Prime', monospace; color:#FFD700; margin-bottom: 30px;">KART OYUNU (BLACKJACK)</h2>
+        <div class="bj-table">
+            <div id="bjMessage">Kazandın!</div>
+            <div>
+                <div style="text-align:center; color:#FFD700; margin-bottom:5px;">KURAPİYE</div>
+                <div class="bj-hand" id="dealerHand"></div>
+                <div class="bj-score" id="dealerScore">Puan: ?</div>
             </div>
-            <div id="dice-2" class="dice-area">
-                <div class="dot p-1"></div>
-                <div class="dot p-2"></div>
-                <div class="dot p-3"></div>
-                <div class="dot p-4"></div>
-                <div class="dot p-5"></div>
-                <div class="dot p-6"></div>
-                <div class="dot p-7"></div>
+            <div class="bj-controls">
+                <button class="bj-btn" id="bjHit" onclick="bjHit()">KART ÇEK</button>
+                <button class="bj-btn" id="bjStand" onclick="bjStand()">BEKLE</button>
+                <button class="bj-btn" id="bjRestart" onclick="initBlackjack()" style="display:none; background:#8a0a0a; color:#fff; border-color:#500;">TEKRAR OYNA</button>
+            </div>
+            <div>
+                <div style="text-align:center; color:#FFD700; margin-bottom:5px;">SEN</div>
+                <div class="bj-hand" id="playerHand"></div>
+                <div class="bj-score" id="playerScore">Puan: 0</div>
             </div>
         </div>
-        <div id="diceResultText"></div><button id="roll-btn">ZAR AT</button>
     </div>
+
+    <!-- DIŞ KAPI & JUMPSCARE -->
+    <div id="outerDoorUI">
+        <div class="outer-door-title">Kapı Deliğinden Bakıyorsun</div>
+        <div class="peephole-ring"><div class="monster-silhouette"><div class="eyes"><div class="eye"></div><div class="eye"></div></div></div></div>
+        <div class="dialog-box" id="npcDialog">"Ben üst kat komşunum... Lütfen kapıyı aç, dışarısı çok soğuk."</div>
+        <div class="action-buttons">
+            <button id="rejectBtn" style="border-color:#3a1010; color:#884040;">Git Buradan!</button>
+            <button id="letInBtn" style="border-color:#1a3010; color:#5a8040;">İçeri Al</button>
+        </div>
+        <button id="leaveOuterDoorBtn">Kapıdan Uzaklaş</button>
+    </div>
+    <div id="jumpscare"><div class="jumpscare-eyes"><div class="js-eye"></div><div class="js-eye"></div></div></div>
 
     <script>
+        // ── VERİLER (Oyun Listeleri) ──
+        const allGames = [
+            {name:'DREAD FLATS',type:'korku, bulmaca, japon',playtime:'2 saat', steamId: '3114900'},
+            {name:'CLINK',type:'Korku',playtime:'1 saat', steamId: '3494130', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3494130/079f1a0c06f0186e132c815f3353543514a3cc44/header.jpg?t=1749669037'},
+            {name:'THE KIDNAP',type:'gerilim, japon korku',playtime:'1 saat', steamId: '2593900'},
+            {name:'THE EXIT 8',type:'anomali',playtime:'30 dakika', steamId: '2653790'},
+            {name:'SHINKANSE 0',type:'zor anomali',playtime:'1-2 saat', steamId: '2793370'},
+            {name:'WE HARVEST SHADOWS',type:'indie demo korku',playtime:'2 saat', steamId: '1559720'},
+            {name:'THE STALKED 2',type:'indie korku',playtime:'1 saat', steamId: '2976490'},
+            {name:'THE STAIRWAY 7',type:'anomali, kedy',playtime:'1 saat', steamId: '2911820'},
+            {name:'BROKENLORE: DON\'T WATCH',type:'korku',playtime:'1 saat', steamId: '2351330'},
+            {name:'Platform 8',type:'anomali',playtime:'20 dakika', steamId: '2903560'},
+            {name:'The Closing Shift',type:'japon korku',playtime:'1-2 saat', steamId: '1843090'},
+            {name:'PARASOCIAL',type:'japon korku',playtime:'1-1,5 saat', steamId: '2314720'},
+            {name:'THE CONVENIENCE STORE',type:'japon korku',playtime:'1 saat', steamId: '1228520'},
+            {name:'THE KARAOKE',type:'japon korku',playtime:'1 saat', steamId: '2200190'},
+            {name:'Skull Hotel',type:'anomali',playtime:'1 Saat', steamId: '3739730', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3739730/c3f9088f09dabf6f07eb3595b6687b680a1cacbf/header.jpg?t=1761749116'},
+            {name:'No, I\'m not a Human',type:'gizem',playtime:'2,50 saat - sonsuz saat', steamId: '3180070'},
+            {name:'HELLMART',type:'korku',playtime:'3 saat', steamId: '3762550', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3762550/8d5561f21bb46dd76d7a8b863c901d6a05e19204/header.jpg?t=1770292620'},
+            {name:'Last Report',type:'korku, psikolojik',playtime:'1.50 - 2.50 saat', steamId: '3209480'},
+            {name:'We Used to Play Here',type:'korku',playtime:'1.5 saat', steamId: '3998890', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3998890/13a794115c7891c71f83393c21e2ebc53df5f25b/header.jpg?t=1766131439'}
+        ];
 
-        // ===== GAME DATA =====
-        const games = [{ id: 4, name: 'DREAD FLATS', type: 'korku, bulmaca, japon', releaseDate: '2025', playtime: '2 saat', description: 'granny tarzı', steamId: '3114900' }, { id: 5, name: 'CLINK', type: 'Korku', releaseDate: '2025', playtime: '1 saat', description: 'bir kadın, kedinle birlikte bir evde inzivaya çekilmişsin...', steamId: '3494130', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3494130/079f1a0c06f0186e132c815f3353543514a3cc44/header.jpg?t=1749669037' }, { id: 9, name: 'THE KIDNAP', type: 'gerilim, japon korku', releaseDate: '2023', playtime: '1 saat', description: 'Bir kaçırılma olayını konu alan bir Japon korku oyunudur.', steamId: '2593900' }, { id: 10, name: 'THE EXIT 8', type: 'anomali', releaseDate: '2023', playtime: '30 dakika', description: 'Sonsuz bir yeraltı geçidinde mahsur kaldınız.', steamId: '2653790' }, { id: 11, name: 'SHINKANSE 0', type: 'zor anomali', releaseDate: '2024', playtime: '1-2 saat', description: 'Shinkansen trenindeki anomalileri bulmakla görevlendirildiğiniz oyun.', steamId: '2793370' }, { id: 13, name: 'WE HARVEST SHADOWS', type: 'indie demo korku', releaseDate: 'demo', playtime: '2 saat', description: 'Gündüzleri çiftçi oyunu geceleri korku', steamId: '1559720' }, { id: 15, name: 'THE STALKED 2', type: 'indie korku', releaseDate: '2025', playtime: '1 saat', description: "Doğa yürüyüşüne tutku duyan Rachel'ı oynadığın devam oyunu.", steamId: '2976490' }, { id: 19, name: 'THE STAIRWAY 7', type: 'anomali, kedy', releaseDate: '2024', playtime: '1 saat', description: 'Kedi ile sonsuz merdiven döngüsü.', steamId: '2911820' }, { id: 22, name: "BROKENLORE: DON'T WATCH", type: 'korku', releaseDate: '2025', playtime: '1 saat', description: "Shinji'nin korkutucu dünyasına dalın.", steamId: '2351330' }, { id: 23, name: 'Platform 8', type: 'anomali', releaseDate: '2024', playtime: '20 dakika', description: 'Sonsuza kadar giden trende anomalileri bul.', steamId: '2903560' }, { id: 25, name: 'The Closing Shift', type: 'japon korku', releaseDate: '2022', playtime: '1-2 saat', description: 'Boba Teashop tarzında', steamId: '1843090' }, { id: 27, name: 'PARASOCIAL', type: 'japon korku', releaseDate: '2023', playtime: '1-1,5 saat', description: 'Canlı yayıncıların hayatını konu alan oyun.', steamId: '2314720' }, { id: 28, name: 'THE CONVENIENCE STORE', type: 'japon korku', releaseDate: '2020', playtime: '1 saat', description: 'Gece vardiyasındaki üniversiteli kız.', steamId: '1228520' }, { id: 31, name: 'THE KARAOKE', type: 'japon korku', releaseDate: '2023', playtime: '1 saat', description: 'Liseli kızın Karaoke macerası.', steamId: '2200190' }, { id: 34, name: 'Skull Hotel', type: 'anomali', releaseDate: '2025', playtime: '1 Saat', description: 'otel odalarını temizlerken yaratıkların saklanıp seni öldürmek için beklediği bir korku oyunudur', steamId: '3739730', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3739730/c3f9088f09dabf6f07eb3595b6687b680a1cacbf/header.jpg?t=1761749116' }, { id: 36, name: "No, I'm not a Human", type: 'gizem', releaseDate: '2025', playtime: '2,50 saat - sonsuz saat', description: 'Dünya bir kıyamet yaşadı. İnsan olduğunu kanıtla.', steamId: '3180070' }, { id: 99, name: 'HELLMART', type: 'korku', releaseDate: '2026', playtime: '3 saat', description: 'Cehennem marketi.', steamId: '3762550', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3762550/8d5561f21bb46dd76d7a8b863c901d6a05e19204/header.jpg?t=1770292620' }, { id: 100, name: 'Last Report', type: 'korku, psikolojik', releaseDate: '2025', playtime: '1.50 - 2.50 saat', description: 'Son rapor.', steamId: '3209480' }, { id: 102, name: 'We Used to Play Here', type: 'korku', releaseDate: '2025', playtime: '1.5 saat', description: 'Gizemli ve korkunç bir deneyim.', steamId: '3998890', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3998890/13a794115c7891c71f83393c21e2ebc53df5f25b/header.jpg?t=1766131439' }];
-        const wishlist = [{ name: 'Dispatch', steamId: '2592160' }, { name: 'AT DEAD OF NIGHT', steamId: '1450830' }, { name: 'Fears The Fathom', steamId: '1671340' }, { name: 'Luto', steamId: '1729740' }, { name: 'MARTHA IS DEAD', steamId: '515960' }, { name: 'the quarry', steamId: '1577120' }, { name: 'cronos', steamId: '2101960' }, { name: 'madison', steamId: '1670870' }, { name: 'high on life', steamId: '1583230' }, { name: 'Date or Destiny Kiss or Miss', steamId: '2127030', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2127030/f447ac90059534b1397b5de6fc2b004e5729d6cf/header.jpg?t=1751035600' }, { name: 'silent hill f', steamId: '2947440', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2947440/7e5d923ac622bd1775ebc9b5d4b5b0a24bf5ed40/header.jpg?t=1770169624' }, { name: 'Katana ZERO', steamId: '460950' }, { name: 'Half-Life (Türkçe Dublaj)', steamId: '70', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/70/header.jpg?t=1745368462', overlayIcon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Roundel_flag_of_Turkey.svg/500px-Roundel_flag_of_Turkey.svg.png' }, { name: 'Paranormal Tales', steamId: '2193600', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2193600/header.jpg?t=1760022653' }, { name: 'Perceptum', steamId: '4124340', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4124340/6a7fed1f457e84212554c79eaf3e90c25b056b0f/header.jpg?t=1770842900' }, { name: 'Goodnight Universe', steamId: '2416100', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2416100/header.jpg?t=1763335395' }, { name: 'The Walking Dead', steamId: '207610', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/207610/header.jpg?t=1729702559' }, { name: 'High On Life 2', steamId: '2069250', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2069250/14a0a45da992ca33d59eb318b5cb9598c070e1c1/header.jpg?t=1771480792' }];
-        const completedGames = [{ name: 'poppy playtime', steamId: '1721470' }, { name: 'Resident Evil Requiem', steamId: '3764200', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3764200/ce5437442768e38eb575f205ab9397d0264017b0/header.jpg?t=1769125588' }, { id: 8, name: 'BAD PARENTING', type: 'psikolojik', releaseDate: '2024', playtime: '30 dakika', description: 'Bay Kırmızı Yüz, bir anda gerçek olur.', steamId: '3205080' }, { name: 'PSALM 5:9-13', steamId: '1837220', image: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1837220/header.jpg' }, { name: 'Subliminal', steamId: '2300840' }, { name: 'THE STALKED', steamId: '2587770' }, { name: 'VIGIL', steamId: '3817090', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3817090/d4398e8d2199777df46d60e4bf7b2ac7c19a0c62/header.jpg?t=1755251991' }, { name: "Who s at the door", steamId: '3690010', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3690010/0f806f79ec822e9b3b6832b29afcc36cd7f64c3a/header.jpg?t=1761884747' }, { name: 'whisper of the house', steamId: '2589500' }, { name: 'CURSED DIGICAM', steamId: '3334550' }, { name: 'SUITE 776', steamId: '1197370' }, { name: 'THE BATHHOUSE', steamId: '2989950' }, { name: 'The Boba Teashop', steamId: '3461920' }, { name: 'THIN THREADS', steamId: '3506630' }, { name: 'SEPTEMBER 7TH', steamId: '2249160' }, { name: 'CAPTURED', steamId: '3114010' }, { name: 'the last of us part 1', steamId: '1888930' }, { name: 'the last of us part 2', steamId: '2531310' }, { name: 'what remains of edith finch', steamId: '501300' }, { name: 'resident evil 4', steamId: '2050650' }, { name: 'little nightmares', steamId: '424840' }, { name: 'goose goose duck', steamId: '1568590' }, { name: 'resident evil 3', steamId: '952060' }, { name: 'resident evil 2', steamId: '883710' }, { name: 'amenti', steamId: '3292260' }, { name: 'miside', steamId: '2527500' }, { name: 'until dawn', steamId: '2172010' }, { name: 'layers of fear', steamId: '391720' }, { name: 'the wolf among us', steamId: '250320' }, { name: 'outlast', steamId: '238320' }, { name: 'outlast 2', steamId: '414700' }, { name: 'My Child Lebensborn', steamId: '1114070' }, { name: 'beyond two souls', steamId: '960990' }, { name: 'speed dates', steamId: '2273570' }, { name: 'detroit become human', steamId: '1222140' }, { name: '12 minutes', steamId: '1097200' }, { name: 'resident evil village', steamId: '1196590' }, { name: 'resident evil 7', steamId: '418370' }, { name: 'SHHH', steamId: '2709940' }, { name: 'mafia: the old country', steamId: '1941540' }, { name: 'Little Nightmares 2', steamId: '860510' }, { name: 'Little Nightmares 3', steamId: '1392860' }, { name: 'Gas Station Case', steamId: '3902800', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3902800/07a48d0c3ff7fff12498691c296dda2b25359da7/header.jpg?t=1769804370' }, { name: 'The Maid', steamId: '3456720' }, { name: 'CRIMSON SNOW', steamId: '2067790' }, { name: 'The Sims 4', steamId: '1222670' }, { name: 'Cyberpunk 2077', steamId: '1091500' }, { name: 'Arcade Paradise', steamId: '1388870' }, { name: 'Grounded', steamId: '962130' }, { name: 'Minecraft', steamId: 'minecraft', image: 'https://img.redbull.com/images/c_limit,w_1500,h_1000/f_auto,q_auto/redbullcom/2022/3/1/fda3pk48b4x7rgir9xzj/minecraft' }, { name: 'Stranded Deep', steamId: '313120' }, { name: 'Escape the Backrooms', steamId: '1943950' }, { name: 'Planet Zoo', steamId: '703080' }, { name: 'Dale & Dawson Stationery Supplies', steamId: '2920570' }, { name: 'Shadows of Doubt', steamId: '986130' }, { name: 'R.E.P.O.', steamId: '3241660' }, { name: 'Cookie Clicker', steamId: '1454400' }, { name: 'Granny Remake', steamId: '2110820' }, { name: 'Dead Signal', steamId: '2599300' }, { name: 'Among Us', steamId: '945360' }, { name: 'Ifrit', steamId: '2124810' }, { name: 'A Dance of Fire and Ice', steamId: '977950' }, { name: 'Gartic Phone', steamId: 'gartic', image: 'https://garticphone.com/images/thumb.png' }, { name: 'Stardew Valley', steamId: '413150' }, { name: 'House Flipper 2', steamId: '1190970' }, { name: 'Slime Rancher 2', steamId: '1657630' }, { name: 'Raft', steamId: '648800' }, { name: 'Amnesia: The Bunker', steamId: '1944430' }, { name: 'Gym Simulator 24', steamId: '2559270' }, { name: 'Phasmophobia', steamId: '739630' }, { name: 'Only Climb', steamId: '2380080', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2500750/header.jpg?t=1747040357' }, { name: 'Portal 2', steamId: '620' }, { name: 'Lethal Company', steamId: '1966720' }, { name: 'SEKIRO', steamId: '814380' }, { name: 'Mortuary Assistant', steamId: '1295920' }, { name: 'Viscera Cleanup', steamId: '246900' }, { name: 'Palworld', steamId: '1623730' }, { name: 'Petshop Sim', steamId: '2650890' }, { name: 'Pummel Party', steamId: '880940' }, { name: 'Visage', steamId: '594330' }, { name: 'Incredibox', steamId: '1545450' }, { name: 'Content Warning', steamId: '2881650' }, { name: 'Clothing Store', steamId: '2923390' }, { name: 'PICO PARK', steamId: '1509960' }, { name: 'One-Armed Cook', steamId: '1459640' }, { name: 'LoL', steamId: 'lol', image: 'https://media-cdn.t24.com.tr/media/library/2021/03/1614849266035-1.jpg' }, { name: 'iBLiS', steamId: '1735950' }, { name: 'Slender', steamId: '252330' }, { name: 'Kitty Powers', steamId: '285740' }, { name: 'Party Hard', steamId: '356570' }, { name: 'Y. Village', steamId: '2561230' }, { name: 'SILENT BREATH', steamId: '2643890' }, { name: 'My Dream Setup', steamId: '2200780' }, { name: 'Şükür', steamId: '2717390' }, { name: 'Fractured Mind', steamId: '2655960' }, { name: 'The Bunker', steamId: '481110' }, { name: 'Pacify', steamId: '967050' }, { name: 'Tabletop Sim', steamId: '286160' }, { name: 'DONT SCREAM', steamId: '2497900' }, { name: 'Kowloon', steamId: '2515240' }, { name: 'FNaF 1', steamId: '319510' }, { name: 'ROBLOX', steamId: 'roblox', image: 'https://images.tynker.com/blog/wp-content/uploads/20250401220809/robloxxjpg-1.jpg' }, { name: 'Whos Your Daddy', steamId: '383840' }, { name: 'Casino Boss', steamId: '2556530' }, { name: 'Elevated Dread', steamId: '2505500', image: 'https://i.ytimg.com/vi/sinZUlld0PI/maxresdefault.jpg' }, { name: 'One-Armed Robber', steamId: '2551020' }, { name: 'Boil Noodles', steamId: '2795320' }, { name: 'Unolingo', steamId: '2762690' }, { name: 'Business Tour', steamId: '397900' }, { name: 'Paranormal Entities', steamId: '2526540' }, { name: 'House in Woods', steamId: '2461060', image: 'https://i.ytimg.com/vi/5Mn6r6h_UsI/maxresdefault.jpg' }, { name: 'Go to Bed', steamId: '2460180', image: 'https://img.itch.zone/aW1nLzEzNTMyNDk4LnBuZw==/original/yRSrjd.png' }, { name: 'Late Night Mop', steamId: '2451960', image: 'https://i.ytimg.com/vi/_gacJEE7hVM/maxresdefault.jpg' }, { name: 'Wrong Floor', steamId: '2452280' }, { name: 'Rinse and Repeat', steamId: '2446700' }, { name: 'Infinite Pizza', steamId: '2445850', image: 'https://i.ytimg.com/vi/3K7hqOU-7dc/hq720.jpg' }, { name: 'DIY Fashion', steamId: 'fashion', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2876240/header.jpg?t=1739647391' }, { name: 'Slime Rancher', steamId: '433340' }];
-        const favoriteGames = ['Subliminal', 'The Maid', 'Gas Station Case', 'Skull Hotel', "No, I'm not a Human", 'THE STALKED 2', 'HELLMART', 'Last Report', 'We Used to Play Here'];
+        const wishlist = [
+            {name:'Dispatch', steamId:'2592160'}, {name:'AT DEAD OF NIGHT', steamId:'1450830'}, {name:'Fears The Fathom', steamId:'1671340'}, {name:'Luto', steamId:'1729740'}, {name:'MARTHA IS DEAD', steamId:'515960'}, {name:'the quarry', steamId:'1577120'}, {name:'cronos', steamId:'2101960'}, {name:'madison', steamId:'1670870'}, {name:'high on life', steamId:'1583230'}, {name:'Date or Destiny Kiss or Miss', steamId:'2127030', image:'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2127030/f447ac90059534b1397b5de6fc2b004e5729d6cf/header.jpg?t=1751035600'}, {name:'silent hill f', steamId:'2947440', image:'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2947440/7e5d923ac622bd1775ebc9b5d4b5b0a24bf5ed40/header.jpg?t=1770169624'}, {name:'Katana ZERO', steamId:'460950'}, {name: 'Half-Life (Türkçe)', steamId: '70', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/70/header.jpg?t=1745368462', overlayIcon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Roundel_flag_of_Turkey.svg/500px-Roundel_flag_of_Turkey.svg.png'}, {name: 'Paranormal Tales', steamId: '2193600', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2193600/header.jpg?t=1760022653'}, {name: 'Perceptum', steamId: '4124340', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4124340/6a7fed1f457e84212554c79eaf3e90c25b056b0f/header.jpg?t=1770842900'}, {name: 'Goodnight Universe', steamId: '2416100', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2416100/header.jpg?t=1763335395'}, {name: 'The Walking Dead', steamId: '207610', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/207610/header.jpg?t=1729702559'}, {name: 'High On Life 2', steamId: '2069250', image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2069250/14a0a45da992ca33d59eb318b5cb9598c070e1c1/header.jpg?t=1771480792'}
+        ];
 
-        // ===== AUDIO =====
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)(); let soundEnabled = true, masterVolume = 0.5;
-        document.getElementById('volumeSlider').addEventListener('input', e => { masterVolume = parseFloat(e.target.value); });
-        document.addEventListener('click', () => { if (audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
-        function playSound(t) { if (!soundEnabled) return; const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.connect(g); g.connect(audioCtx.destination); if (t === 'click') { o.type = 'sine'; o.frequency.setValueAtTime(400, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.1); g.gain.setValueAtTime(0.1 * masterVolume, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); o.start(); o.stop(audioCtx.currentTime + 0.1); } else { o.type = 'square'; o.frequency.setValueAtTime(800, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.05); g.gain.setValueAtTime(0.05 * masterVolume, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05); o.start(); o.stop(audioCtx.currentTime + 0.05); } }
+        const favoriteGames = [ 'Subliminal', 'The Maid', 'Gas Station Case', 'Skull Hotel', 'No, I\'m not a Human', 'THE STALKED 2', 'HELLMART', 'Last Report', 'We Used to Play Here' ];
+        let gameList = [...allGames];
 
-        // ===== THREE.JS =====
-        let camera, scene, renderer, controls;
-        let objects = []; let raycaster;
-        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false, canJump = false;
+        function getGameImagePath(g) {
+            if (g.image) return g.image; 
+            if (g.steamId && !isNaN(g.steamId)) return `https://cdn.cloudflare.steamstatic.com/steam/apps/${g.steamId}/header.jpg`;
+            return `https://via.placeholder.com/280x130/1a0229/FFD700?text=${encodeURIComponent(g.name)}`;
+        }
+
+        // ── SİSTEM DEĞİŞKENLERİ ──
+        let audioCtx = null;
+        let soundEnabled = true;
+        let isFirstStart = true;
+        let hasWonBlackjack = false;
+        let isDiscoMode = false;
+        let luckyBonus = 0;
+
+        let camera, scene, renderer, controls, objects = [], raycaster;
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false, canJump = false, isCrouching = false;
         let prevTime = performance.now();
         const velocity = new THREE.Vector3(), direction = new THREE.Vector3();
-        let gameState = 'CORRIDOR'; let interactTarget = null;
-        const interactText = document.getElementById('interactText');
-        const H = 2.5, CH = 4.5, ML = 18, BL = 10, CW = 5, HW = CW / 2;
-        // Wheel room: extends left from corridor
-        const WR = { x1: -HW, x2: -HW - 10, z1: -5, z2: 5, cx: -HW - 5, cz: 0 }; // room bounds
-        const DOOR_Z1 = -1, DOOR_Z2 = 1; // door opening in left wall
-        let eyeMesh, wheelDiscMesh;
 
-        // TEXTURES
-        function mkTex(fn, rS, rT) { const c = document.createElement('canvas'); c.width = 512; c.height = 512; fn(c.getContext('2d')); const t = new THREE.CanvasTexture(c); t.wrapS = THREE.RepeatWrapping; t.wrapT = THREE.RepeatWrapping; t.repeat.set(rS, rT); return t; }
-        const wallTex = () => mkTex(x => { x.fillStyle = '#2a1040'; x.fillRect(0, 0, 512, 512); for (let r = 0; r < 16; r++)for (let c = 0; c < 16; c++) { x.strokeStyle = 'rgba(255,0,255,0.08)'; x.lineWidth = 1; x.strokeRect(c * 32 + 4, r * 32 + 4, 24, 24); } x.strokeStyle = 'rgba(255,215,0,0.06)'; x.lineWidth = 2; for (let i = 0; i < 512; i += 64) { x.beginPath(); x.moveTo(0, i); x.lineTo(512, i); x.stroke(); } for (let i = 0; i < 80; i++) { x.fillStyle = `rgba(100,0,150,${Math.random() * 0.08})`; x.beginPath(); x.arc(Math.random() * 512, Math.random() * 512, Math.random() * 12 + 3, 0, Math.PI * 2); x.fill(); } }, 3, 2);
-        const floorTex = () => mkTex(x => { x.fillStyle = '#0d0515'; x.fillRect(0, 0, 512, 512); const c = ['#1a0a28', '#150820', '#1f0e30', '#120618']; for (let r = 0; r < 9; r++)for (let cl = 0; cl < 5; cl++) { const off = (r % 2) * 64; x.fillStyle = c[(r * 3 + cl) % 4]; x.fillRect(cl * 128 - off + 1, r * 64 + 1, 126, 62); x.strokeStyle = 'rgba(0,0,0,0.6)'; x.strokeRect(cl * 128 - off + 1, r * 64 + 1, 126, 62); } }, 4, 6);
-        const ceilTex = () => mkTex(x => { x.fillStyle = '#150820'; x.fillRect(0, 0, 512, 512); x.strokeStyle = 'rgba(255,0,255,0.1)'; x.lineWidth = 1; for (let i = 0; i < 512; i += 64) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 512); x.stroke(); x.beginPath(); x.moveTo(0, i); x.lineTo(512, i); x.stroke(); } }, 4, 4);
+        let gameState = 'CORRIDOR', interactTarget = null, activeModal = null;
+        let wheelMesh, eyeGroup, isDraggingWheel = false, wheelVelocity = 0, isWheelSpinning = false, winningGame = null;
+        let textScreenCtx, textScreenTex, imageScreenCtx, imageScreenTex, lastScreenUpdate = 0;
+        let cachedGameImage = new Image(); 
+        const eyeTarget = new THREE.Vector3(), eyeJitter = new THREE.Vector3(); let nextJitterTime = 0;
 
-        function createPosterTex(label, color) {
-            const c = document.createElement('canvas'); c.width = 512; c.height = 256; const x = c.getContext('2d');
-            // Frame
-            x.fillStyle = '#0a0515'; x.fillRect(0, 0, 512, 256);
-            x.strokeStyle = '#FFD700'; x.lineWidth = 8; x.strokeRect(4, 4, 504, 248);
-            x.strokeStyle = 'rgba(255,215,0,0.3)'; x.lineWidth = 2; x.strokeRect(16, 16, 480, 224);
-            // Text
-            x.font = 'bold 36px Cinzel'; x.fillStyle = color || '#FFD700'; x.textAlign = 'center'; x.textBaseline = 'middle';
-            x.shadowColor = 'rgba(255,215,0,0.5)'; x.shadowBlur = 15;
-            // Word wrap
-            const words = label.split(' '); let lines = []; let line = '';
-            words.forEach(w => { const test = line + w + ' '; if (x.measureText(test).width > 440 && line) { lines.push(line.trim()); line = w + ' '; } else line = test; });
-            lines.push(line.trim());
-            const lh = 44; const startY = 128 - (lines.length - 1) * lh / 2;
-            lines.forEach((l, i) => x.fillText(l, 256, startY + i * lh));
-            // Glow dots in corners
-            [[30, 30], [482, 30], [30, 226], [482, 226]].forEach(([px, py]) => { x.fillStyle = '#FFD700'; x.beginPath(); x.arc(px, py, 5, 0, Math.PI * 2); x.fill(); });
-            return new THREE.CanvasTexture(c);
+        let dice1Mesh, dice2Mesh, diceCtx1, diceCtx2, isRollingDice = false;
+        let secretRoomLight;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        function init() {
-            scene = new THREE.Scene(); scene.background = new THREE.Color(0x0a0515); scene.fog = new THREE.Fog(0x0a0515, 5, 30);
-            camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 1000); camera.position.y = H;
-            scene.add(new THREE.AmbientLight(0x604080, 0.5));
-            const ml = new THREE.PointLight(0xc060ff, 1.2, 22); ml.position.set(0, CH * 0.85, 0); scene.add(ml); scene.userData.mainLight = ml;
-            // Wheel room lights
-            const wrl = new THREE.PointLight(0xff60ff, 1.0, 16); wrl.position.set(WR.cx, CH * 0.85, WR.cz); scene.add(wrl);
-            const glow = new THREE.PointLight(0xFFD700, 0.8, 8); glow.position.set(WR.cx, 1.5, WR.cz); scene.add(glow);
-            controls = new THREE.PointerLockControls(camera, document.body);
-            const blocker = document.getElementById('blocker');
-            document.getElementById('instructions').addEventListener('click', () => controls.lock());
-            controls.addEventListener('lock', () => { blocker.style.display = 'none'; });
-            controls.addEventListener('unlock', () => { if (gameState === 'CORRIDOR') blocker.style.display = 'flex'; });
-            scene.add(controls.getObject()); controls.getObject().position.set(0, H, 5);
-            document.addEventListener('keydown', e => { switch (e.code) { case 'ArrowUp': case 'KeyW': moveForward = true; break; case 'ArrowLeft': case 'KeyA': moveLeft = true; break; case 'ArrowDown': case 'KeyS': moveBackward = true; break; case 'ArrowRight': case 'KeyD': moveRight = true; break; case 'Space': if (canJump) velocity.y += 12; canJump = false; break; } });
-            document.addEventListener('keyup', e => { switch (e.code) { case 'ArrowUp': case 'KeyW': moveForward = false; break; case 'ArrowLeft': case 'KeyA': moveLeft = false; break; case 'ArrowDown': case 'KeyS': moveBackward = false; break; case 'ArrowRight': case 'KeyD': moveRight = false; break; } });
-            buildWorld();
-            raycaster = new THREE.Raycaster();
-            document.addEventListener('mousedown', onClick);
-            renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setPixelRatio(devicePixelRatio); renderer.setSize(innerWidth, innerHeight);
-            document.getElementById('gameCanvas').appendChild(renderer.domElement);
-            window.addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
-            updateAvailableGames();
-            initDragSpin();
-            setInterval(() => { const h = document.getElementById('hubElement'); h.classList.add('blink'); setTimeout(() => h.classList.remove('blink'), 150); }, 4000);
+        function playTickSound() {
+            if (!soundEnabled || !audioCtx || audioCtx.state === 'suspended') return;
+            const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'triangle'; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
         }
 
-        function buildWorld() {
-            const wm = new THREE.MeshLambertMaterial({ map: wallTex(), side: THREE.DoubleSide });
-            const fm = new THREE.MeshLambertMaterial({ map: floorTex() });
-            const cm = new THREE.MeshLambertMaterial({ map: ceilTex() });
-            // === CORRIDOR ===
-            const mf = new THREE.Mesh(new THREE.PlaneGeometry(CW, ML), fm); mf.rotation.x = -Math.PI / 2; mf.position.set(0, 0, 6 - ML / 2); scene.add(mf);
-            const bf = new THREE.Mesh(new THREE.PlaneGeometry(BL, CW), fm); bf.rotation.x = -Math.PI / 2; bf.position.set(HW + BL / 2, 0, 6 - ML + HW); scene.add(bf);
-            const mc = new THREE.Mesh(new THREE.PlaneGeometry(CW, ML), cm); mc.rotation.x = Math.PI / 2; mc.position.set(0, CH, 6 - ML / 2); scene.add(mc);
-            const bc = new THREE.Mesh(new THREE.PlaneGeometry(BL, CW), cm); bc.rotation.x = Math.PI / 2; bc.position.set(HW + BL / 2, CH, 6 - ML + HW); scene.add(bc);
-            // Left wall - SPLIT for door opening at z=0 (door from DOOR_Z1 to DOOR_Z2)
-            // Segment 1: from z=6 down to DOOR_Z2
-            const seg1Len = 6 - DOOR_Z2;
-            const w1a = new THREE.Mesh(new THREE.PlaneGeometry(seg1Len, CH), wm); w1a.rotation.y = Math.PI / 2; w1a.position.set(-HW, CH / 2, DOOR_Z2 + seg1Len / 2); scene.add(w1a);
-            // Segment 2: from DOOR_Z1 down to bottom of corridor
-            const seg2Len = DOOR_Z1 - (6 - ML);
-            const w1b = new THREE.Mesh(new THREE.PlaneGeometry(seg2Len, CH), wm); w1b.rotation.y = Math.PI / 2; w1b.position.set(-HW, CH / 2, (6 - ML) + seg2Len / 2); scene.add(w1b);
-            // Door frame top
-            const dtop = new THREE.Mesh(new THREE.PlaneGeometry(DOOR_Z2 - DOOR_Z1, CH - 3.2), wm); dtop.rotation.y = Math.PI / 2; dtop.position.set(-HW, (3.2 + (CH - 3.2) / 2), (DOOR_Z1 + DOOR_Z2) / 2); scene.add(dtop);
-            // Right wall
-            const w2 = new THREE.Mesh(new THREE.PlaneGeometry(ML - CW, CH), wm); w2.rotation.y = -Math.PI / 2; w2.position.set(HW, CH / 2, 6 - (ML - CW) / 2); scene.add(w2);
-            // Front wall
-            scene.add(Object.assign(new THREE.Mesh(new THREE.PlaneGeometry(CW, CH), wm), { position: new THREE.Vector3(0, CH / 2, 6) }));
-            // Back wall
-            scene.add(Object.assign(new THREE.Mesh(new THREE.PlaneGeometry(BL + CW, CH), wm), { position: new THREE.Vector3(BL / 2, CH / 2, 6 - ML) }));
-            // Inner corner wall
-            scene.add(Object.assign(new THREE.Mesh(new THREE.PlaneGeometry(BL, CH), wm), { position: new THREE.Vector3(HW + BL / 2, CH / 2, 6 - ML + CW) }));
-            // Right end wall
-            const w6 = new THREE.Mesh(new THREE.PlaneGeometry(CW, CH), wm); w6.rotation.y = -Math.PI / 2; w6.position.set(HW + BL, CH / 2, 6 - ML + HW); scene.add(w6);
-            // Lamps
-            const lm = new THREE.MeshBasicMaterial({ color: 0xFFD700 });
-            [[0, 0], [HW + BL / 2, 6 - ML + HW]].forEach(([x, z]) => { scene.add(Object.assign(new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), lm), { position: new THREE.Vector3(x, CH - 0.35, z) })); });
+        // ── 3D DOKU VE OLUŞTURUCULAR ──
+        function createRetroWallTexture(color = '#c8a85a') {
+            const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512; const ctx = canvas.getContext('2d');
+            ctx.fillStyle = color; ctx.fillRect(0, 0, 512, 512);
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const cx = col * 64 + 32, cy = row * 64 + 32;
+                    ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 1; ctx.strokeRect(cx - 22, cy - 22, 44, 44);
+                    ctx.beginPath(); ctx.moveTo(cx - 10, cy - 10); ctx.lineTo(cx + 10, cy + 10); ctx.moveTo(cx + 10, cy - 10); ctx.lineTo(cx - 10, cy + 10); ctx.stroke();
+                }
+            }
+            const grad = ctx.createRadialGradient(256, 256, 80, 256, 256, 370); grad.addColorStop(0, 'rgba(0,0,0,0)'); grad.addColorStop(1, 'rgba(0,0,0,0.3)');
+            ctx.fillStyle = grad; ctx.fillRect(0, 0, 512, 512); return new THREE.CanvasTexture(canvas);
+        }
 
-            // === WHEEL ROOM ===
-            const roomW = Math.abs(WR.x2 - WR.x1), roomD = WR.z2 - WR.z1;
-            // Floor
-            const wrf = new THREE.Mesh(new THREE.PlaneGeometry(roomW, roomD), fm); wrf.rotation.x = -Math.PI / 2; wrf.position.set(WR.cx, 0, WR.cz); scene.add(wrf);
-            // Ceiling
-            const wrc = new THREE.Mesh(new THREE.PlaneGeometry(roomW, roomD), cm); wrc.rotation.x = Math.PI / 2; wrc.position.set(WR.cx, CH, WR.cz); scene.add(wrc);
-            // Back wall (x=WR.x2)
-            const wrBack = new THREE.Mesh(new THREE.PlaneGeometry(roomD, CH), wm); wrBack.rotation.y = -Math.PI / 2; wrBack.position.set(WR.x2, CH / 2, WR.cz); scene.add(wrBack);
-            // Side wall z=WR.z1
-            scene.add(Object.assign(new THREE.Mesh(new THREE.PlaneGeometry(roomW, CH), wm), { position: new THREE.Vector3(WR.cx, CH / 2, WR.z1) }));
-            // Side wall z=WR.z2
-            const wrSide2 = new THREE.Mesh(new THREE.PlaneGeometry(roomW, CH), wm); wrSide2.position.set(WR.cx, CH / 2, WR.z2); scene.add(wrSide2);
-            // Right wall segments (shared with corridor, above/below door)
-            // Already handled by corridor left wall split
+        function createFloorTexture(color1='#3a2010', color2='#2e1808') {
+            const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512; const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#111'; ctx.fillRect(0, 0, 512, 512); const colors = [color1, color2];
+            for (let row = 0; row < 9; row++) { for (let col = 0; col < 5; col++) { const x = col * 128 - ((row % 2) * 64), y = row * 64; ctx.fillStyle = colors[(row + col) % 2]; ctx.fillRect(x + 1, y + 1, 126, 62); } }
+            const tex = new THREE.CanvasTexture(canvas); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(4, 6); return tex;
+        }
 
-            // Lamp in wheel room
-            scene.add(Object.assign(new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), lm), { position: new THREE.Vector3(WR.cx, CH - 0.3, WR.cz) }));
+        function createDoorTexture(isOuter) {
+            const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 1024; const ctx = canvas.getContext('2d');
+            ctx.fillStyle = isOuter ? '#2d2218' : '#4a2810'; ctx.fillRect(0, 0, 512, 1024); ctx.fillStyle = isOuter ? '#1a1008' : '#2a1205';
+            for(let i=0; i<800; i++) { ctx.globalAlpha = Math.random() * 0.15; ctx.fillRect(Math.random()*512, Math.random()*1024, Math.random()*4+1, Math.random()*60+10); } ctx.globalAlpha = 1.0;
+            const panels = [ {x: 64, y: 64, w: 160, h: 200}, {x: 288, y: 64, w: 160, h: 200}, {x: 64, y: 328, w: 160, h: 360}, {x: 288, y: 328, w: 160, h: 360}, {x: 64, y: 752, w: 160, h: 200}, {x: 288, y: 752, w: 160, h: 200} ];
+            panels.forEach(p => { ctx.fillStyle = isOuter ? '#201810' : '#301505'; ctx.fillRect(p.x, p.y, p.w, p.h); ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(p.x, p.y+p.h); ctx.lineTo(p.x, p.y); ctx.lineTo(p.x+p.w, p.y); ctx.stroke(); ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.beginPath(); ctx.moveTo(p.x, p.y+p.h); ctx.lineTo(p.x+p.w, p.y+p.h); ctx.lineTo(p.x+p.w, p.y); ctx.stroke(); ctx.fillStyle = isOuter ? '#2d2218' : '#4a2810'; ctx.fillRect(p.x+20, p.y+20, p.w-40, p.h-40); });
+            ctx.fillStyle = '#b58e30'; ctx.beginPath(); ctx.arc(440, 512, 18, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(440, 512, 12, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#8c6b20'; ctx.fillRect(432, 545, 16, 40); ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(440, 555, 4, 0, Math.PI*2); ctx.fill(); ctx.fillRect(438, 555, 4, 15); return new THREE.CanvasTexture(canvas);
+        }
 
-            // === WHEEL TABLE ===
-            const tableMat = new THREE.MeshLambertMaterial({ color: 0x2a0840 });
-            const tableTop = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, 0.15, 32), tableMat); tableTop.position.set(WR.cx, 1.0, WR.cz); scene.add(tableTop);
-            const tableLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 1.0, 16), tableMat); tableLeg.position.set(WR.cx, 0.5, WR.cz); scene.add(tableLeg);
-            // Gold rim on table
-            const rimMat = new THREE.MeshBasicMaterial({ color: 0xFFD700 });
-            const rim = new THREE.Mesh(new THREE.TorusGeometry(1.8, 0.05, 8, 32), rimMat); rim.rotation.x = Math.PI / 2; rim.position.set(WR.cx, 1.08, WR.cz); scene.add(rim);
+        // ZAR YÜZEYİ ÇİZİCİ
+        function drawDiceCanvas(ctx, val) {
+            ctx.fillStyle = '#e8e8d8'; ctx.fillRect(0, 0, 256, 256);
+            ctx.fillStyle = '#111';
+            const drawDot = (x, y) => { ctx.beginPath(); ctx.arc(x, y, 26, 0, Math.PI * 2); ctx.fill(); }
+            const c = 128, l = 64, r = 192;
+            if(val === 1) { drawDot(c,c); }
+            else if(val === 2) { drawDot(l,l); drawDot(r,r); }
+            else if(val === 3) { drawDot(l,l); drawDot(c,c); drawDot(r,r); }
+            else if(val === 4) { drawDot(l,l); drawDot(r,r); drawDot(l,r); drawDot(r,l); }
+            else if(val === 5) { drawDot(l,l); drawDot(r,r); drawDot(l,r); drawDot(r,l); drawDot(c,c); }
+            else if(val === 6) { drawDot(l,l); drawDot(r,r); drawDot(l,r); drawDot(r,l); drawDot(l,c); drawDot(r,c); }
+        }
 
-            // Wheel disc on table (interactive)
-            const discMat = new THREE.MeshLambertMaterial({ color: 0x880000, side: THREE.DoubleSide });
-            wheelDiscMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 0.08, 32), discMat);
-            wheelDiscMesh.position.set(WR.cx, 1.12, WR.cz);
-            wheelDiscMesh.userData = { type: 'WHEEL' }; scene.add(wheelDiscMesh); objects.push(wheelDiscMesh);
+        function createRouletteTexture() {
+            const canvas = document.createElement('canvas'); canvas.width = 2048; canvas.height = 2048; const ctx = canvas.getContext('2d'); const cx = 1024, cy = 1024;
+            const segments = gameList.length; const sliceAngle = (2 * Math.PI) / segments;
+            for(let i=0; i<segments; i++) {
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, 1024, i * sliceAngle, (i + 1) * sliceAngle); ctx.fillStyle = (i % 2 === 0) ? '#8a0a0a' : '#1a1a1a'; ctx.fill(); ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 6; ctx.stroke();
+                ctx.save(); ctx.translate(cx, cy); ctx.rotate((i * sliceAngle) + sliceAngle / 2); ctx.textAlign = "right"; ctx.textBaseline = "middle"; ctx.fillStyle = "#fff"; ctx.font = "bold 32px 'Courier New', monospace"; ctx.fillText(gameList[i].name, 980, 0); ctx.restore();
+            }
+            return new THREE.CanvasTexture(canvas);
+        }
 
-            // === 3D EYE on wheel ===
-            const eyeWhiteMat = new THREE.MeshPhongMaterial({ color: 0xf0f0f0, shininess: 100 });
-            eyeMesh = new THREE.Mesh(new THREE.SphereGeometry(0.35, 32, 32), eyeWhiteMat);
-            eyeMesh.position.set(WR.cx, 1.5, WR.cz); scene.add(eyeMesh);
-            // Iris
-            const irisMat = new THREE.MeshPhongMaterial({ color: 0x0088ff, shininess: 80 });
-            const iris = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), irisMat);
-            iris.position.set(0, 0, 0.25); eyeMesh.add(iris);
-            // Pupil
-            const pupilMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-            const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12), pupilMat);
-            pupil.position.set(0, 0, 0.08); iris.add(pupil);
-            // Eye glow
-            const eyeGlow = new THREE.PointLight(0x4facfe, 0.5, 3); eyeGlow.position.set(0, 0.1, 0); eyeMesh.add(eyeGlow);
+        // ── FİLTRELER ──
+        window.applyFilters = function() {
+            function getRadioValue(name) { const els = document.getElementsByName(name); for(let r of els) if(r.checked) return r.value; return 'all'; }
+            
+            const anomOpt = getRadioValue('opt_anomaly'), japOpt = getRadioValue('opt_japan'), demOpt = getRadioValue('opt_demo'), favOpt = getRadioValue('opt_fav');
+            const selectedTimes = Array.from(document.querySelectorAll('input[name="opt_time"]:checked')).map(cb => cb.value);
 
-            // === WALL POSTERS (interactive) ===
-            const posterData = [
-                { label: 'İSTEK LİSTESİ', pos: [WR.x2 + 0.06, 2.2, -2.5], rotY: -Math.PI / 2, type: 'WISHLIST' },
-                { label: 'BİTEN OYUNLAR', pos: [WR.x2 + 0.06, 2.2, 2.5], rotY: -Math.PI / 2, type: 'COMPLETED' },
-                { label: 'ÇARKTAKİ\nOYUNLAR', pos: [WR.cx, 2.2, WR.z1 + 0.06], rotY: 0, type: 'CURRENT_WHEEL' },
-                { label: 'KENDİMİ ŞANSLI HİSSEDİYORUM', pos: [WR.cx, 2.2, WR.z2 - 0.06], rotY: Math.PI, type: 'LUCKY' }
-            ];
-            posterData.forEach(p => {
-                const mat = new THREE.MeshBasicMaterial({ map: createPosterTex(p.label.replace('\n', ' ')), side: THREE.DoubleSide });
-                const mesh = new THREE.Mesh(new THREE.PlaneGeometry(3, 1.5), mat);
-                mesh.position.set(...p.pos); mesh.rotation.y = p.rotY;
-                mesh.userData = { type: p.type, title: p.label.replace('\n', ' ') };
-                scene.add(mesh); objects.push(mesh);
-                // Poster glow
-                const gl = new THREE.PointLight(0xFFD700, 0.3, 3); gl.position.set(p.pos[0] + (p.rotY === 0 ? 0 : Math.sin(p.rotY) * 0.5), p.pos[1], p.pos[2] + (p.rotY === 0 ? 0.5 : 0)); scene.add(gl);
+            let filtered = allGames.filter(g => {
+                let durStr = g.playtime.toLowerCase(); let maxVal = 0;
+                let matches = durStr.match(/[\d\.]+/g);
+                if(matches) { maxVal = Math.max(...matches.map(n => parseFloat(n))); if(durStr.includes('dakika') && maxVal > 10) maxVal = maxVal / 60; }
+                if(durStr.includes('sonsuz')) maxVal = 999;
+
+                let isAnom = g.type.includes('anomali'), isJap = g.type.includes('japon'), isDem = g.type.includes('demo');
+                if (favOpt === 'only' && !favoriteGames.includes(g.name)) return false;
+                if (anomOpt === 'exclude' && isAnom) return false;
+                if (japOpt === 'exclude' && isJap) return false;
+                if (demOpt === 'exclude' && isDem) return false;
+                
+                if (selectedTimes.length > 0) {
+                    let match = false;
+                    if (selectedTimes.includes('short') && maxVal < 1) match = true;
+                    if (selectedTimes.includes('medium') && maxVal >= 1 && maxVal <= 2) match = true;
+                    if (selectedTimes.includes('long') && maxVal > 2) match = true;
+                    if (!match) return false;
+                }
+                return true;
             });
+
+            const activeOnlyFilters = [];
+            if (anomOpt === 'only') activeOnlyFilters.push('anomaly'); if (japOpt === 'only') activeOnlyFilters.push('japan'); if (demOpt === 'only') activeOnlyFilters.push('demo');
+
+            if (activeOnlyFilters.length > 0) {
+                filtered = filtered.filter(g => {
+                    let isAnom = g.type.includes('anomali'), isJap = g.type.includes('japon'), isDem = g.type.includes('demo');
+                    let match = false;
+                    if (activeOnlyFilters.includes('anomaly') && isAnom) match = true;
+                    if (activeOnlyFilters.includes('japan') && isJap) match = true;
+                    if (activeOnlyFilters.includes('demo') && isDem) match = true;
+                    return match;
+                });
+            }
+            
+            gameList = filtered.length > 0 ? filtered : [{name: 'OYUN KALMADI', type: 'error'}];
+            if(wheelMesh) { wheelMesh.material[1].map = createRouletteTexture(); wheelMesh.material[1].needsUpdate = true; }
+        };
+
+        document.querySelectorAll('#settingsUI input').forEach(el => {
+            el.addEventListener('change', () => { if(el.name === 'opt_sound') soundEnabled = el.value === 'on'; else applyFilters(); });
+        });
+
+        // ── 3D SAHNE KURULUMU ──
+        function init() {
+            scene = new THREE.Scene(); scene.background = new THREE.Color(0x0d0803); scene.fog = new THREE.FogExp2(0x0d0803, 0.05); 
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            scene.add(new THREE.AmbientLight(0x403020, 0.8));
+            const mainLight = new THREE.PointLight(0xf0b050, 1.2, 22); mainLight.position.set(0, 4.0, 0); scene.add(mainLight);
+
+            controls = new THREE.PointerLockControls(camera, document.body);
+            
+            // ESC ve İlk Başlangıç Mantığı
+            const blocker = document.getElementById('blocker');
+            document.body.addEventListener('click', function(event) {
+                if(activeModal) return; // Menü açıksa ekranı kilitleme
+                if(gameState === 'OUTER_DOOR') return; // Kapıda bakıyorsak kilitleme
+
+                // Sadece oyuna girmek için Canvas'a veya blocker'a tıklanırsa
+                if(!controls.isLocked) {
+                    initAudio();
+                    if(isFirstStart) {
+                        const title = document.getElementById('titleText'); if(title) title.style.display = 'none';
+                        document.getElementById('instructions').style.border = 'none';
+                        document.getElementById('instructions').style.background = 'transparent';
+                        document.getElementById('instructions').style.boxShadow = 'none';
+                        document.querySelector('.hint').style.display = 'none';
+                        isFirstStart = false;
+                    }
+                    controls.lock();
+                }
+            });
+
+            controls.addEventListener('lock', function () { blocker.style.display = 'none'; });
+            controls.addEventListener('unlock', function () { 
+                if (gameState === 'OUTER_DOOR') return; 
+                if (activeModal) return; // Biz kodla açtıysak yazı gösterme
+                
+                // Kullanıcı ESC'ye basıp durdurduysa
+                blocker.style.display = 'flex';
+            });
+            
+            scene.add(controls.getObject()); controls.getObject().position.set(0, 2.0, 5);
+
+            document.addEventListener('keydown', (e) => {
+                if (e.code === 'Escape') {
+                    if (activeModal) {
+                        closeModal(activeModal);
+                    }
+                }
+                switch (e.code) {
+                    case 'ArrowUp': case 'KeyW': moveForward = true; break;
+                    case 'ArrowLeft': case 'KeyA': moveLeft = true; break;
+                    case 'ArrowDown': case 'KeyS': moveBackward = true; break;
+                    case 'ArrowRight': case 'KeyD': moveRight = true; break;
+                    case 'Space': if (canJump && !isCrouching) { velocity.y += 12; canJump = false; } break;
+                    case 'ShiftLeft': case 'ShiftRight': isCrouching = true; break;
+                }
+            });
+            document.addEventListener('keyup', (e) => {
+                switch (e.code) {
+                    case 'ArrowUp': case 'KeyW': moveForward = false; break;
+                    case 'ArrowLeft': case 'KeyA': moveLeft = false; break;
+                    case 'ArrowDown': case 'KeyS': moveBackward = false; break;
+                    case 'ArrowRight': case 'KeyD': moveRight = false; break;
+                    case 'ShiftLeft': case 'ShiftRight': isCrouching = false; break;
+                }
+            });
+
+            const c1 = document.createElement('canvas'); c1.width=512; c1.height=256; textScreenCtx = c1.getContext('2d'); textScreenTex = new THREE.CanvasTexture(c1); textScreenTex.magFilter = THREE.NearestFilter;
+            const c2 = document.createElement('canvas'); c2.width=512; c2.height=256; imageScreenCtx = c2.getContext('2d'); imageScreenTex = new THREE.CanvasTexture(c2); imageScreenTex.magFilter = THREE.LinearFilter;
+
+            buildLShapeCorridor(); buildSecretRoom(); buildCasinoRoom();
+
+            raycaster = new THREE.Raycaster();
+            document.addEventListener('mousedown', onMouseDown); document.addEventListener('mouseup', onMouseUp); document.addEventListener('mousemove', onMouseMove);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('gameCanvas').appendChild(renderer.domElement); 
+            window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
         }
 
-        function onClick() {
-            if (!controls.isLocked || !interactTarget) return;
-            const t = interactTarget.userData.type;
-            playSound('click');
-            if (t === 'WHEEL') { gameState = 'SPIN'; controls.unlock(); document.getElementById('blocker').style.display = 'none'; document.getElementById('wheelSpinOverlay').style.display = 'flex'; }
-            else if (t === 'WISHLIST') { gameState = 'OVERLAY'; controls.unlock(); document.getElementById('blocker').style.display = 'none'; openOverlay('wishlistOverlay', 'wishlistContent', wishlist); }
-            else if (t === 'COMPLETED') { gameState = 'OVERLAY'; controls.unlock(); document.getElementById('blocker').style.display = 'none'; openOverlay('completedOverlay', 'completedContent', completedGames); }
-            else if (t === 'CURRENT_WHEEL') { gameState = 'OVERLAY'; controls.unlock(); document.getElementById('blocker').style.display = 'none'; openCurrentWheel(); }
-            else if (t === 'LUCKY') { gameState = 'OVERLAY'; controls.unlock(); document.getElementById('blocker').style.display = 'none'; document.getElementById('dice-interface').style.display = 'flex'; document.getElementById('diceResultText').innerText = ''; document.getElementById('roll-btn').disabled = false; document.getElementById('roll-btn').innerText = 'ZAR AT'; }
+        // ── ODALARI İNŞA ETME ──
+        function buildLShapeCorridor() {
+            const wallMat = new THREE.MeshLambertMaterial({ map: createRetroWallTexture(), side: THREE.DoubleSide });
+            const floorMat = new THREE.MeshLambertMaterial({ map: createFloorTexture() });
+            
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(5, 18), floorMat); floor.rotation.x = -Math.PI / 2; floor.position.set(0, 0, -3); scene.add(floor);
+            const ceil = new THREE.Mesh(new THREE.PlaneGeometry(5, 18), new THREE.MeshLambertMaterial({ color: 0xd4c89a })); ceil.rotation.x = Math.PI / 2; ceil.position.set(0, 4.5, -3); scene.add(ceil);
+
+            const wallL = new THREE.Mesh(new THREE.PlaneGeometry(18, 4.5), wallMat); wallL.rotation.y = Math.PI / 2; wallL.position.set(-2.5, 2.25, -3); scene.add(wallL);
+            const wallR = new THREE.Mesh(new THREE.PlaneGeometry(18, 4.5), wallMat); wallR.rotation.y = -Math.PI / 2; wallR.position.set(2.5, 2.25, -3); scene.add(wallR);
+            const wallB = new THREE.Mesh(new THREE.PlaneGeometry(5, 4.5), wallMat); wallB.position.set(0, 2.25, 6); scene.add(wallB);
+            const wallF = new THREE.Mesh(new THREE.PlaneGeometry(5, 4.5), wallMat); wallF.position.set(0, 2.25, -12); scene.add(wallF);
+
+            const dGeo = new THREE.PlaneGeometry(2.0, 3.2);
+            const roomDoor = new THREE.Mesh(dGeo, new THREE.MeshLambertMaterial({ map: createDoorTexture(false) })); roomDoor.position.set(-2.4, 1.6, 0); roomDoor.rotation.y = Math.PI / 2; roomDoor.userData = { type: 'GO_TO_SECRET_ROOM', title: 'Oyun Odasına Gir' }; scene.add(roomDoor); objects.push(roomDoor);
+            const casinoDoor = new THREE.Mesh(dGeo, new THREE.MeshLambertMaterial({ map: createDoorTexture(false) })); casinoDoor.position.set(2.4, 1.6, 0); casinoDoor.rotation.y = -Math.PI / 2; casinoDoor.userData = { type: 'GO_TO_CASINO', title: 'Kart Odasına Gir' }; scene.add(casinoDoor); objects.push(casinoDoor);
+            const mainDoor = new THREE.Mesh(dGeo, new THREE.MeshLambertMaterial({ map: createDoorTexture(true) })); mainDoor.position.set(0, 1.6, -11.9); mainDoor.userData = { type: 'OUTER_DOOR', title: 'Deliğe Bak' }; scene.add(mainDoor); objects.push(mainDoor);
         }
 
-        function returnToRoom() {
-            document.querySelectorAll('.game-display-overlay').forEach(o => o.style.display = 'none');
-            document.getElementById('wheelSpinOverlay').style.display = 'none';
-            document.getElementById('dice-interface').style.display = 'none';
-            document.getElementById('settings-modal').style.display = 'none';
-            document.getElementById('detail-modal').style.display = 'none';
-            resultDisplay.classList.remove('show-result');
-            gameState = 'CORRIDOR'; controls.lock();
+        function buildSecretRoom() {
+            const wallMat = new THREE.MeshLambertMaterial({ map: createRetroWallTexture(), side: THREE.DoubleSide });
+            const floorMat = new THREE.MeshLambertMaterial({ map: createFloorTexture() });
+            const cx = 100, cz = 0;
+
+            secretRoomLight = new THREE.PointLight(0xffeedd, 1.3, 30); secretRoomLight.position.set(cx, 4.0, cz); scene.add(secretRoomLight);
+
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), floorMat); floor.rotation.x = -Math.PI / 2; floor.position.set(cx, 0, cz); scene.add(floor);
+            const ceil = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.MeshLambertMaterial({ color: 0xd4c89a })); ceil.rotation.x = Math.PI / 2; ceil.position.set(cx, 4.5, cz); scene.add(ceil);
+
+            const wGeo = new THREE.PlaneGeometry(12, 4.5);
+            const w1 = new THREE.Mesh(wGeo, wallMat); w1.position.set(cx, 2.25, cz - 6); scene.add(w1);
+            const w2 = new THREE.Mesh(wGeo, wallMat); w2.position.set(cx, 2.25, cz + 6); w2.rotation.y = Math.PI; scene.add(w2);
+            const w3 = new THREE.Mesh(wGeo, wallMat); w3.position.set(cx - 6, 2.25, cz); w3.rotation.y = Math.PI/2; scene.add(w3);
+            const w4 = new THREE.Mesh(wGeo, wallMat); w4.position.set(cx + 6, 2.25, cz); w4.rotation.y = -Math.PI/2; scene.add(w4);
+
+            const exitDoor = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 3.2), new THREE.MeshLambertMaterial({ map: createDoorTexture(false) })); exitDoor.position.set(cx, 1.6, cz + 5.9); exitDoor.rotation.y = Math.PI; exitDoor.userData = { type: 'GO_TO_CORRIDOR', title: 'Koridora Dön' }; scene.add(exitDoor); objects.push(exitDoor);
+
+            // Tablo 2 (Çark Odası)
+            const textureLoader = new THREE.TextureLoader();
+            const tabloMat2 = new THREE.MeshLambertMaterial({ color: 0x888888 });
+            textureLoader.load('tablo2.png', function(tex) { tabloMat2.map = tex; tabloMat2.needsUpdate = true; });
+            const tablo2Mesh = new THREE.Mesh(new THREE.PlaneGeometry(3, 4), tabloMat2); tablo2Mesh.position.set(cx, 2.5, cz - 5.9); scene.add(tablo2Mesh);
+
+            // Çark Masası
+            const tableGroup = new THREE.Group(); tableGroup.position.set(cx, 0, cz); scene.add(tableGroup);
+            const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.7, 0.9, 16), new THREE.MeshLambertMaterial({ color: 0x3a2010 })); leg.position.y = 0.45; tableGroup.add(leg);
+
+            wheelMesh = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 0.2, 64), [ new THREE.MeshLambertMaterial({ color: 0x222222 }), new THREE.MeshLambertMaterial({ map: createRouletteTexture() }), new THREE.MeshLambertMaterial({ color: 0x222222 }) ]);
+            wheelMesh.position.y = 1.0; wheelMesh.userData = { type: 'WHEEL' }; tableGroup.add(wheelMesh); objects.push(wheelMesh);
+
+            const pointer = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.6, 3), new THREE.MeshLambertMaterial({ color: 0xd4af37 })); pointer.position.set(0, 1.15, 2.35); pointer.rotation.x = -Math.PI / 2; tableGroup.add(pointer);
+            
+            const jumbotronMats = [ new THREE.MeshBasicMaterial({ map: imageScreenTex }), new THREE.MeshBasicMaterial({ map: imageScreenTex }), new THREE.MeshLambertMaterial({ color: 0x111111 }), new THREE.MeshLambertMaterial({ color: 0x111111 }), new THREE.MeshBasicMaterial({ map: textScreenTex }), new THREE.MeshBasicMaterial({ map: textScreenTex }) ];
+            const jumbotron = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.8, 1.5), jumbotronMats); jumbotron.position.set(cx, 3.2, cz); scene.add(jumbotron);
+            const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.3), new THREE.MeshLambertMaterial({ color: 0x333333 })); pole.position.set(cx, 3.85, cz); scene.add(pole);
+
+            // Duvar Düğmeleri (Çark Listesi, İstek Listesi, Disko)
+            const buttonPanelGroup = new THREE.Group(); buttonPanelGroup.position.set(cx - 5.95, 1.5, cz); buttonPanelGroup.rotation.y = Math.PI / 2; scene.add(buttonPanelGroup);
+            buttonPanelGroup.add(new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.6, 0.1), new THREE.MeshLambertMaterial({ color: 0x444444 })));
+            
+            const btnActions = ['BTN_WHEEL_LIST', 'BTN_WISHLIST', 'BTN_DISCO']; const btnTitles = ['Çarktaki Oyunlar', 'İstek Listesi', 'Disko Işığı'];
+            for(let i=0; i<3; i++) {
+                const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.1, 16).rotateX(Math.PI / 2), new THREE.MeshLambertMaterial({ color: 0x880000 }));
+                btn.position.set(-0.6 + i*0.6, 0, 0.05); btn.userData = { type: btnActions[i], title: btnTitles[i], originalZ: 0.05, isPressed: false };
+                buttonPanelGroup.add(btn); objects.push(btn);
+            }
+
+            // 3D ZAR MASASI
+            const diceTable = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.8, 1.5), new THREE.MeshLambertMaterial({ color: 0x4a2d17 }));
+            diceTable.position.set(cx + 4.5, 0.4, cz + 4.5); scene.add(diceTable);
+
+            // ZAR OLUŞTURMA
+            diceCtx1 = document.createElement('canvas').getContext('2d'); diceCtx1.canvas.width=256; diceCtx1.canvas.height=256;
+            diceCtx2 = document.createElement('canvas').getContext('2d'); diceCtx2.canvas.width=256; diceCtx2.canvas.height=256;
+            let diceTex1 = new THREE.CanvasTexture(diceCtx1.canvas); let diceTex2 = new THREE.CanvasTexture(diceCtx2.canvas);
+            drawDiceCanvas(diceCtx1, 6); drawDiceCanvas(diceCtx2, 6);
+
+            dice1Mesh = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), new THREE.MeshLambertMaterial({ map: diceTex1 }));
+            dice1Mesh.position.set(cx + 4.15, 0.95, cz + 4.5); dice1Mesh.rotation.set(0, Math.PI/4, 0);
+            dice1Mesh.userData = { type: 'ROLL_3D_DICE', title: 'Zarları At (Şans Artır)' }; scene.add(dice1Mesh); objects.push(dice1Mesh);
+
+            dice2Mesh = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), new THREE.MeshLambertMaterial({ map: diceTex2 }));
+            dice2Mesh.position.set(cx + 4.85, 0.95, cz + 4.4); dice2Mesh.rotation.set(0, Math.PI/6, 0);
+            dice2Mesh.userData = { type: 'ROLL_3D_DICE', title: 'Zarları At (Şans Artır)' }; scene.add(dice2Mesh); objects.push(dice2Mesh);
         }
 
-        // Close buttons
-        document.getElementById('closeSpinOverlay').addEventListener('click', returnToRoom);
-        document.querySelectorAll('.close-overlay-btn').forEach(b => b.addEventListener('click', e => { playSound('click'); e.target.closest('.game-display-overlay').style.display = 'none'; gameState = 'CORRIDOR'; controls.lock(); }));
+        function buildCasinoRoom() {
+            const wallMat = new THREE.MeshLambertMaterial({ map: createRetroWallTexture('#2e3a2e'), side: THREE.DoubleSide });
+            const floorMat = new THREE.MeshLambertMaterial({ map: createFloorTexture('#1a0f05', '#110a02') });
+            const cx = -100, cz = 0;
 
-        // COLLISION
-        function isInBounds(x, z) {
-            const p = 0.6;
-            // Main corridor
-            if (x >= -HW + p && x <= HW - p && z >= 6 - ML + p && z <= 6 - p) return true;
-            // Branch corridor
-            if (x >= HW && x <= HW + BL - p && z >= 6 - ML + p && z <= 6 - ML + CW - p) return true;
-            // Door passage
-            if (x >= -HW && x >= WR.x1 - 0.5 && z >= DOOR_Z1 + p && z <= DOOR_Z2 - p && x >= -HW - 1) return true;
-            // Wheel room
-            if (x <= WR.x1 - p + 1 && x >= WR.x2 + p && z >= WR.z1 + p && z <= WR.z2 - p) return true;
-            return false;
+            const light = new THREE.PointLight(0xffddaa, 1.2, 30); light.position.set(cx, 4.0, cz); scene.add(light);
+
+            const floor = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), floorMat); floor.rotation.x = -Math.PI / 2; floor.position.set(cx, 0, cz); scene.add(floor);
+            const ceil = new THREE.Mesh(new THREE.PlaneGeometry(12, 12), new THREE.MeshLambertMaterial({ color: 0x222 })); ceil.rotation.x = Math.PI / 2; ceil.position.set(cx, 4.5, cz); scene.add(ceil);
+
+            const wGeo = new THREE.PlaneGeometry(12, 4.5);
+            const w1 = new THREE.Mesh(wGeo, wallMat); w1.position.set(cx, 2.25, cz - 6); scene.add(w1);
+            const w2 = new THREE.Mesh(wGeo, wallMat); w2.position.set(cx, 2.25, cz + 6); w2.rotation.y = Math.PI; scene.add(w2);
+            const w3 = new THREE.Mesh(wGeo, wallMat); w3.position.set(cx - 6, 2.25, cz); w3.rotation.y = Math.PI/2; scene.add(w3);
+            const w4 = new THREE.Mesh(wGeo, wallMat); w4.position.set(cx + 6, 2.25, cz); w4.rotation.y = -Math.PI/2; scene.add(w4);
+
+            const exitDoor = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 3.2), new THREE.MeshLambertMaterial({ map: createDoorTexture(false) })); exitDoor.position.set(cx, 1.6, cz - 5.9); exitDoor.userData = { type: 'GO_TO_CORRIDOR', title: 'Koridora Dön' }; scene.add(exitDoor); objects.push(exitDoor);
+
+            // Tablo 1 (Kart Odası)
+            const textureLoader = new THREE.TextureLoader();
+            const tabloMat1 = new THREE.MeshLambertMaterial({ color: 0x888888 });
+            textureLoader.load('tablo1.png', function(tex) { tabloMat1.map = tex; tabloMat1.needsUpdate = true; });
+            const tablo1Mesh = new THREE.Mesh(new THREE.PlaneGeometry(3, 4), tabloMat1); tablo1Mesh.position.set(cx, 2.5, cz - 5.9); scene.add(tablo1Mesh);
+
+            // Blackjack Masası
+            const bjTable = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 0.8, 32), new THREE.MeshLambertMaterial({ color: 0x0a4a1a }));
+            bjTable.position.set(cx, 0.4, cz + 1); bjTable.userData = { type: 'PLAY_BLACKJACK', title: 'Blackjack Oyna' }; scene.add(bjTable); objects.push(bjTable);
+        }
+
+        // ── ARAYÜZ VE MENÜ KONTROLLERİ ──
+        window.openModal = function(id) { 
+            document.exitPointerLock(); 
+            activeModal = id; 
+            document.getElementById(id).style.display = 'flex'; 
+        }
+        
+        window.closeModal = function(id) { 
+            document.getElementById(id).style.display = 'none'; 
+            activeModal = null; 
+            // Kapatıldığında duraklatma menüsüne dön (ESC Mantığı)
+            document.getElementById('blocker').style.display = 'flex'; 
+        }
+
+        function showList(title, dataArray) {
+            document.getElementById('listTitle').innerText = title;
+            const grid = document.getElementById('listGrid'); grid.innerHTML = '';
+            dataArray.forEach(g => {
+                let heartHtml = favoriteGames.includes(g.name) ? '<img class="heart-overlay" src="code/kalp.png" onerror="this.style.display=\'none\'">' : '';
+                let flagHtml = g.overlayIcon ? `<img src="${g.overlayIcon}" class="overlay-icon" onerror="this.style.display=\'none\'">` : '';
+                grid.innerHTML += `<div class="game-item">${flagHtml}${heartHtml}<img src="${getGameImagePath(g)}" class="game-thumb" onerror="this.src='https://via.placeholder.com/280x130/1a0229/FFD700?text=Resim'"><div class="game-name">${g.name}</div></div>`;
+            });
+            openModal('listUI');
+        }
+
+        function showScreenMessage(text) {
+            const msg = document.getElementById('screenMessage'); msg.innerText = text; msg.style.opacity = 1;
+            setTimeout(() => { msg.style.opacity = 0; }, 3000);
+        }
+
+        // ── BLACKJACK MANTIĞI ──
+        let deck = [], playerHand = [], dealerHand = [], bjGameOver = false;
+        function initBlackjack() {
+            document.getElementById('bjMessage').style.display = 'none'; document.getElementById('bjRestart').style.display = 'none';
+            document.getElementById('bjHit').disabled = false; document.getElementById('bjStand').disabled = false;
+            deck = []; const suits = ['♥', '♦', '♣', '♠']; const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+            for(let s of suits) { for(let v of values) { let weight = parseInt(v); if(v==='J'||v==='Q'||v==='K') weight=10; if(v==='A') weight=11; deck.push({v:v, s:s, w:weight, color:(s==='♥'||s==='♦')?'red':'black'}); } }
+            deck.sort(() => Math.random() - 0.5);
+            playerHand = [deck.pop(), deck.pop()]; dealerHand = [deck.pop(), deck.pop()];
+            bjGameOver = false; renderBlackjack();
+        }
+        function calcScore(hand) { let score = 0, aces = 0; hand.forEach(c => { score += c.w; if(c.v==='A') aces++; }); while(score > 21 && aces > 0) { score -= 10; aces--; } return score; }
+        function renderBlackjack() {
+            const pDiv = document.getElementById('playerHand'); pDiv.innerHTML = ''; playerHand.forEach(c => pDiv.innerHTML += `<div class="bj-card ${c.color}">${c.v}${c.s}</div>`);
+            document.getElementById('playerScore').innerText = `Puan: ${calcScore(playerHand)}`;
+            const dDiv = document.getElementById('dealerHand'); dDiv.innerHTML = '';
+            if(bjGameOver) { dealerHand.forEach(c => dDiv.innerHTML += `<div class="bj-card ${c.color}">${c.v}${c.s}</div>`); document.getElementById('dealerScore').innerText = `Puan: ${calcScore(dealerHand)}`; }
+            else { dDiv.innerHTML = `<div class="bj-card ${dealerHand[0].color}">${dealerHand[0].v}${dealerHand[0].s}</div><div class="bj-card" style="background:#555;">?</div>`; document.getElementById('dealerScore').innerText = `Puan: ?`; }
+        }
+        window.bjHit = function() { if(bjGameOver) return; playerHand.push(deck.pop()); renderBlackjack(); if(calcScore(playerHand) > 21) endBlackjack("Bust! Kaybettin."); }
+        window.bjStand = function() { if(bjGameOver) return; while(calcScore(dealerHand) < 17) dealerHand.push(deck.pop()); let p = calcScore(playerHand), d = calcScore(dealerHand); if(d > 21 || p > d) endBlackjack("KAZANDIN!"); else if(p === d) endBlackjack("Berabere."); else endBlackjack("Kasa Kazandı."); }
+        function endBlackjack(msg) {
+            bjGameOver = true; renderBlackjack(); document.getElementById('bjHit').disabled = true; document.getElementById('bjStand').disabled = true; document.getElementById('bjRestart').style.display = 'inline-block';
+            const mDiv = document.getElementById('bjMessage'); mDiv.innerText = msg; mDiv.style.display = 'block';
+            if(msg === "KAZANDIN!") {
+                hasWonBlackjack = true; mDiv.innerHTML += "<br><span style='font-size:18px;color:#FFD700;'>Zar Masası Kilidi Açıldı!</span>";
+            }
+        }
+
+        // ── ETKİLEŞİMLER ──
+        function onMouseDown() {
+            if (!controls.isLocked) return;
+            if (interactTarget) {
+                const type = interactTarget.userData.type;
+                if (type === 'GO_TO_SECRET_ROOM') { gameState = 'SECRET_ROOM'; scene.fog.near = 15; controls.getObject().position.set(100, 2.0, 4); velocity.set(0,0,0); } 
+                else if (type === 'GO_TO_CASINO') { gameState = 'CASINO_ROOM'; scene.fog.near = 15; controls.getObject().position.set(-100, 2.0, 4); velocity.set(0,0,0); } 
+                else if (type === 'GO_TO_CORRIDOR') { gameState = 'CORRIDOR'; scene.fog.near = 5; controls.getObject().position.set(0, 2.0, 2); velocity.set(0,0,0); } 
+                else if (type === 'OUTER_DOOR') { gameState = 'OUTER_DOOR'; controls.unlock(); document.getElementById('blocker').style.display = 'none'; document.getElementById('outerDoorUI').style.display = 'flex'; }
+                else if (type === 'WHEEL') { isDraggingWheel = true; winningGame = null; }
+                else if (type === 'PLAY_BLACKJACK') { initBlackjack(); openModal('blackjackUI'); }
+                else if (type === 'ROLL_3D_DICE') {
+                    if(!hasWonBlackjack) { showScreenMessage("ÖNCE BLACKJACK KAZAN!"); return; }
+                    if(isRollingDice) return;
+                    isRollingDice = true;
+                    let ticks = 0;
+                    const rollInterval = setInterval(() => {
+                        let v1 = Math.floor(Math.random()*6)+1, v2 = Math.floor(Math.random()*6)+1;
+                        drawDiceCanvas(diceCtx1, v1); dice1Mesh.material.map.needsUpdate = true;
+                        drawDiceCanvas(diceCtx2, v2); dice2Mesh.material.map.needsUpdate = true;
+                        playTickSound(); ticks++;
+                        if(ticks > 15) {
+                            clearInterval(rollInterval); isRollingDice = false;
+                            luckyBonus = (v1 + v2) * 2; showScreenMessage(`ŞANSIN %${luckyBonus} ARTTI!`);
+                        }
+                    }, 80);
+                }
+                else if (type.startsWith('BTN_')) {
+                    const btn = interactTarget; if (btn.userData.isPressed) return; btn.userData.isPressed = true; btn.position.z = btn.userData.originalZ - 0.025; btn.material.color.setHex(0xff0000); 
+                    
+                    if(type === 'BTN_WHEEL_LIST') showList('Çarktaki Oyunlar', gameList); 
+                    else if(type === 'BTN_WISHLIST') showList('İstek Listesi', wishlist);
+                    else if(type === 'BTN_DISCO') { isDiscoMode = !isDiscoMode; if(!isDiscoMode) { secretRoomLight.color.setHex(0xffeedd); secretRoomLight.intensity = 1.3; } }
+
+                    setTimeout(() => { btn.position.z = btn.userData.originalZ; btn.material.color.setHex(0x880000); btn.userData.isPressed = false; }, 300);
+                }
+            }
+        }
+        function onMouseUp() { isDraggingWheel = false; }
+        function onMouseMove(event) { if (!controls.isLocked) return; if (isDraggingWheel) { wheelVelocity += (event.movementX || 0) * 0.002; isWheelSpinning = true; winningGame = null; } }
+
+        function calculateWinningGame() {
+            let rad = wheelMesh.rotation.y % (2 * Math.PI); if (rad < 0) rad += 2 * Math.PI;
+            const sliceAngle = (2 * Math.PI) / gameList.length; let pointerAngle = (Math.PI / 2 - rad + 2 * Math.PI) % (2 * Math.PI);
+            let index = Math.floor(pointerAngle / sliceAngle);
+
+            if (luckyBonus > 0) {
+                if (Math.random() * 100 < luckyBonus) {
+                    const favIndices = []; gameList.forEach((g, i) => { if (favoriteGames.includes(g.name)) favIndices.push(i); });
+                    if (favIndices.length > 0 && !favIndices.includes(index)) {
+                        index = favIndices[Math.floor(Math.random() * favIndices.length)];
+                        let targetRad = (Math.PI / 2) - ((index * sliceAngle) + (sliceAngle / 2)); wheelMesh.rotation.y = targetRad;
+                    }
+                }
+                luckyBonus = 0;
+            }
+            winningGame = gameList[index]; cachedGameImage.crossOrigin = "Anonymous"; cachedGameImage.src = getGameImagePath(winningGame);
+        }
+
+        // Kapı Fonksiyonları
+        document.getElementById('leaveOuterDoorBtn').addEventListener('click', () => { document.getElementById('outerDoorUI').style.display = 'none'; gameState = 'CORRIDOR'; document.getElementById('blocker').style.display='flex'; });
+        document.getElementById('rejectBtn').addEventListener('click', () => { document.getElementById('npcDialog').innerText = '"Pişman olacaksın..."'; setTimeout(() => { document.getElementById('outerDoorUI').style.display = 'none'; gameState = 'CORRIDOR'; document.getElementById('blocker').style.display='flex'; }, 1500); });
+        document.getElementById('letInBtn').addEventListener('click', () => { document.getElementById('outerDoorUI').style.display = 'none'; document.getElementById('jumpscare').style.display = 'block'; setTimeout(() => { alert('ÖLDÜN.'); location.reload(); }, 2000); });
+
+        function updateScreen(time) {
+            if (!textScreenCtx || !imageScreenCtx) return;
+            if (time - lastScreenUpdate > 100) {
+                lastScreenUpdate = time;
+                textScreenCtx.fillStyle = '#0a0000'; textScreenCtx.fillRect(0, 0, 512, 256); textScreenCtx.fillStyle = 'rgba(255, 0, 0, 0.15)'; for(let i=0; i<256; i+=6) textScreenCtx.fillRect(0, i, 512, 3);
+                textScreenCtx.textAlign = "center"; textScreenCtx.textBaseline = "middle";
+
+                if (winningGame) {
+                    textScreenCtx.font = "bold 40px 'Courier New', monospace"; textScreenCtx.fillStyle = '#00ff00'; textScreenCtx.fillText("SELECTED:", 256, 80);
+                    let fontSize = winningGame.name.length > 12 ? 35 : 50; textScreenCtx.font = `bold ${fontSize}px 'Special Elite', cursive`; textScreenCtx.fillStyle = '#ffd700'; textScreenCtx.fillText(winningGame.name, 256, 150);
+                } else if (isWheelSpinning) {
+                    textScreenCtx.font = "bold 50px 'Courier New', monospace"; textScreenCtx.fillStyle = Math.random() > 0.2 ? '#ff2222' : '#ffffff'; textScreenCtx.fillText(["SPINNING...", "SEARCHING...", "ANALYZING..."][Math.floor(Math.random() * 3)], 256, 128);
+                } else {
+                    textScreenCtx.font = "bold 50px 'Courier New', monospace"; textScreenCtx.fillStyle = '#ff2222'; textScreenCtx.fillText("SPIN THE WHEEL", 256, 128);
+                }
+
+                imageScreenCtx.fillStyle = '#0a0000'; imageScreenCtx.fillRect(0, 0, 512, 256);
+                if (winningGame && cachedGameImage.complete) { imageScreenCtx.drawImage(cachedGameImage, 0, 0, 512, 256); } 
+                else {
+                    imageScreenCtx.fillStyle = 'rgba(255, 0, 0, 0.15)'; for(let i=0; i<256; i+=6) imageScreenCtx.fillRect(0, i, 512, 3);
+                    imageScreenCtx.font = "bold 40px 'Courier New', monospace"; imageScreenCtx.fillStyle = '#ff2222'; imageScreenCtx.textAlign = "center"; imageScreenCtx.fillText(["NO SIGNAL", "SYSTEM ERROR", "AWAITING..."][Math.floor(Math.random() * 3)], 256, 128);
+                }
+                for(let i=0; i<100; i++) {
+                    let rx = Math.random()*512, ry = Math.random()*256, color = Math.random() > 0.5 ? `rgba(255,255,255,${Math.random()*0.5})` : `rgba(255,0,0,${Math.random()*0.6})`;
+                    textScreenCtx.fillStyle = color; textScreenCtx.fillRect(rx, ry, 4, 4);
+                    if (!winningGame) { imageScreenCtx.fillStyle = color; imageScreenCtx.fillRect(rx, ry, 4, 4); } else { imageScreenCtx.fillStyle = `rgba(0,0,0,${Math.random()*0.2})`; imageScreenCtx.fillRect(rx, ry, 10, 2); }
+                }
+                textScreenTex.needsUpdate = true; imageScreenTex.needsUpdate = true;
+            }
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            if (gameState !== 'CORRIDOR') {
-                // Eye still tracks player even when not in corridor
-                if (eyeMesh) eyeMesh.lookAt(camera.position);
-                renderer.render(scene, camera); return;
-            }
-            const time = performance.now();
-            if (controls.isLocked) {
-                const dt = (time - prevTime) / 1000;
-                if (Math.random() > 0.988) scene.userData.mainLight.intensity = 0.4 + Math.random() * 0.9;
-                velocity.x -= velocity.x * 10 * dt; velocity.z -= velocity.z * 10 * dt; velocity.y -= 40 * dt;
+            const time = performance.now(); const delta = (time - prevTime) / 1000;
+
+            if (isDiscoMode && secretRoomLight) { const hue = (time * 0.001) % 1; secretRoomLight.color.setHSL(hue, 1, 0.5); secretRoomLight.intensity = 2.5; }
+
+            if (controls.isLocked === true) {
+                velocity.x -= velocity.x * 10.0 * delta; velocity.z -= velocity.z * 10.0 * delta; velocity.y -= 40.0 * delta;
                 direction.z = Number(moveForward) - Number(moveBackward); direction.x = Number(moveRight) - Number(moveLeft); direction.normalize();
-                if (moveForward || moveBackward) velocity.z -= direction.z * 50 * dt;
-                if (moveLeft || moveRight) velocity.x -= direction.x * 50 * dt;
-                const oldX = controls.getObject().position.x, oldZ = controls.getObject().position.z;
-                controls.moveRight(-velocity.x * dt); controls.moveForward(-velocity.z * dt);
-                controls.getObject().position.y += (velocity.y * dt);
-                if (controls.getObject().position.y < H) { velocity.y = 0; controls.getObject().position.y = H; canJump = true; }
-                // Collision check
-                const pos = controls.getObject().position;
-                if (!isInBounds(pos.x, pos.z)) { pos.x = oldX; pos.z = oldZ; velocity.x = 0; velocity.z = 0; }
-                // Eye tracks player
-                if (eyeMesh) eyeMesh.lookAt(camera.position);
-                // Raycaster for interaction
-                raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-                const hits = raycaster.intersectObjects(objects);
-                if (hits.length > 0 && hits[0].distance < 4) {
-                    interactTarget = hits[0].object; interactText.style.display = 'block';
-                    const ud = interactTarget.userData;
-                    if (ud.type === 'WHEEL') interactText.innerText = '[ ÇARKI ÇEVİR ]';
-                    else if (ud.title) interactText.innerText = `[ ${ud.title} ]`;
-                    else interactText.innerText = '[ TIKLA ]';
-                } else { interactTarget = null; interactText.style.display = 'none'; }
-            }
-            prevTime = time; renderer.render(scene, camera);
-        }
 
-        // ===== WHEEL LOGIC =====
-        let availableGames = [], luckyBonus = 0, currentRotation = 0;
-        const colors = ['#b31010', '#1a1a1a'];
-        const canvas = document.getElementById('wheelCanvas'), ctx = canvas.getContext('2d');
-        const resultDisplay = document.getElementById('resultDisplay'), gameInfoContainer = resultDisplay.querySelector('.game-info');
+                const speedMult = isCrouching ? 20.0 : 50.0;
+                if (moveForward || moveBackward) velocity.z -= direction.z * speedMult * delta;
+                if (moveLeft || moveRight) velocity.x -= direction.x * speedMult * delta;
+                controls.moveRight(-velocity.x * delta); controls.moveForward(-velocity.z * delta); controls.getObject().position.y += (velocity.y * delta);
 
-        function drawWheel() {
-            const n = availableGames.length;
-            if (!n) { ctx.clearRect(0, 0, 380, 380); ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(190, 190, 170, 0, 2 * Math.PI); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = '20px Roboto'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('Oyun Kalmadı!', 190, 190); return; }
-            const a = 2 * Math.PI / n; ctx.clearRect(0, 0, 380, 380);
-            for (let i = 0; i < n; i++) { ctx.beginPath(); ctx.moveTo(190, 190); ctx.arc(190, 190, 190, i * a, (i + 1) * a); ctx.closePath(); ctx.fillStyle = colors[i % 2]; ctx.fill(); ctx.strokeStyle = '#c49102'; ctx.lineWidth = 2; ctx.stroke(); ctx.save(); ctx.translate(190, 190); ctx.rotate(i * a + a / 2); ctx.textAlign = 'right'; ctx.fillStyle = '#fff'; ctx.font = 'bold 14px Arial'; ctx.fillText(i, 170, 5); ctx.restore(); }
-        }
-
-        function initDragSpin() {
-            const wc = document.getElementById('wheelContainerEl');
-            let isDragging = false, startAngle = 0, lastAngle = 0, angVel = 0, lastTime = 0, spinning = false;
-            function getAngle(e) { const r = wc.getBoundingClientRect(); const cx = r.left + r.width / 2, cy = r.top + r.height / 2; return Math.atan2((e.clientY || e.touches[0].clientY) - cy, (e.clientX || e.touches[0].clientX) - cx) * 180 / Math.PI; }
-            wc.addEventListener('mousedown', e => { if (spinning) return; isDragging = true; startAngle = getAngle(e) - currentRotation; lastAngle = getAngle(e); lastTime = Date.now(); angVel = 0; e.preventDefault(); });
-            wc.addEventListener('touchstart', e => { if (spinning) return; isDragging = true; startAngle = getAngle(e) - currentRotation; lastAngle = getAngle(e); lastTime = Date.now(); angVel = 0; e.preventDefault(); }, { passive: false });
-            const mv = e => { if (!isDragging) return; e.preventDefault(); const a = getAngle(e), now = Date.now(), dt = now - lastTime; if (dt > 0) angVel = (a - lastAngle) / dt * 16; currentRotation = a - startAngle; canvas.style.transform = `rotate(${currentRotation}deg)`; lastAngle = a; lastTime = now; };
-            document.addEventListener('mousemove', mv); document.addEventListener('touchmove', mv, { passive: false });
-            const up = () => { if (!isDragging) return; isDragging = false; if (Math.abs(angVel) > 2) { spinning = true; fling(angVel, () => { spinning = false; }); } };
-            document.addEventListener('mouseup', up); document.addEventListener('touchend', up);
-
-            function fling(vel, cb) {
-                if (availableGames.length < 1) { cb(); return; } playSound('click');
-                const ti = selectTarget(), n = availableGames.length, sd = 360 / n;
-                const sign = vel > 0 ? 1 : -1, extra = 360 * (3 + Math.floor(Math.random() * 3)) * sign;
-                let tgt = (270 - (ti * sd) + 360) % 360, cur = ((currentRotation % 360) + 360) % 360, dist = ((tgt - cur + 360) % 360);
-                if (sign < 0) dist = -(360 - dist);
-                const total = extra + dist, start = currentRotation, final = start + total;
-                let st = null; const dur = 6000; let ltk = Math.floor(currentRotation / sd);
-                function anim(ts) {
-                    if (!st) st = ts; const el = ts - st, p = Math.min(el / dur, 1), ease = 1 - Math.pow(1 - p, 4);
-                    currentRotation = start + (total * ease); canvas.style.transform = `rotate(${currentRotation}deg)`;
-                    if (wheelDiscMesh) wheelDiscMesh.rotation.y = currentRotation * Math.PI / 180;
-                    const ct = Math.floor(Math.abs(currentRotation) / sd); if (ct > ltk) { playSound('tick'); ltk = ct; }
-                    if (p < 1) requestAnimationFrame(anim); else { currentRotation = final; canvas.style.transform = `rotate(${currentRotation}deg)`; displayResult(availableGames[ti]); cb(); }
+                let pos = controls.getObject().position; let camOffset = isCrouching ? 1.2 : 2.0; let feetY = pos.y - camOffset; let groundY = 0; 
+                
+                if (gameState === 'SECRET_ROOM') {
+                    let distToWheel = Math.sqrt((pos.x - 100)**2 + pos.z**2);
+                    if (distToWheel < 2.4) { if (feetY >= 1.1) { groundY = 1.2; } else { let push = 2.4 - distToWheel; pos.x += (pos.x - 100)/distToWheel * push; pos.z += pos.z/distToWheel * push; } }
+                    
+                    let inDiceX = pos.x > 103.7 && pos.x < 105.3; let inDiceZ = pos.z > 3.7 && pos.z < 5.3;
+                    if (inDiceX && inDiceZ) {
+                        if (feetY >= 0.7) { groundY = 0.8; } 
+                        else {
+                            let dx1 = pos.x - 103.7, dx2 = 105.3 - pos.x, dz1 = pos.z - 3.7, dz2 = 5.3 - pos.z; let min = Math.min(dx1, dx2, dz1, dz2);
+                            if(min === dx1) pos.x -= dx1; else if(min === dx2) pos.x += dx2; else if(min === dz1) pos.z -= dz1; else pos.z += dz2;
+                        }
+                    }
+                } else if (gameState === 'CASINO_ROOM') {
+                    let inTableX = pos.x > -101.6 && pos.x < -98.4; let inTableZ = pos.z > -0.6 && pos.z < 2.6;
+                    if (inTableX && inTableZ) {
+                        if (feetY >= 0.7) { groundY = 0.8; }
+                        else {
+                            let dx1 = pos.x - -101.6, dx2 = -98.4 - pos.x, dz1 = pos.z - -0.6, dz2 = 2.6 - pos.z; let min = Math.min(dx1, dx2, dz1, dz2);
+                            if(min === dx1) pos.x -= dx1; else if(min === dx2) pos.x += dx2; else if(min === dz1) pos.z -= dz1; else pos.z += dz2;
+                        }
+                    }
                 }
-                requestAnimationFrame(anim);
+
+                let targetCamY = groundY + camOffset;
+                if (pos.y < targetCamY) { velocity.y = 0; pos.y = targetCamY; if(!isCrouching) canJump = true; } 
+                else if (isCrouching && pos.y > targetCamY && velocity.y === 0) { pos.y -= 5 * delta; if (pos.y < targetCamY) pos.y = targetCamY; }
+
+                const pad = 0.8; 
+                if (gameState === 'CORRIDOR') { if (pos.z > 6 - pad) pos.z = 6 - pad; if (pos.z < -12 + pad) pos.z = -12 + pad; if (pos.x < -2.5 + pad) pos.x = -2.5 + pad; if (pos.x > 2.5 - pad) pos.x = 2.5 - pad; } 
+                else if (gameState === 'SECRET_ROOM') { if (pos.x < 94 + pad) pos.x = 94 + pad; if (pos.x > 106 - pad) pos.x = 106 - pad; if (pos.z < -6 + pad) pos.z = -6 + pad; if (pos.z > 6 - pad) pos.z = 6 - pad; }
+                else if (gameState === 'CASINO_ROOM') { if (pos.x < -106 + pad) pos.x = -106 + pad; if (pos.x > -94 - pad) pos.x = -94 - pad; if (pos.z < -6 + pad) pos.z = -6 + pad; if (pos.z > 6 - pad) pos.z = 6 - pad; }
+
+                raycaster.setFromCamera(new THREE.Vector2(0, 0), camera); const intersects = raycaster.intersectObjects(objects); const interactText = document.getElementById('interactText');
+                if (intersects.length > 0 && intersects[0].distance < 4.0) {
+                    interactTarget = intersects[0].object;
+                    if (interactTarget.userData.type === 'WHEEL') { if (!isDraggingWheel) { interactText.style.display = 'block'; interactText.innerText = '[ Çarkı Sürükle ]'; } else interactText.style.display = 'none'; } 
+                    else if (interactTarget.userData.type === 'ROLL_3D_DICE' && !hasWonBlackjack) { interactText.style.display = 'block'; interactText.innerText = '[ Önce Blackjack Kazan ]'; }
+                    else if (interactTarget.userData.type.startsWith('BTN_')) { interactText.style.display = 'block'; interactText.innerText = `[ ${interactTarget.userData.title} ]`; }
+                    else { interactText.style.display = 'block'; interactText.innerText = interactTarget.userData.title ? `[ ${interactTarget.userData.title} ]` : '[ Etkileş ]'; }
+                } else { interactTarget = null; interactText.style.display = 'none'; isDraggingWheel = false; }
             }
-        }
-        function selectTarget() { const fd = sessionStorage.getItem('atlassya_first_spin_done'); if (!fd) { sessionStorage.setItem('atlassya_first_spin_done', '1'); const si = availableGames.findIndex(g => g.name.toLowerCase() === 'the stalked 2'); if (si !== -1) return si; } if (luckyBonus > 0) { const fi = []; availableGames.forEach((g, i) => { if (favoriteGames.includes(g.name)) fi.push(i); }); if (fi.length > 0 && Math.random() < 0.5) return fi[Math.floor(Math.random() * fi.length)]; } return Math.floor(Math.random() * availableGames.length); }
+            
+            prevTime = time;
 
-        // ===== GAME HELPERS =====
-        function getImg(g) { if (g.image) return g.image; if (g.steamId && !isNaN(g.steamId)) return `https://cdn.cloudflare.steamstatic.com/steam/apps/${g.steamId}/header.jpg`; return `https://via.placeholder.com/460x215/1a0229/FFD700?text=${encodeURIComponent(g.name)}`; }
-        function displayResult(g) { playSound('click'); gameInfoContainer.innerHTML = `<button id="closeResultButton" class="close-result-btn">&times;</button><div class="result-content-wrapper"><img src="${getImg(g)}" class="result-game-image" onerror="this.src='https://via.placeholder.com/400x200?text=Resim+Yok'"><div class="result-game-details"><h2>${g.name}</h2><p><strong>Türü:</strong> ${g.type}</p><p><strong>Çıkış:</strong> ${g.releaseDate}</p><p><strong>Süre:</strong> ${g.playtime}</p><p>${g.description}</p></div></div>`; document.getElementById('closeResultButton').addEventListener('click', () => { playSound('click'); resultDisplay.classList.remove('show-result'); }); resultDisplay.classList.add('show-result'); for (let i = 0; i < 100; i++) { const c = document.createElement('div'); c.className = 'confetti'; c.style.left = Math.random() * 100 + 'vw'; c.style.animationDuration = (Math.random() * 2 + 3) + 's'; c.style.animationDelay = (Math.random() * 2) + 's'; c.style.width = c.style.height = (Math.random() > 0.5 ? '10px' : '12px'); if (Math.random() > 0.5) c.style.borderRadius = '50%'; document.getElementById('confetti-container').appendChild(c); setTimeout(() => c.remove(), 5000); } }
-
-        function showGameDetails(g) { playSound('click'); document.getElementById('detailTitle').innerText = g.name; document.getElementById('detailType').innerText = g.type || 'Bilinmiyor'; document.getElementById('detailTime').innerText = g.playtime || 'Bilinmiyor'; document.getElementById('detailDesc').innerText = g.description || 'Açıklama yok.'; document.getElementById('detail-modal').style.display = 'flex'; }
-        document.getElementById('closeDetail').addEventListener('click', () => { playSound('click'); document.getElementById('detail-modal').style.display = 'none'; });
-
-        function openOverlay(oid, cid, list) { const c = document.getElementById(cid); c.innerHTML = ''; list.forEach(g => { let oi = g.overlayIcon ? `<img src="${g.overlayIcon}" class="overlay-icon">` : ''; c.innerHTML += `<div class="game-item">${oi}<img src="${getImg(g)}" class="game-thumb"/><div class="game-name">${g.name}</div></div>`; }); document.getElementById(oid).style.display = 'block'; }
-        function openCurrentWheel() { const c = document.getElementById('currentWheelContent'); c.innerHTML = ''; availableGames.forEach(g => { const h = favoriteGames.includes(g.name) ? `<img class="heart-overlay" src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="fav">` : ''; const d = document.createElement('div'); d.className = 'game-item'; d.innerHTML = `${h}<img class="game-thumb" src="${getImg(g)}"/><div class="game-name">${g.name}</div>`; d.addEventListener('click', () => showGameDetails(g)); c.appendChild(d); }); document.getElementById('currentWheelOverlay').style.display = 'block'; }
-
-        // ===== SETTINGS & FILTERS =====
-        function gRV(n) { for (let r of document.getElementsByName(n)) if (r.checked) return r.value; return 'all'; }
-        function pDur(d) { const l = d.toLowerCase(); if (l.includes('sonsuz')) return 999; const m = l.match(/[\d\.]+/g); if (m) { const n = m.map(v => parseFloat(v)), mx = Math.max(...n); if (l.includes('dakika') && mx > 10) return mx / 60; return mx; } return 0; }
-        function isA(g) { return g.type.toLowerCase().includes('anomali'); }
-        function isJ(g) { return g.type.toLowerCase().includes('japon'); }
-        function isD(g) { return g.type.toLowerCase().includes('demo') || g.releaseDate.toLowerCase().includes('demo'); }
-        function updateAvailableGames() {
-            const ao = gRV('opt_anomaly'), jo = gRV('opt_japan'), dm = gRV('opt_demo'), fo = gRV('opt_fav');
-            const st = Array.from(document.querySelectorAll('input[name="opt_time"]:checked')).map(c => c.value);
-            let f = games.filter(g => { const d = pDur(g.playtime); if (fo === 'only' && !favoriteGames.includes(g.name)) return false; if (ao === 'exclude' && isA(g)) return false; if (jo === 'exclude' && isJ(g)) return false; if (dm === 'exclude' && isD(g)) return false; if (st.length > 0) { let m = false; if (st.includes('short') && d < 1) m = true; if (st.includes('medium') && d >= 1 && d <= 2) m = true; if (st.includes('long') && d > 2) m = true; if (!m) return false; } return true; });
-            const af = []; if (ao === 'only') af.push('a'); if (jo === 'only') af.push('j'); if (dm === 'only') af.push('d');
-            if (af.length > 0) f = f.filter(g => { let m = false; if (af.includes('a') && isA(g)) m = true; if (af.includes('j') && isJ(g)) m = true; if (af.includes('d') && isD(g)) m = true; return m; });
-            availableGames = f; drawWheel();
-        }
-        const settingsModal = document.getElementById('settings-modal');
-        document.getElementById('closeSettings').addEventListener('click', () => { playSound('click'); settingsModal.style.display = 'none'; });
-        document.getElementById('backToCorridor').addEventListener('click', returnToRoom);
-        document.querySelectorAll('input[type="radio"],input[type="checkbox"]').forEach(r => { r.addEventListener('change', () => { playSound('click'); if (r.name === 'opt_sound') soundEnabled = (r.value === 'on'); else updateAvailableGames(); }); });
-
-        // ESC
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') {
-                if (gameState !== 'CORRIDOR') {
-                    let closed = false;
-                    document.querySelectorAll('.game-display-overlay').forEach(o => { if (o.style.display === 'block') { o.style.display = 'none'; closed = true; } });
-                    if (resultDisplay.classList.contains('show-result')) { resultDisplay.classList.remove('show-result'); closed = true; }
-                    if (document.getElementById('detail-modal').style.display === 'flex') { document.getElementById('detail-modal').style.display = 'none'; closed = true; }
-                    if (document.getElementById('dice-interface').style.display === 'flex') { document.getElementById('dice-interface').style.display = 'none'; closed = true; }
-                    if (settingsModal.style.display === 'flex') { settingsModal.style.display = 'none'; closed = true; }
-                    else if (!closed) { settingsModal.style.display = 'flex'; return; }
-                    if (closed && document.getElementById('wheelSpinOverlay').style.display !== 'flex') { gameState = 'CORRIDOR'; controls.lock(); }
-                }
+            if (wheelMesh) {
+                if (!isDraggingWheel) {
+                    const oldRot = wheelMesh.rotation.y; wheelMesh.rotation.y += wheelVelocity; wheelVelocity *= 0.992; 
+                    if(isWheelSpinning) { const slice = (2 * Math.PI) / gameList.length; if(Math.floor(oldRot / slice) !== Math.floor(wheelMesh.rotation.y / slice)) playTickSound(); }
+                    if (isWheelSpinning && Math.abs(wheelVelocity) < 0.0005) { wheelVelocity = 0; isWheelSpinning = false; calculateWinningGame(); }
+                } else { wheelMesh.rotation.y += wheelVelocity; wheelVelocity *= 0.85; }
             }
-        });
 
-        // DICE
-        document.getElementById('roll-btn').addEventListener('click', () => {
-            playSound('click'); const btn = document.getElementById('roll-btn'); btn.disabled = true; btn.innerText = 'ATILIYOR...';
-            const dotP = { 1: ['.p-4'], 2: ['.p-1', '.p-7'], 3: ['.p-1', '.p-4', '.p-7'], 4: ['.p-1', '.p-5', '.p-3', '.p-7'], 5: ['.p-1', '.p-5', '.p-3', '.p-7', '.p-4'], 6: ['.p-1', '.p-2', '.p-3', '.p-5', '.p-6', '.p-7'] };
-            function sn(id, n) { const d = document.getElementById(id); d.querySelectorAll('.dot').forEach(x => x.style.display = 'none'); dotP[n].forEach(s => d.querySelector(s).style.display = 'block'); }
-            const iv = setInterval(() => { sn('dice-1', Math.floor(Math.random() * 6) + 1); sn('dice-2', Math.floor(Math.random() * 6) + 1); }, 80);
-            setTimeout(() => {
-                clearInterval(iv); const f1 = Math.floor(Math.random() * 6) + 1, f2 = Math.floor(Math.random() * 6) + 1; sn('dice-1', f1); sn('dice-2', f2);
-                luckyBonus = (f1 + f2) * 2; document.getElementById('diceResultText').innerText = `ŞANSIN %${luckyBonus} ARTTI!`;
-                setTimeout(() => { document.getElementById('dice-interface').style.display = 'none'; gameState = 'CORRIDOR'; controls.lock(); }, 1500);
-            }, 700);
-        });
+            if (eyeGroup) {
+                const cameraWorldPos = new THREE.Vector3(); camera.getWorldPosition(cameraWorldPos);
+                if (time > nextJitterTime) { eyeJitter.set((Math.random() - 0.5)*3, (Math.random() - 0.5)*1.5, (Math.random() - 0.5)*3); nextJitterTime = time + 200 + Math.random() * 1000; }
+                eyeTarget.lerp(cameraWorldPos.clone().add(eyeJitter), 0.15); eyeGroup.lookAt(eyeTarget);
+            }
 
-        // ===== START =====
+            if (gameState === 'SECRET_ROOM') updateScreen(time);
+            renderer.render(scene, camera);
+        }
+
         init(); animate();
-
-
     </script>
 </body>
-
 </html>
