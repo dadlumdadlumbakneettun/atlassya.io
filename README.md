@@ -1,1 +1,1 @@
-# atlassya.io
+# atlassya
