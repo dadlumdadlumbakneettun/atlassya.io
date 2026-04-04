@@ -588,13 +588,6 @@
             g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.7)');
             ctx.fillStyle = g; ctx.fillRect(0, 0, 1024, 2048);
             
-            // Kapı Kilidi kulp hizasına
-            ctx.fillStyle = '#8c6b20';
-            ctx.beginPath(); ctx.arc(896, 1024, 35, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#000';
-            ctx.beginPath(); ctx.arc(896, 1055, 6, 0, Math.PI*2); ctx.fill();
-            ctx.fillRect(892, 1055, 8, 15);
-            
             addNoise(ctx, 1024, 2048, 0.04);
             return new THREE.CanvasTexture(canvas);
         }
@@ -609,16 +602,6 @@
                     ctx.beginPath(); ctx.arc(x + 50, y + 50, 20, 0, Math.PI*2); ctx.fill();
                 }
             }
-            const drawMiniFlower = (x, y) => {
-                ctx.fillStyle = '#fff';
-                for (let i = 0; i < 5; i++) {
-                    ctx.beginPath(); ctx.arc(x + Math.cos(i*Math.PI*2/5)*20, y + Math.sin(i*Math.PI*2/5)*20, 16, 0, Math.PI*2); ctx.fill();
-                }
-                ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.arc(x, y, 12, 0, Math.PI*2); ctx.fill();
-            }
-            drawMiniFlower(200, 300); drawMiniFlower(824, 300);
-            drawMiniFlower(200, 1024); drawMiniFlower(824, 1024);
-            drawMiniFlower(200, 1748); drawMiniFlower(824, 1748);
             const panelW = 320;
             const panels = [
                 {x: 128, y: 128, w: panelW, h: 400}, {x: 576, y: 128, w: panelW, h: 400},
@@ -629,12 +612,22 @@
                 ctx.fillStyle = '#ff9eaa'; ctx.fillRect(p.x, p.y, p.w, p.h);
                 ctx.strokeStyle = '#ff748c'; ctx.lineWidth = 10; ctx.strokeRect(p.x, p.y, p.w, p.h);
             });
-            // Kapı Kilidi kulp hizasına
-            ctx.fillStyle = '#ffd700';
-            ctx.beginPath(); ctx.arc(896, 1024, 35, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#000';
-            ctx.beginPath(); ctx.arc(896, 1055, 6, 0, Math.PI*2); ctx.fill();
-            ctx.fillRect(892, 1055, 8, 15);
+            
+            const drawFlower = (cx, cy, scale) => {
+                ctx.save(); ctx.translate(cx, cy); ctx.scale(scale, scale);
+                ctx.fillStyle = '#fff';
+                for (let i = 0; i < 5; i++) {
+                    ctx.beginPath(); ctx.arc(Math.cos(i*Math.PI*2/5)*30, Math.sin(i*Math.PI*2/5)*30, 25, 0, Math.PI*2); ctx.fill();
+                }
+                ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+            }
+            
+            // Her panelin ortasına şirin çiçekler
+            drawFlower(288, 328, 1);    drawFlower(736, 328, 1);
+            drawFlower(288, 1016, 1.2); drawFlower(736, 1016, 1.2);
+            drawFlower(288, 1704, 1);   drawFlower(736, 1704, 1);
+            
             return new THREE.CanvasTexture(canvas);
         }
 
@@ -935,11 +928,25 @@
         }
 
         function addKnob(d) {
-            const kG = new THREE.SphereGeometry(0.08, 32, 32);
+            // Gerçekçi kulp, metal plaka ve kilit deliği modellemesi (Her iki yöne de eklenecek)
+            const kG = new THREE.SphereGeometry(0.06, 32, 32);
             const kM = new THREE.MeshStandardMaterial({color: 0xd4af37, metalness: 0.9, roughness: 0.3});
-            const k1 = new THREE.Mesh(kG, kM); k1.position.set(0.75, 0, 0.12);
-            const k2 = new THREE.Mesh(kG, kM); k2.position.set(0.75, 0, -0.12);
-            d.add(k1); d.add(k2);
+            const blackMat = new THREE.MeshBasicMaterial({color: 0x000000});
+            
+            // Ön taraf kilit sistemi (+Z)
+            const k1 = new THREE.Mesh(kG, kM); k1.position.set(0.75, 0.05, 0.11);
+            const p1 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.004), kM); p1.position.set(0.75, 0, 0.076);
+            const hole1_1 = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.006).rotateX(Math.PI/2), blackMat); hole1_1.position.set(0.75, -0.05, 0.077);
+            const hole1_2 = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.03, 0.006), blackMat); hole1_2.position.set(0.75, -0.065, 0.077);
+            
+            // Arka taraf kilit sistemi (-Z)
+            const k2 = new THREE.Mesh(kG, kM); k2.position.set(0.75, 0.05, -0.11);
+            const p2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.004), kM); p2.position.set(0.75, 0, -0.076);
+            const hole2_1 = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.006).rotateX(Math.PI/2), blackMat); hole2_1.position.set(0.75, -0.05, -0.077);
+            const hole2_2 = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.03, 0.006), blackMat); hole2_2.position.set(0.75, -0.065, -0.077);
+            
+            d.add(k1); d.add(p1); d.add(hole1_1); d.add(hole1_2);
+            d.add(k2); d.add(p2); d.add(hole2_1); d.add(hole2_2);
         }
 
         function init() {
@@ -1149,9 +1156,11 @@
             const eFrame = new THREE.Mesh(new THREE.BoxGeometry(2.4, 3.4, 0.25), new THREE.MeshStandardMaterial({map: woodFrameTex, roughness: 0.8})); eFrame.position.set(cx, 1.7, cz + 5.95); scene.add(eFrame);
             
             const textureLoader = new THREE.TextureLoader();
+            
+            // TABLOLAR YÜKSEKLİĞİ VE BOYUTLARI DÜZELTİLDİ
             const tabloMat2 = new THREE.MeshStandardMaterial({color: 0x888888, roughness: 0.5}); textureLoader.load('code/tablo2.png', function(tex) { tabloMat2.map = tex; tabloMat2.needsUpdate = true; });
-            const tablo2Mesh = new THREE.Mesh(new THREE.PlaneGeometry(3, 4), tabloMat2); tablo2Mesh.position.set(cx, 2.1, cz - 5.9); scene.add(tablo2Mesh);
-            const tFrame2 = new THREE.Mesh(new THREE.BoxGeometry(3.2, 4.2, 0.05), new THREE.MeshStandardMaterial({map: woodFrameTex, roughness: 0.5})); tFrame2.position.set(cx, 2.1, cz - 5.95); scene.add(tFrame2);
+            const tablo2Mesh = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 3.6), tabloMat2); tablo2Mesh.position.set(cx, 2.25, cz - 5.9); scene.add(tablo2Mesh);
+            const tFrame2 = new THREE.Mesh(new THREE.BoxGeometry(2.8, 3.8, 0.05), new THREE.MeshStandardMaterial({map: woodFrameTex, roughness: 0.5})); tFrame2.position.set(cx, 2.25, cz - 5.95); scene.add(tFrame2);
             
             const tabloMat3 = new THREE.MeshStandardMaterial({color: 0x888888, roughness: 0.5}); textureLoader.load('code/tablo3.png', function(tex) { tabloMat3.map = tex; tabloMat3.needsUpdate = true; });
             const tablo3Mesh = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.2), tabloMat3); tablo3Mesh.position.set(cx - 3, 2.5, cz + 5.9); tablo3Mesh.rotation.y = Math.PI; scene.add(tablo3Mesh);
@@ -1234,16 +1243,18 @@
             const eFrame = new THREE.Mesh(new THREE.BoxGeometry(2.4, 3.4, 0.25), new THREE.MeshStandardMaterial({map: woodFrameTex, roughness: 0.8})); eFrame.position.set(cx, 1.7, cz - 5.95); scene.add(eFrame);
             
             const textureLoader = new THREE.TextureLoader();
+            
+            // TABLO 1 YÜKSEKLİĞİ VE BOYUTU DÜZELTİLDİ
             const tabloMat1 = new THREE.MeshStandardMaterial({color: 0x888888, roughness: 0.5}); textureLoader.load('code/tablo1.png', function(tex) { tabloMat1.map = tex; tabloMat1.needsUpdate = true; });
-            const tablo1Mesh = new THREE.Mesh(new THREE.PlaneGeometry(3, 4), tabloMat1); tablo1Mesh.position.set(cx - 5.9, 2.1, cz); tablo1Mesh.rotation.y = Math.PI / 2; scene.add(tablo1Mesh);
-            const tFrame1 = new THREE.Mesh(new THREE.BoxGeometry(3.2, 4.2, 0.05), new THREE.MeshStandardMaterial({map: woodFrameTex, roughness: 0.5})); tFrame1.position.set(cx - 5.95, 2.1, cz); tFrame1.rotation.y = Math.PI / 2; scene.add(tFrame1);
+            const tablo1Mesh = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 3.6), tabloMat1); tablo1Mesh.position.set(cx - 5.9, 2.25, cz); tablo1Mesh.rotation.y = Math.PI / 2; scene.add(tablo1Mesh);
+            const tFrame1 = new THREE.Mesh(new THREE.BoxGeometry(2.8, 3.8, 0.05), new THREE.MeshStandardMaterial({map: woodFrameTex, roughness: 0.5})); tFrame1.position.set(cx - 5.95, 2.25, cz); tFrame1.rotation.y = Math.PI / 2; scene.add(tFrame1);
             
             const feltTex = createFeltTexture('#0a4a1a');
             const bjTable = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 0.1, 64), new THREE.MeshStandardMaterial({map: feltTex, roughness: 0.9})); bjTable.position.set(cx, 0.8, cz + 1); bjTable.userData = {type: 'PLAY_BLACKJACK'}; scene.add(bjTable); objects.push(bjTable);
             const leatherTex = createLeatherTexture('#1a0d05');
             const rim = new THREE.Mesh(new THREE.TorusGeometry(1.5, 0.15, 32, 64), new THREE.MeshStandardMaterial({map: leatherTex, roughness: 0.7})); rim.position.set(cx, 0.85, cz + 1); rim.rotation.x = Math.PI / 2; scene.add(rim);
             const pLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.6, 0.8, 64), new THREE.MeshStandardMaterial({map: woodFrameTex, roughness: 0.7})); pLeg.position.set(cx, 0.4, cz + 1); scene.add(pLeg);
-            const pBase = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 1.0, 0.1, 64), new THREE.MeshStandardMaterial({map: leatherTex, roughness: 0.8})); pBase.position.set(cx, 0.05, cz + 1); scene.add(pBase);
+            const pBase = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 1.0, 0.1, 64), new MeshStandardMaterial({map: leatherTex, roughness: 0.8})); pBase.position.set(cx, 0.05, cz + 1); scene.add(pBase);
             
             const cardBackTex = createCardBackTexture(); const cardBackMat = new THREE.MeshStandardMaterial({map: cardBackTex, roughness: 0.8}); const cardGeo = new THREE.BoxGeometry(0.2, 0.01, 0.3);
             const deck = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.3), cardBackMat); deck.position.set(cx + 0.6, 0.9, cz + 0.8); deck.rotation.y = Math.PI / 5; scene.add(deck);
@@ -1317,7 +1328,6 @@
             const earR = new THREE.Mesh(earGeo, furMat); earR.position.set(0.14, 0.62, 0.05); bearGroup.add(earR);
             const earRIn = new THREE.Mesh(earInGeo, lightPinkMat); earRIn.position.set(0.14, 0.62, 0.08); bearGroup.add(earRIn);
             
-            // Kol ve bacaklar için r128 uyumlu küre uzatması
             const armGeo = new THREE.SphereGeometry(0.06, 16, 16);
             const armL = new THREE.Mesh(armGeo, furMat); armL.scale.set(1, 2.5, 1); armL.position.set(-0.22, 0.25, 0.05); armL.rotation.set(-Math.PI/6, 0, Math.PI/4); bearGroup.add(armL);
             const armR = new THREE.Mesh(armGeo, furMat); armR.scale.set(1, 2.5, 1); armR.position.set(0.22, 0.25, 0.05); armR.rotation.set(-Math.PI/6, 0, -Math.PI/4); bearGroup.add(armR);
