@@ -168,25 +168,25 @@ function buildKitchen(scene, cx, cz) {
     oHeat.rotation.y = Math.PI / 2;
     kitchenGroup.add(oHeat);
 
-    const controlPanel = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.2, 1.2), steelMat);
-    controlPanel.rotation.z = -Math.PI / 6;
-    controlPanel.position.set(0.62, 1.08, oZ);
+    const controlPanel = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.15, 1.2), steelMat);
+    controlPanel.rotation.z = 0;
+    controlPanel.position.set(0.62, 1.1, oZ);
     kitchenGroup.add(controlPanel);
 
     const knobMat = new THREE.MeshStandardMaterial({color: pinkHeartColor, roughness: 0.2, metalness: 0.3});
     for(let z = -0.4; z <= 0.4; z += 0.25) {
         const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.04, 16), knobMat);
-        knob.rotation.z = Math.PI / 2 - Math.PI / 6;
+        knob.rotation.z = Math.PI / 2;
         knob.position.set(0.68, 1.12, oZ + z);
         kitchenGroup.add(knob);
     }
 
-    const stoveTop = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.02, 1.15), darkOvenMat);
-    stoveTop.position.set(0.5, 1.05, oZ + 0.3);
+    const stoveTop = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.02, 1.2), darkOvenMat);
+    stoveTop.position.set(fX, 1.05, oZ);
     kitchenGroup.add(stoveTop);
 
     const burnerMat = new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.9});
-    const burnerPositions = [[-0.1, 0.05], [-0.1, 0.55], [-0.45, 0.05], [-0.45, 0.55]];
+    const burnerPositions = [[-0.2, -0.25], [-0.2, 0.25], [-0.55, -0.25], [-0.55, 0.25]];
     burnerPositions.forEach(pos => {
         const burner = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.02, 8, 24), burnerMat);
         burner.rotation.x = Math.PI / 2;
