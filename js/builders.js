@@ -481,12 +481,12 @@ function buildChillRoom(){
     bowL.rotation.z=Math.PI/2;
     bearGroup.add(bowL);
     
-    const bowR=new THREE.Mesh(new THREE.ConeGeometry(0.04,0.06,16),bowMat);
+const bowR=new THREE.Mesh(new THREE.ConeGeometry(0.04,0.06,16),bowMat);
     bowR.position.set(0.03,0.32,0.16);
     bowR.rotation.z=-Math.PI/2;
     bearGroup.add(bowR);
     
-   const bowC=new THREE.Mesh(new THREE.SphereGeometry(0.015,16,16),bowMat);
+    const bowC=new THREE.Mesh(new THREE.SphereGeometry(0.015,16,16),bowMat);
     bowC.position.set(0,0.32,0.17);
     bearGroup.add(bowC);
 
@@ -504,6 +504,23 @@ function buildChillRoom(){
     scene.add(duvarIziMesh);
 
     drawCanvas=document.createElement('canvas');
+    drawCanvas.width=512;
+    drawCanvas.height=128;
+    drawCtx=drawCanvas.getContext('2d');
+    drawPalette();
+    drawTexture=new THREE.CanvasTexture(drawCanvas);
+    
+    const drawBoard=new THREE.Mesh(new THREE.PlaneGeometry(1.5,0.375),new THREE.MeshBasicMaterial({map:drawTexture}));
+    drawBoard.position.set(cx+5.4,1.2,cz);
+    drawBoard.rotation.set(-Math.PI/6,-Math.PI/2,0,'YXZ');
+    drawBoard.userData={type:'COLOR_PALETTE'};
+    scene.add(drawBoard);
+    objects.push(drawBoard);
+    
+    const easelStand=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,1.5),new THREE.MeshStandardMaterial({color:0x885533}));
+    easelStand.position.set(cx+5.6,0.6,cz);
+    scene.add(easelStand);
+    
     // --- Mekanik Kol (Silme Tuşu) ---
     const leverGroup = new THREE.Group();
     leverGroup.position.set(cx+5.9, 1.5, cz+1.0);
