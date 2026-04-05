@@ -168,34 +168,129 @@ function buildKitchen(scene, cx, cz) {
     oHeat.rotation.y = Math.PI / 2;
     kitchenGroup.add(oHeat);
 
-    const controlPanel = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.15, 1.2), steelMat);
-    controlPanel.rotation.z = 0;
-    controlPanel.position.set(0.62, 1.1, oZ);
-    kitchenGroup.add(controlPanel);
+    // ── OCAK ÜSTÜ (stove top) ──────────────────────────────────────────────
+    // Oven gövdesi: x=[0,1.1] merkez fX=0.55, z=[-1.5,-0.3] merkez oZ=-0.9
+    // Kare ocak yüzeyi: oven gövdesinin tam üstüne otur
+    const stoveW = 1.1;   // x genişliği (oven ile aynı)
+    const stoveD = 1.2;   // z derinliği (oven ile aynı)
+    const stoveY = 1.085; // counterTop (y=1.08) üstünde ince plaka
 
+    const stovePlate = new THREE.Mesh(
+        new THREE.BoxGeometry(stoveW, 0.025, stoveD),
+        new THREE.MeshStandardMaterial({color: 0x1a1a2e, roughness: 0.4, metalness: 0.6})
+    );
+    stovePlate.position.set(fX, stoveY, oZ);
+    kitchenGroup.add(stovePlate);
+
+    // Çerçeve kenar şeritleri (krom)
+    const chromeMat = new THREE.MeshStandardMaterial({color: 0xcccccc, metalness: 0.9, roughness: 0.2});
+    const edgeT = 0.015;
+    // ön kenar
+    const edgeFront = new THREE.Mesh(new THREE.BoxGeometry(stoveW, edgeT, edgeT), chromeMat);
+    edgeFront.position.set(fX, stoveY + 0.012, oZ + stoveD/2);
+    kitchenGroup.add(edgeFront);
+    // arka kenar
+    const edgeBack = new THREE.Mesh(new THREE.BoxGeometry(stoveW, edgeT, edgeT), chromeMat);
+    edgeBack.position.set(fX, stoveY + 0.012, oZ - stoveD/2);
+    kitchenGroup.add(edgeBack);
+    // sol kenar
+    const edgeLeft = new THREE.Mesh(new THREE.BoxGeometry(edgeT, edgeT, stoveD), chromeMat);
+    edgeLeft.position.set(fX - stoveW/2, stoveY + 0.012, oZ);
+    kitchenGroup.add(edgeLeft);
+    // sağ kenar
+    const edgeRight = new THREE.Mesh(new THREE.BoxGeometry(edgeT, edgeT, stoveD), chromeMat);
+    edgeRight.position.set(fX + stoveW/2, stoveY + 0.012, oZ);
+    kitchenGroup.add(edgeRight);
+
+    // 4 brülör — 2x2 grid, stovePlate üzerinde tam ortalı
+    const burnerMat = new THREE.MeshStandardMaterial({color: 0x0d0d0d, roughness: 0.95});
+    const burnerRingMat = new THREE.MeshStandardMaterial({color: 0x222222, metalness: 0.5, roughness: 0.6});
+    const burnerGlowMat = new THREE.MeshStandardMaterial({color: 0x1a0a00, roughness: 1.0});
+
+    // 2 sütun (x): sol=fX-0.23, sağ=fX+0.2  (oven gövdesi x=[0,1.1], fX=0.55)
+    // 2 sıra (z): ön=oZ+0.3, arka=oZ-0.3
+    const bCols = [fX - 0.22, fX + 0.20];
+    const bRows = [oZ - 0.30, oZ + 0.30];
+
+    bCols.forEach(bx => {
+        bRows.forEach(bz => {
+            const by = stoveY + 0.015;
+
+            // dış halka
+            const ring1 = new THREE.Mesh(new THREE.TorusGeometry(0.155, 0.018, 12, 48), burnerRingMat);
+            ring1.rotation.x = Math.PI / 2;
+            ring1.position.set(bx, by, bz);
+            kitchenGroup.add(ring1);
+
+            // iç halka
+            const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.085, 0.012, 12, 48), burnerRingMat);
+            ring2.rotation.x = Math.PI / 2;
+            ring2.position.set(bx, by, bz);
+            kitchenGroup.add(ring2);
+
+            // merkez disk
+            const center = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.01, 24), burnerMat);
+            center.position.set(bx, by, bz);
+            kitchenGroup.add(center);
+
+            // çapraz ızgara çubukları (4 adet)
+            for (let a = 0; a < 4; a++) {
+                const bar = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.008, 0.012), burnerMat);
+                bar.rotation.y = (Math.PI / 4) * a;
+                bar.position.set(bx, by + 0.005, bz);
+                kitchenGroup.add(bar);
+            }
+        });
+    });
+
+    // ── KONTROL PANELİ (ön kenar, yatay şerit) ───────────────────────────
+    // Tezgahın ön kenarı x = fX + stoveW/2 = 0.55+0.55 = 1.1
+    // Panel tezgahın ön yüzüne yapışık, z boyunca uzanıyor
+    const panelMat = new THREE.MeshStandardMaterial({color: 0x2a1a3a, roughness: 0.5, metalness: 0.3});
+    const panel = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.10, stoveD), panelMat);
+    panel.position.set(fX + stoveW/2 - 0.025, stoveY + 0.06, oZ);
+    kitchenGroup.add(panel);
+
+    // Panel üst krom şerit
+    const panelTop = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.008, stoveD + 0.01), chromeMat);
+    panelTop.position.set(fX + stoveW/2 - 0.025, stoveY + 0.112, oZ);
+    kitchenGroup.add(panelTop);
+
+    // 4 düğme panel üzerinde z boyunca eşit aralıklı
     const knobMat = new THREE.MeshStandardMaterial({color: pinkHeartColor, roughness: 0.2, metalness: 0.3});
-    for(let z = -0.4; z <= 0.4; z += 0.25) {
-        const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.04, 16), knobMat);
-        knob.rotation.z = Math.PI / 2;
-        knob.position.set(0.68, 1.12, oZ + z);
-        kitchenGroup.add(knob);
-    }
+    const knobStemMat = new THREE.MeshStandardMaterial({color: 0x888888, metalness: 0.7, roughness: 0.3});
+    const knobRimMat = new THREE.MeshStandardMaterial({color: 0xdddddd, metalness: 0.9, roughness: 0.1});
+    const knobZPositions = [oZ - 0.42, oZ - 0.14, oZ + 0.14, oZ + 0.42];
+    knobZPositions.forEach(kz => {
+        const kx = fX + stoveW/2 + 0.012;
+        const ky = stoveY + 0.072;
 
-    const stoveTop = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.02, 1.2), darkOvenMat);
-    stoveTop.position.set(fX, 1.05, oZ);
-    kitchenGroup.add(stoveTop);
+        // krom halka (arka)
+        const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.052, 0.012, 24), knobRimMat);
+        rim.rotation.z = Math.PI / 2;
+        rim.position.set(kx - 0.004, ky, kz);
+        kitchenGroup.add(rim);
 
-    const burnerMat = new THREE.MeshStandardMaterial({color: 0x111111, roughness: 0.9});
-    const burnerPositions = [[-0.2, -0.25], [-0.2, 0.25], [-0.55, -0.25], [-0.55, 0.25]];
-    burnerPositions.forEach(pos => {
-        const burner = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.02, 8, 24), burnerMat);
-        burner.rotation.x = Math.PI / 2;
-        burner.position.set(fX + pos[0], 1.065, oZ + pos[1]);
-        kitchenGroup.add(burner);
+        // ana düğme gövdesi — hafif konik silindir
+        const knobBody = new THREE.Mesh(new THREE.CylinderGeometry(0.044, 0.050, 0.055, 24), knobMat);
+        knobBody.rotation.z = Math.PI / 2;
+        knobBody.position.set(kx + 0.018, ky, kz);
+        kitchenGroup.add(knobBody);
+
+        // düğme ön yüzü (koyu disk)
+        const face = new THREE.Mesh(new THREE.CylinderGeometry(0.034, 0.034, 0.006, 24),
+            new THREE.MeshStandardMaterial({color: 0x1a0a20, roughness: 0.4, metalness: 0.2}));
+        face.rotation.z = Math.PI / 2;
+        face.position.set(kx + 0.048, ky, kz);
+        kitchenGroup.add(face);
+
+        // işaret çizgisi (beyaz çubuk)
+        const mark = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.004, 0.028), knobRimMat);
+        mark.position.set(kx + 0.052, ky + 0.018, kz);
+        kitchenGroup.add(mark);
     });
 
     window.ovenDoorHinge = new THREE.Group();
-    
     window.ovenDoorHinge.position.set(1.1, 0.1, oZ); 
     kitchenGroup.add(window.ovenDoorHinge);
 
@@ -214,6 +309,13 @@ function buildKitchen(scene, cx, cz) {
     const oHandle = createHeartHandle(pinkHeartColor);
     oHandle.position.set(0.08, 0.6, 0);
     window.ovenDoorHinge.add(oHandle);
+
+    // Kapı üstü ile fırın gövdesi arasındaki boşluğu kapat
+    // Kapı hinge y=0.1, kapı yükseklik 0.7 → kapı üstü y=0.1+0.7=0.8
+    // obTop y=0.97, boşluk 0.8→0.97 = 0.17 yükseklik
+    const gapFiller = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.18, 1.2), darkOvenMat);
+    gapFiller.position.set(fX + 0.55, 0.89, oZ);
+    kitchenGroup.add(gapFiller);
 
     const hoodGroup = new THREE.Group();
     hoodGroup.position.set(0.6, 2.0, oZ);
