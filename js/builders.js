@@ -316,6 +316,7 @@ function buildKitchen(scene, cx, cz) {
     fHandle.scale.set(1.5, 1.5, 1.5); 
     window.fridgeDoorHinge.add(fHandle);
 }
+
 function buildChillRoom(){
     const cx=0,cz=100;
     initChillWallBase();
@@ -489,6 +490,17 @@ function buildChillRoom(){
     bowC.position.set(0,0.32,0.17);
     bearGroup.add(bowC);
 
+    // --- Duvar İzi ---
+    const duvarIziMat = new THREE.MeshStandardMaterial({ transparent: true, roughness: 0.9, color: 0xeeeeee });
+    new THREE.TextureLoader().load('code/duvarizi.png', function(tex) {
+        duvarIziMat.map = tex;
+        duvarIziMat.needsUpdate = true;
+    });
+    const duvarIziMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.4), duvarIziMat);
+    duvarIziMesh.position.set(cx + 5.98, 1.3, cz - 4.5);
+    duvarIziMesh.rotation.y = -Math.PI / 2;
+    scene.add(duvarIziMesh);
+
     drawCanvas=document.createElement('canvas');
     drawCanvas.width=512;
     drawCanvas.height=128;
@@ -507,11 +519,59 @@ function buildChillRoom(){
     easelStand.position.set(cx+5.6,0.6,cz);
     scene.add(easelStand);
     
-    const clrBtn=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.15,0.1).rotateX(Math.PI/2),new THREE.MeshStandardMaterial({color:0xff0000}));
-    clrBtn.position.set(cx+5.9,1.5,cz+1.0);
-    clrBtn.rotation.y=-Math.PI/2;
-    clrBtn.userData={type:'BTN_CLEAR_DRAW',originalZ:cz+1.0,isPressed:false};
-    scene.add(clrBtn);
+    // --- Mekanik Kol (Silme Tuşu) ---
+    const leverGroup = new THREE.Group();
+    leverGroup.position.set(cx+5.9, 1.5, cz+1.0);
+    leverGroup.rotation.y = -Math.PI/2;
+    scene.add(leverGroup);
+
+    // Kol tabanı (duvardan çıkan plaka)
+    const leverBaseMat = new THREE.MeshStandardMaterial({color:0x555566, roughness:0.4, metalness:0.7});
+    const leverBase = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.25), leverBaseMat);
+    leverBase.position.set(0, 0, 0);
+    leverGroup.add(leverBase);
+
+    // Menteşe (sarı halka)
+    const hingeMat = new THREE.MeshStandardMaterial({color:0xd4af37, metalness:0.9, roughness:0.2});
+    const hinge = new THREE.Mesh(new THREE.TorusGeometry(0.055, 0.02, 16, 32), hingeMat);
+    hinge.rotation.y = Math.PI/2;
+    hinge.position.set(0.05, 0.08, 0);
+    leverGroup.add(hinge);
+
+    // Kol pivot grubu (bu döner)
+    window.leverPivot = new THREE.Group();
+    window.leverPivot.position.set(0.05, 0.08, 0);
+    leverGroup.add(window.leverPivot);
+
+    // Kol çubuğu
+    const rodMat = new THREE.MeshStandardMaterial({color:0xcc2244, roughness:0.3, metalness:0.6});
+    const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.45, 16), rodMat);
+    rod.position.set(0, 0.225, 0);
+    window.leverPivot.add(rod);
+
+    // Kol topu (tutacak)
+    const ballMat = new THREE.MeshStandardMaterial({color:0xff3366, roughness:0.2, metalness:0.1});
+    const ball = new THREE.Mesh(new THREE.SphereGeometry(0.06, 32, 32), ballMat);
+    ball.position.set(0, 0.47, 0);
+    window.leverPivot.add(ball);
+
+    // Etiket plakası
+    const plateMat = new THREE.MeshStandardMaterial({color:0xeeeecc, roughness:0.5});
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.12, 0.22), plateMat);
+    plate.position.set(0.04, -0.08, 0);
+    leverGroup.add(plate);
+
+    // Tıklama hedefi — kol topu ile hizalı, leverPivot üzerinde
+    const clrBtn = new THREE.Mesh(
+        new THREE.SphereGeometry(0.09, 16, 16),
+        new THREE.MeshStandardMaterial({color:0xff3366, transparent:true, opacity:0.0})
+    );
+    clrBtn.position.set(0, 0.47, 0);
+    window.leverPivot.add(clrBtn);
+    // Dünya konumu hesaplamak için referans tutalım
+    window.leverPivot.userData = {type:'BTN_CLEAR_DRAW', originalZ: cz+1.0, isPressed:false};
+    clrBtn.userData = {type:'BTN_CLEAR_DRAW', originalZ: cz+1.0, isPressed:false};
+    scene.add(leverGroup);
     objects.push(clrBtn);
 
     const tableGroup=new THREE.Group();
