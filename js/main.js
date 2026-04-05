@@ -84,8 +84,33 @@ function onMouseDown() {
             let ins = raycaster.intersectObjects(chillWalls);
             if (ins.length > 0) lastDrawUV = { x: ins[0].uv.x * 2048, y: (1 - ins[0].uv.y) * 2048, wall: ins[0].object };
         } else if (type === 'BTN_CLEAR_DRAW') {
-            chillWalls.forEach(w => { w.userData.ctx.drawImage(chillWallBaseCanvas, 0, 0); w.userData.tex.needsUpdate = true; });
-            interactTarget.position.x = 5.95; setTimeout(() => interactTarget.position.x = 5.9, 300);
+            if (window.leverPivot && !window.leverPivot.userData.isPressed) {
+                window.leverPivot.userData.isPressed = true;
+                // Kolu aşağı indir
+                const leverDown = () => {
+                    if (window.leverPivot.rotation.x < Math.PI / 2.2) {
+                        window.leverPivot.rotation.x += 0.12;
+                        requestAnimationFrame(leverDown);
+                    } else {
+                        // En altta: tuvali temizle
+                        chillWalls.forEach(w => { w.userData.ctx.drawImage(chillWallBaseCanvas, 0, 0); w.userData.tex.needsUpdate = true; });
+                        // Kolu geri kaldır
+                        setTimeout(() => {
+                            const leverUp = () => {
+                                if (window.leverPivot.rotation.x > 0) {
+                                    window.leverPivot.rotation.x -= 0.07;
+                                    if (window.leverPivot.rotation.x < 0) window.leverPivot.rotation.x = 0;
+                                    requestAnimationFrame(leverUp);
+                                } else {
+                                    window.leverPivot.userData.isPressed = false;
+                                }
+                            };
+                            leverUp();
+                        }, 250);
+                    }
+                };
+                leverDown();
+            }
         } else if (type === 'ROLL_3D_DICE') {
             if (!hasWonBlackjack) { showScreenMessage("ÖNCE BLACKJACK KAZAN!"); return; }
             if (isRollingDice) return;
