@@ -490,16 +490,17 @@ const bowR=new THREE.Mesh(new THREE.ConeGeometry(0.04,0.06,16),bowMat);
     bowC.position.set(0,0.32,0.17);
     bearGroup.add(bowC);
 
-    // --- Duvar İzi (Büyük Boy) ---
+   // --- Duvar İzi (Küçültüldü ve Sağa Alındı) ---
     const duvarIziMat = new THREE.MeshStandardMaterial({ transparent: true, roughness: 0.9, color: 0xeeeeee });
     new THREE.TextureLoader().load('code/duvarizi.png', function(tex) {
         duvarIziMat.map = tex;
         duvarIziMat.needsUpdate = true;
     });
-    // Boyut 1.6 x 1.6 yapıldı
-    const duvarIziMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.6), duvarIziMat);
-    // Yükseklik 1.6 (göz hizası) olarak ayarlandı
-    duvarIziMesh.position.set(cx + 5.98, 1.6, cz - 4.5);
+    // Boyut yarı yarıya küçültüldü (0.8 x 0.8)
+    const duvarIziMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.8), duvarIziMat);
+    
+    // Yüksekliği biraz aşağı (1.4) ve pozisyonu daha sağa (cz - 2.5) çekildi
+    duvarIziMesh.position.set(cx + 5.98, 1.4, cz - 2.5);
     duvarIziMesh.rotation.y = -Math.PI / 2;
     scene.add(duvarIziMesh);
 
