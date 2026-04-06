@@ -28,3 +28,6 @@ let isDrawing=false,lastDrawUV=null,currentColor='#000';
 const paletteColors=['#000','#fff','#f00','#0f0','#00f','#ff0','#0ff','#f0f','#888','#800','#880','#080','#088','#008','#808','#f88'];
 let currentNextNode=null;
 let deck=[],playerHand=[],dealerHand=[],bjGameOver=false;
+let fridgeDoorHinge, ovenDoorHinge;
+let isFridgeOpen = false, isOvenOpen = false;
+let currentFridgeAngle = 0, currentOvenAngle = 0;
