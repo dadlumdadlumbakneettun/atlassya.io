@@ -67,7 +67,9 @@ function onMouseDown() {
         } else if (type === 'PLAY_BLACKJACK') {
             initBlackjack(); openModal('blackjackUI');
         } else if (type === 'CLICK_TEDDY') {
-            playTeddySound(); showScreenMessage("YAY! :)");
+            const aboneAudio = new Audio('code/abone.m4a');
+            aboneAudio.volume = masterVolume;
+            aboneAudio.play().catch(()=>{});
         } else if (type === 'TOGGLE_FRIDGE') {
             window.isFridgeOpen = !window.isFridgeOpen; playTickSound();
         } else if (type === 'TOGGLE_OVEN') {
@@ -86,15 +88,15 @@ function onMouseDown() {
         } else if (type === 'BTN_CLEAR_DRAW') {
             if (window.leverPivot && !window.leverPivot.userData.isPressed) {
                 window.leverPivot.userData.isPressed = true;
-                // Kolu aşağı indir
+                
                 const leverDown = () => {
                     if (window.leverPivot.rotation.x < Math.PI / 2.2) {
                         window.leverPivot.rotation.x += 0.12;
                         requestAnimationFrame(leverDown);
                     } else {
-                        // En altta: tuvali temizle
+                        
                         chillWalls.forEach(w => { w.userData.ctx.drawImage(chillWallBaseCanvas, 0, 0); w.userData.tex.needsUpdate = true; });
-                        // Kolu geri kaldır
+                        
                         setTimeout(() => {
                             const leverUp = () => {
                                 if (window.leverPivot.rotation.x > 0) {
@@ -125,9 +127,16 @@ function onMouseDown() {
         } else if (type.startsWith('BTN_')) {
             const btn = interactTarget; if (btn.userData.isPressed) return;
             btn.userData.isPressed = true; btn.position.z = btn.userData.originalZ - 0.025; btn.material.color.setHex(0xff0000);
-            if (type === 'BTN_WHEEL_LIST') showList('Çarktaki Oyunlar', gameList);
-            else if (type === 'BTN_WISHLIST') showList('İstek Listesi', wishlist);
-            else if (type === 'BTN_DISCO') { isDiscoMode = !isDiscoMode; if (!isDiscoMode) { secretRoomLight.color.setHex(0xffeedd); secretRoomLight.intensity = 1.5; } }
+            if (type === 'BTN_WHEEL_LIST') {
+                if(window.updateHorrorWallScreen){window.horrorWallMode='list';window.horrorWallListTitle='ÇARKTAKI OYUNLAR';window.horrorWallListData=gameList;window.horrorListScrollY=0;window.updateHorrorWallScreen();}
+            } else if (type === 'BTN_WISHLIST') {
+                if(window.updateHorrorWallScreen){window.horrorWallMode='list';window.horrorWallListTitle='İSTEK LİSTESİ';window.horrorWallListData=wishlist;window.horrorListScrollY=0;window.updateHorrorWallScreen();}
+            } else if (type === 'BTN_CHILL_LIST') {
+                if(window.updateChillWallScreen){window.chillWallListData=window.getFilteredChillGames?window.getFilteredChillGames():chillGames;window.chillWallMode='list';window.chillListScrollY=0;window.updateChillWallScreen();}
+            } else if (type === 'BTN_DISCO') { isDiscoMode = !isDiscoMode; if (!isDiscoMode) { secretRoomLight.color.setHex(0xffeedd); secretRoomLight.intensity = 1.5; }
+            } else if (type === 'BTN_HW_TOGGLE') {
+                window.horrorWallMode='idle';if(window.updateHorrorWallScreen)window.updateHorrorWallScreen();
+            }
             setTimeout(() => { btn.position.z = btn.userData.originalZ; btn.material.color.setHex(0xaa0000); btn.userData.isPressed = false; }, 300);
         }
     }
@@ -151,11 +160,14 @@ function calculateWinningGame(type) {
             luckyBonus = 0;
         }
         winningGame = gameList[index]; cachedGameImage.crossOrigin = "Anonymous"; cachedGameImage.src = getGameImagePath(winningGame);
+        if(window.updateHorrorWallScreen){window.horrorWallMode='won';window.horrorWallWonGame=winningGame;window.updateHorrorWallScreen();}
     } else if (type === 'CHILL') {
+        const filteredChill=window.getFilteredChillGames?window.getFilteredChillGames():chillGames;
         let rad = chillWheelMesh.rotation.y % (2 * Math.PI); if (rad < 0) rad += 2 * Math.PI;
-        const sliceAngle = (2 * Math.PI) / chillGames.length; let pointerAngle = (Math.PI / 2 - rad + 2 * Math.PI) % (2 * Math.PI);
+        const sliceAngle = (2 * Math.PI) / filteredChill.length; let pointerAngle = (Math.PI / 2 - rad + 2 * Math.PI) % (2 * Math.PI);
         let index = Math.floor(pointerAngle / sliceAngle);
-        chillWonGame = chillGames[index]; showScreenMessage("KAZANILAN: " + chillWonGame.name);
+        chillWonGame = filteredChill[index]; showScreenMessage("KAZANILAN: " + chillWonGame.name);
+        if(window.updateChillWallScreen){window.chillWallMode='won';window.chillWallWonGame=chillWonGame;window.updateChillWallScreen();}
         let img = new Image(); img.crossOrigin = "Anonymous"; img.src = getGameImagePath(chillWonGame);
         img.onload = () => {
             chillScreenCtx.fillStyle = '#0a0000'; chillScreenCtx.fillRect(0, 0, 1024, 512); chillScreenCtx.drawImage(img, 0, 0, 1024, 512);
@@ -226,7 +238,7 @@ function init() {
             controls.lock();
         }
     });
-    controls.addEventListener('lock', function () { blocker.style.display = 'none'; });
+    controls.addEventListener('lock', function () { blocker.style.display = 'none'; if(window.updateChillWallScreen&&window.chillWallMode==='list'){window.chillWallListData=chillGames;window.updateChillWallScreen();} });
     controls.addEventListener('unlock', function () { if (gameState === 'OUTER_DOOR' || isFirstStart) return; if (!activeModal) openModal('escMenuUI'); });
     scene.add(controls.getObject()); controls.getObject().position.set(0, 2.0, 5);
 
@@ -283,8 +295,9 @@ function init() {
     const els = document.querySelectorAll('.ui-modal input[type="radio"],.ui-modal input[type="checkbox"]');
     els.forEach(el => {
         let sv = localStorage.getItem('atl_f_' + el.id); if (sv !== null) el.checked = (sv === 'true');
-        el.addEventListener('change', e => { localStorage.setItem('atl_f_' + el.id, el.checked); if (el.name === 'opt_sound') soundEnabled = document.getElementById('sound_on').checked; else applyFilters(); });
+        el.addEventListener('change', e => { localStorage.setItem('atl_f_' + el.id, el.checked); if (el.name === 'opt_sound') soundEnabled = document.getElementById('sound_on').checked; else { applyFilters(); window.horrorListScrollY=0; window.chillListScrollY=0; if(window.updateHorrorWallScreen&&window.horrorWallMode==='list'){window.horrorWallListData=gameList;window.updateHorrorWallScreen();} if(window.updateChillWallScreen&&window.chillWallMode==='list'){window.chillWallListData=window.getFilteredChillGames?window.getFilteredChillGames():chillGames;window.updateChillWallScreen();} } });
     });
+    if(localStorage.getItem('atl_f_sound_on')===null){document.getElementById('sound_on').checked=true;}
     soundEnabled = document.getElementById('sound_on').checked; applyFilters();
 
     const c1 = document.createElement('canvas'); c1.width = 1024; c1.height = 512;
@@ -295,7 +308,28 @@ function init() {
     chillScreenCtx = chillScreenCanvas.getContext('2d'); chillScreenCtx.fillStyle = '#222'; chillScreenCtx.fillRect(0, 0, 1024, 512);
     chillScreenTex = new THREE.CanvasTexture(chillScreenCanvas);
 
+    document.addEventListener('wheel', e => {
+        if (!controls.isLocked) return;
+        const ITEM_H_HORROR=66, ITEM_H_CHILL=72;
+        if(gameState==='SECRET_ROOM'&&window.horrorWallMode==='list'&&window.horrorWallListData){
+            const maxScroll=Math.max(0,(window.horrorWallListData.length-7)*ITEM_H_HORROR);
+            window.horrorListScrollY=Math.max(0,Math.min(maxScroll,(window.horrorListScrollY||0)+e.deltaY*0.5));
+            window.updateHorrorWallScreen();
+        }
+        if(gameState==='CHILL_ROOM'&&window.chillWallMode==='list'){
+            const filteredLen=window.getFilteredChillGames?window.getFilteredChillGames().length:chillGames.length;
+            const maxScroll=Math.max(0,(filteredLen-6)*ITEM_H_CHILL);
+            window.chillListScrollY=Math.max(0,Math.min(maxScroll,(window.chillListScrollY||0)+e.deltaY*0.5));
+            window.updateChillWallScreen();
+        }
+    });
+
     buildLShapeCorridor(); buildSecretRoom(); buildCasinoRoom(); buildChillRoom();
+
+    
+    window.dvdX=50;window.dvdY=50;window.dvdVx=1.5;window.dvdVy=1.0;window.dvdColor='#ff2222';
+    const dvdColors=['#ff2222','#ff8800','#ffff00','#00ff88','#00ccff','#ff00ff'];
+    window.dvdColorIdx=0;
     raycaster = new THREE.Raycaster(); document.addEventListener('mousedown', onMouseDown); document.addEventListener('mouseup', onMouseUp);
 
     renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setSize(window.innerWidth, window.innerHeight);
@@ -309,14 +343,10 @@ function init() {
         let img = new Image(); img.crossOrigin = "Anonymous"; img.src = getGameImagePath(g);
         img.onload = () => {
             chillScreenCtx.fillStyle = '#0a0000'; chillScreenCtx.fillRect(0, 0, 1024, 512);
-            chillScreenCtx.drawImage(img, 0, 0, 1024, 512); chillScreenCtx.fillStyle = 'rgba(0,0,0,0.7)'; chillScreenCtx.fillRect(0, 380, 1024, 132);
-            chillScreenCtx.fillStyle = '#ffd700'; chillScreenCtx.font = "bold 60px 'Special Elite', cursive";
-            chillScreenCtx.textAlign = "center"; chillScreenCtx.textBaseline = "middle"; chillScreenCtx.fillText(g.name, 512, 446); chillScreenTex.needsUpdate = true;
+            chillScreenCtx.drawImage(img, 0, 0, 1024, 512); chillScreenTex.needsUpdate = true;
         };
         img.onerror = () => {
-            chillScreenCtx.fillStyle = '#ffb3c6'; chillScreenCtx.fillRect(0, 0, 1024, 512); chillScreenCtx.fillStyle = '#000';
-            chillScreenCtx.font = "bold 60px 'Special Elite', cursive"; chillScreenCtx.textAlign = "center"; chillScreenCtx.textBaseline = "middle";
-            chillScreenCtx.fillText(g.name, 512, 256); chillScreenTex.needsUpdate = true;
+            chillScreenCtx.fillStyle = '#ffb3c6'; chillScreenCtx.fillRect(0, 0, 1024, 512); chillScreenTex.needsUpdate = true;
         };
     }, 3000);
 }
@@ -377,7 +407,7 @@ function animate() {
         if (gameState === 'CORRIDOR') {
             if (pos.z > 6 - pad) pos.z = 6 - pad; if (pos.z < -12 + pad) pos.z = -12 + pad; if (pos.x < -2.5 + pad) pos.x = -2.5 + pad; if (pos.x > 2.5 - pad) pos.x = 2.5 - pad;
         } else if (gameState === 'SECRET_ROOM') {
-            if (pos.x < 94 + pad) pos.x = 94 + pad; if (pos.x > 106 - pad) pos.x = 106 - pad; if (pos.z < -6 + pad) pos.z = -6 + pad; if (pos.z > 6 - pad) pos.z = 6 - pad;
+            if (pos.x < 94 + pad) pos.x = 94 + pad; if (pos.x > 106 - 0.3) pos.x = 106 - 0.3; if (pos.z < -6 + pad) pos.z = -6 + pad; if (pos.z > 6 - pad) pos.z = 6 - pad;
         } else if (gameState === 'CASINO_ROOM') {
             if (pos.x < -106 + pad) pos.x = -106 + pad; if (pos.x > -94 - pad) pos.x = -94 - pad; if (pos.z < -6 + pad) pos.z = -6 + pad; if (pos.z > 6 - pad) pos.z = 6 - pad;
         } else if (gameState === 'CHILL_ROOM') {
@@ -390,7 +420,7 @@ function animate() {
         if (intersects.length > 0 && intersects[0].distance < 6.0) {
             interactTarget = intersects[0].object; const targetType = interactTarget.userData.type;
             if (targetType === 'ROLL_3D_DICE') { interactText.style.display = 'block'; interactText.innerText = hasWonBlackjack ? '[ Zarları At ]' : '[ Önce Blackjack Kazan ]'; }
-            else if (targetType === 'CLICK_TEDDY') { interactText.style.display = 'block'; interactText.innerText = '[ Ayıcığı Sıkıştır ]'; }
+            else if (targetType === 'BTN_HW_TOGGLE') { interactText.style.display = 'block'; interactText.innerText = '[ TV Kapat ]'; }
             else { interactText.style.display = 'none'; }
         } else { interactTarget = null; interactText.style.display = 'none'; if (!isDrawing) isDraggingWheel = false; }
     }
@@ -437,6 +467,24 @@ function animate() {
     if (eyeGroup && gameState === 'SECRET_ROOM') eyeGroup.lookAt(eyeTarget);
     if (smileyGroup && gameState === 'CHILL_ROOM') smileyGroup.lookAt(eyeTarget);
     if (gameState === 'SECRET_ROOM') updateScreen(time);
+
+    
+    if(gameState==='SECRET_ROOM'&&window.horrorWallCtx&&window.horrorWallMode==='idle'){
+        const dvdW=320,dvdH=110;
+        window.dvdX+=window.dvdVx;window.dvdY+=window.dvdVy;
+        let bounced=false;
+        if(window.dvdX<=0){window.dvdX=0;window.dvdVx=Math.abs(window.dvdVx);bounced=true;}
+        if(window.dvdX>=1024-dvdW){window.dvdX=1024-dvdW;window.dvdVx=-Math.abs(window.dvdVx);bounced=true;}
+        if(window.dvdY<=0){window.dvdY=0;window.dvdVy=Math.abs(window.dvdVy);bounced=true;}
+        if(window.dvdY>=512-dvdH){window.dvdY=512-dvdH;window.dvdVy=-Math.abs(window.dvdVy);bounced=true;}
+        if(bounced){const dvdColors=['#ff2222','#ff8800','#ffff00','#00ff88','#00ccff','#ff00ff'];window.dvdColorIdx=(window.dvdColorIdx+1)%dvdColors.length;window.dvdColor=dvdColors[window.dvdColorIdx];}
+        const ctx=window.horrorWallCtx;
+        ctx.fillStyle='#000000';ctx.fillRect(0,0,1024,512);
+        ctx.fillStyle=window.dvdColor;ctx.font='bold 110px "Courier New",monospace';ctx.textAlign='left';ctx.textBaseline='top';
+        ctx.fillText('DVD',window.dvdX,window.dvdY);
+        ctx.font='bold 32px "Courier New",monospace';ctx.fillText('atlassya',window.dvdX,window.dvdY+82);
+        window.horrorWallTex.needsUpdate=true;
+    }
     
     if (gameState === 'CHILL_ROOM') {
         if (chillWonGame) { let flashIndex = Math.floor(time / 500) % 4; chillScreens.forEach((mat, idx) => { mat.color.setHex(idx === flashIndex ? 0xffffff : 0x444444); }); } 
