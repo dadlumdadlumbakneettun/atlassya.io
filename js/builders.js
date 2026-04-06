@@ -3,7 +3,114 @@ function addTrims(scene,cx,cz){const texWood=createWoodTexture('#1a0a02','10,5,0
 function addKnob(d, flip=false){const kG=new THREE.SphereGeometry(0.08,32,32);const kM=new THREE.MeshStandardMaterial({color:0xd4af37,metalness:0.9,roughness:0.3});const k1=new THREE.Mesh(kG,kM);k1.position.set(0.75,0,0.12);const k2=new THREE.Mesh(kG,kM);k2.position.set(-0.75,0,-0.12);d.add(k1);d.add(k2);}
 function buildLShapeCorridor(){const wallTex=createRetroWallTexture();const floorTex=createFloorTexture();const ceilTex=createCeilingTexture();const wallMat=new THREE.MeshStandardMaterial({map:wallTex,bumpMap:wallTex,bumpScale:0.03,side:THREE.DoubleSide,roughness:0.8,metalness:0.1});const floorMat=new THREE.MeshStandardMaterial({map:floorTex,bumpMap:floorTex,bumpScale:0.02,roughness:0.4});const floor=new THREE.Mesh(new THREE.PlaneGeometry(5,18),floorMat);floor.rotation.x=-Math.PI/2;floor.position.set(0,0,-3);scene.add(floor);const ceil=new THREE.Mesh(new THREE.PlaneGeometry(5,18),new THREE.MeshStandardMaterial({map:ceilTex,roughness:0.9}));ceil.rotation.x=Math.PI/2;ceil.position.set(0,4.5,-3);scene.add(ceil);const wallL=new THREE.Mesh(new THREE.PlaneGeometry(18,4.5),wallMat);wallL.rotation.y=Math.PI/2;wallL.position.set(-2.5,2.25,-3);scene.add(wallL);const wallR=new THREE.Mesh(new THREE.PlaneGeometry(18,4.5),wallMat);wallR.rotation.y=-Math.PI/2;wallR.position.set(2.5,2.25,-3);scene.add(wallR);const wallB=new THREE.Mesh(new THREE.PlaneGeometry(5,4.5),wallMat);wallB.position.set(0,2.25,6);scene.add(wallB);const wallF=new THREE.Mesh(new THREE.PlaneGeometry(5,4.5),wallMat);wallF.position.set(0,2.25,-12);scene.add(wallF);const dGeo=new THREE.BoxGeometry(2.0,3.2,0.15);const doorTex=createDoorTexture(false);const outerDoorTex=createDoorTexture(true);const chillDoorTex=createPinkPatternDoor();const doorMat=new THREE.MeshStandardMaterial({map:doorTex,bumpMap:doorTex,bumpScale:0.04,roughness:0.6});const woodFrameTex=createWoodTexture('#2a1508','10,5,0');const frameGeo=new THREE.BoxGeometry(2.4,3.4,0.25);const frameMat=new THREE.MeshStandardMaterial({map:woodFrameTex,roughness:0.8});const roomDoor=new THREE.Mesh(dGeo,doorMat);roomDoor.position.set(-2.35,1.6,0);roomDoor.rotation.y=Math.PI/2;roomDoor.userData={type:'GO_TO_SECRET_ROOM'};scene.add(roomDoor);objects.push(roomDoor);addKnob(roomDoor);const sf=new THREE.Mesh(frameGeo,frameMat);sf.position.set(-2.45,1.7,0);sf.rotation.y=Math.PI/2;scene.add(sf);const casinoDoor=new THREE.Mesh(dGeo,doorMat);casinoDoor.position.set(2.35,1.6,0);casinoDoor.rotation.y=-Math.PI/2;casinoDoor.userData={type:'GO_TO_CASINO'};scene.add(casinoDoor);objects.push(casinoDoor);addKnob(casinoDoor);const cf=new THREE.Mesh(frameGeo,frameMat);cf.position.set(2.45,1.7,0);cf.rotation.y=-Math.PI/2;scene.add(cf);const mainDoor=new THREE.Mesh(dGeo,new THREE.MeshStandardMaterial({map:outerDoorTex,bumpMap:outerDoorTex,bumpScale:0.05,roughness:0.7}));mainDoor.position.set(0,1.6,-11.85);mainDoor.userData={type:'OUTER_DOOR'};scene.add(mainDoor);objects.push(mainDoor);addKnob(mainDoor);const of=new THREE.Mesh(frameGeo,frameMat);of.position.set(0,1.7,-11.95);scene.add(of);const chDoor=new THREE.Mesh(dGeo,new THREE.MeshStandardMaterial({map:chillDoorTex,roughness:0.4}));chDoor.position.set(0,1.6,5.85);chDoor.userData={type:'GO_TO_CHILL_ROOM'};scene.add(chDoor);objects.push(chDoor);addKnob(chDoor,true);const chf=new THREE.Mesh(frameGeo,frameMat);chf.position.set(0,1.7,5.95);scene.add(chf);const tGeo=new THREE.BoxGeometry(5,0.3,0.1);const tm=new THREE.MeshStandardMaterial({map:woodFrameTex});const t1=new THREE.Mesh(tGeo,tm);t1.position.set(0,0.15,-11.95);scene.add(t1);const t2=new THREE.Mesh(tGeo,tm);t2.position.set(0,0.15,5.95);scene.add(t2);const t3=new THREE.Mesh(new THREE.BoxGeometry(18,0.3,0.1),tm);t3.position.set(-2.45,0.15,-3);t3.rotation.y=Math.PI/2;scene.add(t3);const t4=new THREE.Mesh(new THREE.BoxGeometry(18,0.3,0.1),tm);t4.position.set(2.45,0.15,-3);t4.rotation.y=Math.PI/2;scene.add(t4);}
 function buildSecretRoom(){const wallTex=createRetroWallTexture('#223344');const floorTex=createFloorTexture('#4a2a18','#381d0f');const ceilTex=createCeilingTexture();const wallMat=new THREE.MeshStandardMaterial({map:wallTex,bumpMap:wallTex,bumpScale:0.03,side:THREE.DoubleSide,roughness:0.8,metalness:0.1});const floorMat=new THREE.MeshStandardMaterial({map:floorTex,bumpMap:floorTex,bumpScale:0.02,roughness:0.3});const cx=100,cz=0;secretRoomLight=new THREE.PointLight(0xffeedd,1.5,30);secretRoomLight.position.set(cx,4.0,cz);scene.add(secretRoomLight);addCeilingLamp(scene,cx,4.45,cz);const floor=new THREE.Mesh(new THREE.PlaneGeometry(12,12),floorMat);floor.rotation.x=-Math.PI/2;floor.position.set(cx,0,cz);scene.add(floor);const ceil=new THREE.Mesh(new THREE.PlaneGeometry(12,12),new THREE.MeshStandardMaterial({map:ceilTex,roughness:0.9}));ceil.rotation.x=Math.PI/2;ceil.position.set(cx,4.5,cz);scene.add(ceil);const wGeo=new THREE.PlaneGeometry(12,4.5);const w1=new THREE.Mesh(wGeo,wallMat);w1.position.set(cx,2.25,cz-6);scene.add(w1);const w2=new THREE.Mesh(wGeo,wallMat);w2.position.set(cx,2.25,cz+6);w2.rotation.y=Math.PI;scene.add(w2);const w3=new THREE.Mesh(wGeo,wallMat);w3.position.set(cx-6,2.25,cz);w3.rotation.y=Math.PI/2;scene.add(w3);const w4=new THREE.Mesh(wGeo,wallMat);w4.position.set(cx+6,2.25,cz);w4.rotation.y=-Math.PI/2;scene.add(w4);addTrims(scene,cx,cz);const doorTex=createDoorTexture(false);const exitDoor=new THREE.Mesh(new THREE.BoxGeometry(2.0,3.2,0.15),new THREE.MeshStandardMaterial({map:doorTex,bumpMap:doorTex,bumpScale:0.04,roughness:0.6}));exitDoor.position.set(cx,1.6,cz+5.85);exitDoor.rotation.y=Math.PI;exitDoor.userData={type:'GO_TO_CORRIDOR'};scene.add(exitDoor);objects.push(exitDoor);addKnob(exitDoor,true);const woodFrameTex=createWoodTexture('#2a1508','10,5,0');const eFrame=new THREE.Mesh(new THREE.BoxGeometry(2.4,3.4,0.25),new THREE.MeshStandardMaterial({map:woodFrameTex,roughness:0.8}));eFrame.position.set(cx,1.7,cz+5.95);scene.add(eFrame);const textureLoader=new THREE.TextureLoader();const tabloMat2=new THREE.MeshStandardMaterial({color:0x888888,roughness:0.5});textureLoader.load('code/tablo2.png',function(tex){tabloMat2.map=tex;tabloMat2.needsUpdate=true;});const tablo2Mesh=new THREE.Mesh(new THREE.PlaneGeometry(3.0,3.8),tabloMat2);tablo2Mesh.position.set(cx,2.35,cz-5.9);scene.add(tablo2Mesh);const tFrame2=new THREE.Mesh(new THREE.BoxGeometry(3.2,4.0,0.05),new THREE.MeshStandardMaterial({map:woodFrameTex,roughness:0.5}));tFrame2.position.set(cx,2.35,cz-5.95);scene.add(tFrame2);const tabloMat3=new THREE.MeshStandardMaterial({color:0x888888,roughness:0.5});textureLoader.load('code/tablo3.png',function(tex){tabloMat3.map=tex;tabloMat3.needsUpdate=true;});const tablo3Mesh=new THREE.Mesh(new THREE.PlaneGeometry(1.8,1.2),tabloMat3);tablo3Mesh.position.set(cx-3,2.5,cz+5.9);tablo3Mesh.rotation.y=Math.PI;scene.add(tablo3Mesh);const tFrame3=new THREE.Mesh(new THREE.BoxGeometry(2.0,1.4,0.05),new THREE.MeshStandardMaterial({map:woodFrameTex,roughness:0.5}));tFrame3.position.set(cx-3,2.5,cz+5.95);tFrame3.rotation.y=Math.PI;scene.add(tFrame3);const tableGroup=new THREE.Group();tableGroup.position.set(cx,0,cz);scene.add(tableGroup);const leg=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.8,0.9,32),new THREE.MeshStandardMaterial({map:woodFrameTex,roughness:0.6}));leg.position.y=0.45;tableGroup.add(leg);const legBase=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,0.1,64),new THREE.MeshStandardMaterial({color:0x111,metalness:0.8,roughness:0.3}));legBase.position.y=0.05;tableGroup.add(legBase);const wheelTex=createRouletteTexture(allGames,false);const wheelMats=[new THREE.MeshStandardMaterial({color:0xb8860b,metalness:0.9,roughness:0.2}),new THREE.MeshStandardMaterial({map:wheelTex,roughness:0.95,metalness:0.0}),new THREE.MeshStandardMaterial({color:0x222,roughness:0.8})];wheelMesh=new THREE.Mesh(new THREE.CylinderGeometry(2.2,2.2,0.2,128),wheelMats);wheelMesh.position.y=1.0;wheelMesh.userData={type:'WHEEL_HORROR'};tableGroup.add(wheelMesh);objects.push(wheelMesh);const socketY=1.1;const socket=new THREE.Mesh(new THREE.TorusGeometry(0.55,0.05,32,64),new THREE.MeshStandardMaterial({color:0xffd700,metalness:0.9,roughness:0.1}));socket.rotation.x=Math.PI/2;socket.position.y=socketY;tableGroup.add(socket);eyeGroup=new THREE.Group();eyeGroup.position.set(0,socketY,0);tableGroup.add(eyeGroup);const eyeTex=createEyeTexture();const sclera=new THREE.Mesh(new THREE.SphereGeometry(0.48,64,64),new THREE.MeshStandardMaterial({map:eyeTex,roughness:0.05,metalness:0.1,clearcoat:1.0,clearcoatRoughness:0.1}));sclera.rotation.y=-Math.PI/2;eyeGroup.add(sclera);const jumbotronMats=[new THREE.MeshBasicMaterial({map:imageScreenTex}),new THREE.MeshBasicMaterial({map:imageScreenTex}),new THREE.MeshStandardMaterial({color:0x222222,metalness:0.8,roughness:0.4}),new THREE.MeshStandardMaterial({color:0x222222,metalness:0.8,roughness:0.4}),new THREE.MeshBasicMaterial({map:textScreenTex}),new THREE.MeshBasicMaterial({map:textScreenTex})];
-const jumbotron=new THREE.Mesh(new THREE.BoxGeometry(1.5,0.8,1.5),jumbotronMats);jumbotron.position.set(cx,3.2,cz);scene.add(jumbotron);const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,1.3,32),new THREE.MeshStandardMaterial({color:0x111,metalness:0.9,roughness:0.2}));pole.position.set(cx,3.85,cz);scene.add(pole);const buttonPanelGroup=new THREE.Group();buttonPanelGroup.position.set(cx-5.95,1.5,cz);buttonPanelGroup.rotation.y=Math.PI/2;scene.add(buttonPanelGroup);const panel=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.8,0.15),new THREE.MeshStandardMaterial({color:0x666666,metalness:0.4,roughness:0.6}));buttonPanelGroup.add(panel);const btnActions=['BTN_WHEEL_LIST','BTN_WISHLIST','BTN_DISCO'];for(let i=0;i<3;i++){const btn=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,0.1,64).rotateX(Math.PI/2),new THREE.MeshStandardMaterial({color:0xaa0000,roughness:0.2,metalness:0.5}));btn.position.set(-0.6+i*0.6,0,0.08);btn.userData={type:btnActions[i],originalZ:0.08,isPressed:false};buttonPanelGroup.add(btn);objects.push(btn);}const dtGroup=new THREE.Group();dtGroup.position.set(cx+4.5,0,cz+4.5);scene.add(dtGroup);const lGeo=new THREE.CylinderGeometry(0.1,0.05,0.8,32);const lMat=new THREE.MeshStandardMaterial({map:woodFrameTex,roughness:0.7});for(let i of[-0.6,0.6]){for(let j of[-0.6,0.6]){const l=new THREE.Mesh(lGeo,lMat);l.position.set(i,0.4,j);dtGroup.add(l);}}const feltTex=createFeltTexture('#0a4a1a');const trayBase=new THREE.Mesh(new THREE.BoxGeometry(1.4,0.1,1.4),new THREE.MeshStandardMaterial({map:feltTex,roughness:0.9}));trayBase.position.y=0.85;dtGroup.add(trayBase);const bGeoX=new THREE.BoxGeometry(1.6,0.2,0.1);const bGeoZ=new THREE.BoxGeometry(0.1,0.2,1.4);const bMat=new THREE.MeshStandardMaterial({map:woodFrameTex,roughness:0.7});const b1=new THREE.Mesh(bGeoX,bMat);b1.position.set(0,0.95,0.75);dtGroup.add(b1);const b2=new THREE.Mesh(bGeoX,bMat);b2.position.set(0,0.95,-0.75);dtGroup.add(b2);const b3=new THREE.Mesh(bGeoZ,bMat);b3.position.set(0.75,0.95,0);dtGroup.add(b3);const b4=new THREE.Mesh(bGeoZ,bMat);b4.position.set(-0.75,0.95,0);dtGroup.add(b4);diceCtx1=document.createElement('canvas').getContext('2d');diceCtx1.canvas.width=256;diceCtx1.canvas.height=256;diceCtx2=document.createElement('canvas').getContext('2d');diceCtx2.canvas.width=256;diceCtx2.canvas.height=256;let diceTex1=new THREE.CanvasTexture(diceCtx1.canvas);let diceTex2=new THREE.CanvasTexture(diceCtx2.canvas);drawDiceCanvas(diceCtx1,6);drawDiceCanvas(diceCtx2,6);dice1Mesh=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.3,0.3),new THREE.MeshStandardMaterial({map:diceTex1,roughness:0.3,metalness:0.1}));dice1Mesh.position.set(cx+4.15,1.05,cz+4.5);dice1Mesh.rotation.set(0,Math.PI/4,0);dice1Mesh.userData={type:'ROLL_3D_DICE'};scene.add(dice1Mesh);objects.push(dice1Mesh);dice2Mesh=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.3,0.3),new THREE.MeshStandardMaterial({map:diceTex2,roughness:0.3,metalness:0.1}));dice2Mesh.position.set(cx+4.85,1.05,cz+4.4);dice2Mesh.rotation.set(0,Math.PI/6,0);dice2Mesh.userData={type:'ROLL_3D_DICE'};scene.add(dice2Mesh);objects.push(dice2Mesh);}
+const jumbotron=new THREE.Mesh(new THREE.BoxGeometry(1.5,0.8,1.5),jumbotronMats);jumbotron.position.set(cx,3.2,cz);scene.add(jumbotron);const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,1.3,32),new THREE.MeshStandardMaterial({color:0x111,metalness:0.9,roughness:0.2}));pole.position.set(cx,3.85,cz);scene.add(pole);const buttonPanelGroup=new THREE.Group();buttonPanelGroup.position.set(cx-5.95,1.5,cz);buttonPanelGroup.rotation.y=Math.PI/2;scene.add(buttonPanelGroup);const panel=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.8,0.15),new THREE.MeshStandardMaterial({color:0x666666,metalness:0.4,roughness:0.6}));buttonPanelGroup.add(panel);const btnActions=['BTN_WHEEL_LIST','BTN_WISHLIST','BTN_DISCO'];for(let i=0;i<3;i++){const btn=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,0.1,64).rotateX(Math.PI/2),new THREE.MeshStandardMaterial({color:0xaa0000,roughness:0.2,metalness:0.5}));btn.position.set(-0.6+i*0.6,0,0.08);btn.userData={type:btnActions[i],originalZ:0.08,isPressed:false};buttonPanelGroup.add(btn);objects.push(btn);}const dtGroup=new THREE.Group();dtGroup.position.set(cx+4.5,0,cz+4.5);scene.add(dtGroup);const lGeo=new THREE.CylinderGeometry(0.1,0.05,0.8,32);const lMat=new THREE.MeshStandardMaterial({map:woodFrameTex,roughness:0.7});for(let i of[-0.6,0.6]){for(let j of[-0.6,0.6]){const l=new THREE.Mesh(lGeo,lMat);l.position.set(i,0.4,j);dtGroup.add(l);}}const feltTex=createFeltTexture('#0a4a1a');const trayBase=new THREE.Mesh(new THREE.BoxGeometry(1.4,0.1,1.4),new THREE.MeshStandardMaterial({map:feltTex,roughness:0.9}));trayBase.position.y=0.85;dtGroup.add(trayBase);const bGeoX=new THREE.BoxGeometry(1.6,0.2,0.1);const bGeoZ=new THREE.BoxGeometry(0.1,0.2,1.4);const bMat=new THREE.MeshStandardMaterial({map:woodFrameTex,roughness:0.7});const b1=new THREE.Mesh(bGeoX,bMat);b1.position.set(0,0.95,0.75);dtGroup.add(b1);const b2=new THREE.Mesh(bGeoX,bMat);b2.position.set(0,0.95,-0.75);dtGroup.add(b2);const b3=new THREE.Mesh(bGeoZ,bMat);b3.position.set(0.75,0.95,0);dtGroup.add(b3);const b4=new THREE.Mesh(bGeoZ,bMat);b4.position.set(-0.75,0.95,0);dtGroup.add(b4);diceCtx1=document.createElement('canvas').getContext('2d');diceCtx1.canvas.width=256;diceCtx1.canvas.height=256;diceCtx2=document.createElement('canvas').getContext('2d');diceCtx2.canvas.width=256;diceCtx2.canvas.height=256;let diceTex1=new THREE.CanvasTexture(diceCtx1.canvas);let diceTex2=new THREE.CanvasTexture(diceCtx2.canvas);drawDiceCanvas(diceCtx1,6);drawDiceCanvas(diceCtx2,6);dice1Mesh=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.3,0.3),new THREE.MeshStandardMaterial({map:diceTex1,roughness:0.3,metalness:0.1}));dice1Mesh.position.set(cx+4.15,1.05,cz+4.5);dice1Mesh.rotation.set(0,Math.PI/4,0);dice1Mesh.userData={type:'ROLL_3D_DICE'};scene.add(dice1Mesh);objects.push(dice1Mesh);dice2Mesh=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.3,0.3),new THREE.MeshStandardMaterial({map:diceTex2,roughness:0.3,metalness:0.1}));dice2Mesh.position.set(cx+4.85,1.05,cz+4.4);dice2Mesh.rotation.set(0,Math.PI/6,0);dice2Mesh.userData={type:'ROLL_3D_DICE'};scene.add(dice2Mesh);objects.push(dice2Mesh);
+
+
+const horrorWallCanvas=document.createElement('canvas');horrorWallCanvas.width=1024;horrorWallCanvas.height=512;
+window.horrorWallCtx=horrorWallCanvas.getContext('2d');
+window.horrorWallTex=new THREE.CanvasTexture(horrorWallCanvas);
+window.horrorWallTex.magFilter=THREE.LinearFilter;
+
+const hwBorderMesh=new THREE.Mesh(new THREE.PlaneGeometry(5.2,2.5),new THREE.MeshStandardMaterial({color:0x0a0a0a,roughness:0.5,metalness:0.5}));
+hwBorderMesh.position.set(cx+5.9,2.6,cz-1.5);hwBorderMesh.rotation.y=-Math.PI/2;scene.add(hwBorderMesh);
+
+const hwMat=new THREE.MeshBasicMaterial({map:window.horrorWallTex});
+const hwScreen=new THREE.Mesh(new THREE.PlaneGeometry(4.9,2.3),hwMat);
+hwScreen.position.set(cx+5.88,2.6,cz-1.5);hwScreen.rotation.y=-Math.PI/2;scene.add(hwScreen);
+const hwBtnGroup=new THREE.Group();
+hwBtnGroup.position.set(cx+5.7,1.3,cz-1.5);
+hwBtnGroup.rotation.y=-Math.PI/2;
+scene.add(hwBtnGroup);
+const hwBtnPanel=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.35,0.1),new THREE.MeshStandardMaterial({color:0x111111,metalness:0.5,roughness:0.5}));
+hwBtnGroup.add(hwBtnPanel);
+const hwToggleBtn=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.09,0.07,32).rotateX(Math.PI/2),new THREE.MeshStandardMaterial({color:0x660000,roughness:0.2,metalness:0.5}));
+hwToggleBtn.position.set(0,0,0.06);
+hwToggleBtn.userData={type:'BTN_HW_TOGGLE',originalZ:0.06,isPressed:false};
+hwBtnGroup.add(hwToggleBtn);
+objects.push(hwToggleBtn);
+
+window.hwImgCache={};
+window.horrorListScrollY=0;
+function getHWImg(src,cb){
+    if(!src){cb(null);return;}
+    if(window.hwImgCache[src]!==undefined){cb(window.hwImgCache[src]);return;}
+    window.hwImgCache[src]=null;
+    const img=new Image();img.crossOrigin='Anonymous';
+    img.onload=()=>{window.hwImgCache[src]=img;cb(img);};
+    img.onerror=()=>{window.hwImgCache[src]=false;cb(null);};
+    img.src=src;
+}
+window.updateHorrorWallScreen=function(){
+    const ctx=window.horrorWallCtx;
+    if(window.horrorWallMode==='list'&&window.horrorWallListData){
+        const list=window.horrorWallListData;
+        const THUMB_W=120,THUMB_H=56,ITEM_H=66,START_Y=64;
+        const visCount=Math.floor((512-START_Y)/ITEM_H);
+        const startIdx=Math.max(0,Math.floor((window.horrorListScrollY||0)/ITEM_H));
+        
+        ctx.fillStyle='#0a0000';ctx.fillRect(0,0,1024,512);
+        ctx.fillStyle='rgba(255,0,0,0.06)';for(let i=0;i<512;i+=8)ctx.fillRect(0,i,1024,4);
+        
+        const title=window.horrorWallListTitle||'OYUNLAR';
+        ctx.textAlign='center';ctx.font="bold 34px 'Courier New',monospace";
+        ctx.fillStyle='rgba(0,0,0,0.95)';ctx.fillText(title,514,45);
+        ctx.fillStyle='#ff2222';ctx.fillText(title,512,44);
+        ctx.fillStyle='#ff4444';ctx.fillRect(60,56,904,2);
+        
+        for(let i=startIdx;i<Math.min(list.length,startIdx+visCount+1);i++){
+            const yBase=START_Y+(i-startIdx)*ITEM_H;if(yBase>512)break;
+            const g=list[i];
+            ctx.fillStyle=i%2===0?'rgba(50,0,0,0.7)':'rgba(25,0,0,0.5)';ctx.fillRect(0,yBase,1024,ITEM_H-2);
+            const src=g.img||g.image||(g.steamId&&!isNaN(g.steamId)?`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.steamId}/header.jpg`:null);
+            const cachedImg=src?window.hwImgCache[src]:undefined;
+            if(cachedImg){ctx.drawImage(cachedImg,8,yBase+4,THUMB_W,THUMB_H);}
+            else if(src&&cachedImg===undefined){getHWImg(src,()=>{if(window.horrorWallMode==='list')window.updateHorrorWallScreen();});}
+            else{ctx.fillStyle='#1a0000';ctx.fillRect(8,yBase+4,THUMB_W,THUMB_H);}
+            const nm=g.name.length>30?g.name.substring(0,28)+'…':g.name;
+            ctx.textAlign='left';
+            ctx.fillStyle='rgba(0,0,0,0.95)';ctx.font="bold 20px 'Courier New',monospace";ctx.fillText(nm,139,yBase+29);
+            ctx.fillStyle=window.favoriteGames&&window.favoriteGames.includes(g.name)?'#ffd700':'#ccffcc';ctx.fillText(nm,138,yBase+28);
+            const sub=(g.type||g.desc||'').substring(0,36);const sub2=g.playtime||g.time||'';
+            ctx.fillStyle='rgba(0,0,0,0.8)';ctx.font="13px 'Courier New',monospace";ctx.fillText(sub,138.5,yBase+50.5);
+            ctx.fillStyle='#ff8888';ctx.fillText(sub,138,yBase+50);
+            if(sub2){ctx.fillStyle='#ffaa44';ctx.fillText(sub2,870,yBase+50);}
+        }
+        if(list.length>visCount){const bH=Math.max(20,(visCount/list.length)*440);const bY=56+((window.horrorListScrollY||0)/(Math.max(1,list.length-visCount)*ITEM_H))*360;ctx.fillStyle='rgba(255,50,50,0.5)';ctx.fillRect(1012,bY,12,bH);}
+    }else if(window.horrorWallMode==='won'&&window.horrorWallWonGame){
+        const g=window.horrorWallWonGame;
+        const src=g.img||g.image||(g.steamId&&!isNaN(g.steamId)?`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.steamId}/header.jpg`:null);
+        const renderWon=(img)=>{
+            ctx.fillStyle='#0a0000';ctx.fillRect(0,0,1024,512);
+            if(img){ctx.drawImage(img,0,0,1024,512);}
+            ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(0,0,1024,512);
+            ctx.fillStyle='rgba(255,0,0,0.07)';for(let i=0;i<512;i+=6)ctx.fillRect(0,i,1024,3);
+            drawWonInfo(ctx,g);window.horrorWallTex.needsUpdate=true;
+        };
+        getHWImg(src,renderWon);
+        return;
+    }else{
+        ctx.fillStyle='#000';ctx.fillRect(0,0,1024,512);
+    }
+    window.horrorWallTex.needsUpdate=true;
+};
+function drawWonInfo(ctx,g){
+    ctx.textAlign='center';
+    function st(text,x,y,col,size,font){
+        ctx.font=font||`bold ${size}px 'Courier New',monospace`;
+        ctx.fillStyle='rgba(0,0,0,0.95)';ctx.fillText(text,x+2,y+2);ctx.fillText(text,x-2,y+2);ctx.fillText(text,x+2,y-2);ctx.fillText(text,x-2,y-2);
+        ctx.fillStyle=col;ctx.fillText(text,x,y);
+    }
+    st('◄ SEÇİLEN OYUN ►',512,80,'#ff2222',34);
+    const fs=g.name.length>16?58:80;st(g.name,512,200,'#ffd700',fs,`bold ${fs}px 'Special Elite',cursive`);
+    st('Tür: '+(g.type||''),512,278,'#aaffaa',26);
+    st('Süre: '+(g.playtime||''),512,320,'#aaffaa',26);
+    ctx.fillStyle='rgba(255,50,50,0.5)';ctx.fillRect(100,345,824,2);
+    st('Steam ID: '+(g.steamId||''),512,380,'#ff8888',22);
+    window.horrorWallTex.needsUpdate=true;
+}
+window.horrorWallMode='idle';
+window.updateHorrorWallScreen();
+}
 function buildCasinoRoom(){const wallTex=createRetroWallTexture('#2e3a2e');const floorTex=createFloorTexture('#1a0f05','#110a02');const ceilTex=createCeilingTexture();const wallMat=new THREE.MeshStandardMaterial({map:wallTex,bumpMap:wallTex,bumpScale:0.03,side:THREE.DoubleSide,roughness:0.8,metalness:0.1});const floorMat=new THREE.MeshStandardMaterial({map:floorTex,bumpMap:floorTex,bumpScale:0.02,roughness:0.3});const cx=-100,cz=0;const light=new THREE.PointLight(0xffddaa,1.5,30);light.position.set(cx,4.0,cz);scene.add(light);addCeilingLamp(scene,cx,4.45,cz);const floor=new THREE.Mesh(new THREE.PlaneGeometry(12,12),floorMat);floor.rotation.x=-Math.PI/2;floor.position.set(cx,0,cz);scene.add(floor);const ceil=new THREE.Mesh(new THREE.PlaneGeometry(12,12),new THREE.MeshStandardMaterial({map:ceilTex,roughness:0.9}));ceil.rotation.x=Math.PI/2;ceil.position.set(cx,4.5,cz);scene.add(ceil);const wGeo=new THREE.PlaneGeometry(12,4.5);const w1=new THREE.Mesh(wGeo,wallMat);w1.position.set(cx,2.25,cz-6);scene.add(w1);const w2=new THREE.Mesh(wGeo,wallMat);w2.position.set(cx,2.25,cz+6);w2.rotation.y=Math.PI;scene.add(w2);const w3=new THREE.Mesh(wGeo,wallMat);w3.position.set(cx-6,2.25,cz);w3.rotation.y=Math.PI/2;scene.add(w3);const w4=new THREE.Mesh(wGeo,wallMat);w4.position.set(cx+6,2.25,cz);w4.rotation.y=-Math.PI/2;scene.add(w4);addTrims(scene,cx,cz);const doorTex=createDoorTexture(false);const exitDoor=new THREE.Mesh(new THREE.BoxGeometry(2.0,3.2,0.15),new THREE.MeshStandardMaterial({map:doorTex,bumpMap:doorTex,bumpScale:0.04,roughness:0.6}));exitDoor.position.set(cx,1.6,cz-5.85);exitDoor.rotation.y=Math.PI;exitDoor.userData={type:'GO_TO_CORRIDOR'};scene.add(exitDoor);objects.push(exitDoor);addKnob(exitDoor,true);const woodFrameTex=createWoodTexture('#2a1508','10,5,0');const eFrame=new THREE.Mesh(new THREE.BoxGeometry(2.4,3.4,0.25),new THREE.MeshStandardMaterial({map:woodFrameTex,roughness:0.8}));eFrame.position.set(cx,1.7,cz-5.95);scene.add(eFrame);const textureLoader=new THREE.TextureLoader();const tabloMat1=new THREE.MeshStandardMaterial({color:0x888888,roughness:0.5});textureLoader.load('code/tablo1.png',function(tex){tabloMat1.map=tex;tabloMat1.needsUpdate=true;});const tablo1Mesh=new THREE.Mesh(new THREE.PlaneGeometry(3.0,3.8),tabloMat1);tablo1Mesh.position.set(cx-5.9,2.35,cz);tablo1Mesh.rotation.y=Math.PI/2;scene.add(tablo1Mesh);const tFrame1=new THREE.Mesh(new THREE.BoxGeometry(3.2,4.0,0.05),new THREE.MeshStandardMaterial({map:woodFrameTex,roughness:0.5}));tFrame1.position.set(cx-5.95,2.35,cz);tFrame1.rotation.y=Math.PI/2;scene.add(tFrame1);const feltTex=createFeltTexture('#0a4a1a');const bjTable=new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.5,0.1,64),new THREE.MeshStandardMaterial({map:feltTex,roughness:0.9}));bjTable.position.set(cx,0.8,cz+1);bjTable.userData={type:'PLAY_BLACKJACK'};scene.add(bjTable);objects.push(bjTable);const leatherTex=createLeatherTexture('#1a0d05');const rim=new THREE.Mesh(new THREE.TorusGeometry(1.5,0.15,32,64),new THREE.MeshStandardMaterial({map:leatherTex,roughness:0.7}));rim.position.set(cx,0.85,cz+1);rim.rotation.x=Math.PI/2;scene.add(rim);const pLeg=new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.6,0.8,64),new THREE.MeshStandardMaterial({map:woodFrameTex,roughness:0.7}));pLeg.position.set(cx,0.4,cz+1);scene.add(pLeg);const pBase=new THREE.Mesh(new THREE.CylinderGeometry(1.0,1.0,0.1,64),new THREE.MeshStandardMaterial({map:leatherTex,roughness:0.8}));pBase.position.set(cx,0.05,cz+1);scene.add(pBase);const cardBackTex=createCardBackTexture();const cardBackMat=new THREE.MeshStandardMaterial({map:cardBackTex,roughness:0.8});const cardGeo=new THREE.BoxGeometry(0.2,0.01,0.3);const deck=new THREE.Mesh(new THREE.BoxGeometry(0.2,0.1,0.3),cardBackMat);deck.position.set(cx+0.6,0.9,cz+0.8);deck.rotation.y=Math.PI/5;scene.add(deck);const cardA_tex=createCardTexture('A♠','#000');const cardA_mat=[new THREE.MeshStandardMaterial({color:0xffffff}),new THREE.MeshStandardMaterial({color:0xffffff}),new THREE.MeshStandardMaterial({map:cardA_tex,roughness:0.8}),new THREE.MeshStandardMaterial({map:cardBackTex}),new THREE.MeshStandardMaterial({color:0xffffff}),new THREE.MeshStandardMaterial({color:0xffffff})];const c1=new THREE.Mesh(cardGeo,cardA_mat);c1.position.set(cx-0.1,0.86,cz+1.6);c1.rotation.y=0.1;scene.add(c1);const cardK_tex=createCardTexture('K♥','#d00');const cardK_mat=[new THREE.MeshStandardMaterial({color:0xffffff}),new THREE.MeshStandardMaterial({color:0xffffff}),new THREE.MeshStandardMaterial({map:cardK_tex,roughness:0.8}),new THREE.MeshStandardMaterial({map:cardBackTex}),new THREE.MeshStandardMaterial({color:0xffffff}),new THREE.MeshStandardMaterial({color:0xffffff})];const c2=new THREE.Mesh(cardGeo,cardK_mat);c2.position.set(cx+0.1,0.86,cz+1.65);c2.rotation.y=-0.15;scene.add(c2);const c3=new THREE.Mesh(cardGeo,cardBackMat);c3.position.set(cx-0.1,0.86,cz+0.4);scene.add(c3);const card7_tex=createCardTexture('7♣','#000');const card7_mat=[new THREE.MeshStandardMaterial({color:0xffffff}),new THREE.MeshStandardMaterial({color:0xffffff}),new THREE.MeshStandardMaterial({map:card7_tex,roughness:0.8}),new THREE.MeshStandardMaterial({map:cardBackTex}),new THREE.MeshStandardMaterial({color:0xffffff}),new THREE.MeshStandardMaterial({color:0xffffff})];const c4=new THREE.Mesh(cardGeo,card7_mat);c4.position.set(cx+0.1,0.86,cz+0.45);c4.rotation.y=0.2;scene.add(c4);}
 
 function createHeartHandle(colorHex) {
@@ -168,12 +275,12 @@ function buildKitchen(scene, cx, cz) {
     oHeat.rotation.y = Math.PI / 2;
     kitchenGroup.add(oHeat);
 
-    // ── OCAK ÜSTÜ (stove top) ──────────────────────────────────────────────
-    // Oven gövdesi: x=[0,1.1] merkez fX=0.55, z=[-1.5,-0.3] merkez oZ=-0.9
-    // Kare ocak yüzeyi: oven gövdesinin tam üstüne otur
-    const stoveW = 1.1;   // x genişliği (oven ile aynı)
-    const stoveD = 1.2;   // z derinliği (oven ile aynı)
-    const stoveY = 1.085; // counterTop (y=1.08) üstünde ince plaka
+    
+    
+    
+    const stoveW = 1.1;   
+    const stoveD = 1.2;   
+    const stoveY = 1.085; 
 
     const stovePlate = new THREE.Mesh(
         new THREE.BoxGeometry(stoveW, 0.025, stoveD),
@@ -182,33 +289,33 @@ function buildKitchen(scene, cx, cz) {
     stovePlate.position.set(fX, stoveY, oZ);
     kitchenGroup.add(stovePlate);
 
-    // Çerçeve kenar şeritleri (krom)
+    
     const chromeMat = new THREE.MeshStandardMaterial({color: 0xcccccc, metalness: 0.9, roughness: 0.2});
     const edgeT = 0.015;
-    // ön kenar
+    
     const edgeFront = new THREE.Mesh(new THREE.BoxGeometry(stoveW, edgeT, edgeT), chromeMat);
     edgeFront.position.set(fX, stoveY + 0.012, oZ + stoveD/2);
     kitchenGroup.add(edgeFront);
-    // arka kenar
+    
     const edgeBack = new THREE.Mesh(new THREE.BoxGeometry(stoveW, edgeT, edgeT), chromeMat);
     edgeBack.position.set(fX, stoveY + 0.012, oZ - stoveD/2);
     kitchenGroup.add(edgeBack);
-    // sol kenar
+    
     const edgeLeft = new THREE.Mesh(new THREE.BoxGeometry(edgeT, edgeT, stoveD), chromeMat);
     edgeLeft.position.set(fX - stoveW/2, stoveY + 0.012, oZ);
     kitchenGroup.add(edgeLeft);
-    // sağ kenar
+    
     const edgeRight = new THREE.Mesh(new THREE.BoxGeometry(edgeT, edgeT, stoveD), chromeMat);
     edgeRight.position.set(fX + stoveW/2, stoveY + 0.012, oZ);
     kitchenGroup.add(edgeRight);
 
-    // 4 brülör — 2x2 grid, stovePlate üzerinde tam ortalı
+    
     const burnerMat = new THREE.MeshStandardMaterial({color: 0x0d0d0d, roughness: 0.95});
     const burnerRingMat = new THREE.MeshStandardMaterial({color: 0x222222, metalness: 0.5, roughness: 0.6});
     const burnerGlowMat = new THREE.MeshStandardMaterial({color: 0x1a0a00, roughness: 1.0});
 
-    // 2 sütun (x): sol=fX-0.23, sağ=fX+0.2  (oven gövdesi x=[0,1.1], fX=0.55)
-    // 2 sıra (z): ön=oZ+0.3, arka=oZ-0.3
+    
+    
     const bCols = [fX - 0.22, fX + 0.20];
     const bRows = [oZ - 0.30, oZ + 0.30];
 
@@ -216,24 +323,24 @@ function buildKitchen(scene, cx, cz) {
         bRows.forEach(bz => {
             const by = stoveY + 0.015;
 
-            // dış halka
+            
             const ring1 = new THREE.Mesh(new THREE.TorusGeometry(0.155, 0.018, 12, 48), burnerRingMat);
             ring1.rotation.x = Math.PI / 2;
             ring1.position.set(bx, by, bz);
             kitchenGroup.add(ring1);
 
-            // iç halka
+            
             const ring2 = new THREE.Mesh(new THREE.TorusGeometry(0.085, 0.012, 12, 48), burnerRingMat);
             ring2.rotation.x = Math.PI / 2;
             ring2.position.set(bx, by, bz);
             kitchenGroup.add(ring2);
 
-            // merkez disk
+            
             const center = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.01, 24), burnerMat);
             center.position.set(bx, by, bz);
             kitchenGroup.add(center);
 
-            // çapraz ızgara çubukları (4 adet)
+            
             for (let a = 0; a < 4; a++) {
                 const bar = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.008, 0.012), burnerMat);
                 bar.rotation.y = (Math.PI / 4) * a;
@@ -243,20 +350,20 @@ function buildKitchen(scene, cx, cz) {
         });
     });
 
-    // ── KONTROL PANELİ (ön kenar, yatay şerit) ───────────────────────────
-    // Tezgahın ön kenarı x = fX + stoveW/2 = 0.55+0.55 = 1.1
-    // Panel tezgahın ön yüzüne yapışık, z boyunca uzanıyor
+    
+    
+    
     const panelMat = new THREE.MeshStandardMaterial({color: 0x2a1a3a, roughness: 0.5, metalness: 0.3});
     const panel = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.10, stoveD), panelMat);
     panel.position.set(fX + stoveW/2 - 0.025, stoveY + 0.06, oZ);
     kitchenGroup.add(panel);
 
-    // Panel üst krom şerit
+    
     const panelTop = new THREE.Mesh(new THREE.BoxGeometry(0.052, 0.008, stoveD + 0.01), chromeMat);
     panelTop.position.set(fX + stoveW/2 - 0.025, stoveY + 0.112, oZ);
     kitchenGroup.add(panelTop);
 
-    // 4 düğme panel üzerinde z boyunca eşit aralıklı
+    
     const knobMat = new THREE.MeshStandardMaterial({color: pinkHeartColor, roughness: 0.2, metalness: 0.3});
     const knobStemMat = new THREE.MeshStandardMaterial({color: 0x888888, metalness: 0.7, roughness: 0.3});
     const knobRimMat = new THREE.MeshStandardMaterial({color: 0xdddddd, metalness: 0.9, roughness: 0.1});
@@ -265,26 +372,26 @@ function buildKitchen(scene, cx, cz) {
         const kx = fX + stoveW/2 + 0.012;
         const ky = stoveY + 0.072;
 
-        // krom halka (arka)
+        
         const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.052, 0.012, 24), knobRimMat);
         rim.rotation.z = Math.PI / 2;
         rim.position.set(kx - 0.004, ky, kz);
         kitchenGroup.add(rim);
 
-        // ana düğme gövdesi — hafif konik silindir
+        
         const knobBody = new THREE.Mesh(new THREE.CylinderGeometry(0.044, 0.050, 0.055, 24), knobMat);
         knobBody.rotation.z = Math.PI / 2;
         knobBody.position.set(kx + 0.018, ky, kz);
         kitchenGroup.add(knobBody);
 
-        // düğme ön yüzü (koyu disk)
+        
         const face = new THREE.Mesh(new THREE.CylinderGeometry(0.034, 0.034, 0.006, 24),
             new THREE.MeshStandardMaterial({color: 0x1a0a20, roughness: 0.4, metalness: 0.2}));
         face.rotation.z = Math.PI / 2;
         face.position.set(kx + 0.048, ky, kz);
         kitchenGroup.add(face);
 
-        // işaret çizgisi (beyaz çubuk)
+        
         const mark = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.004, 0.028), knobRimMat);
         mark.position.set(kx + 0.052, ky + 0.018, kz);
         kitchenGroup.add(mark);
@@ -310,9 +417,9 @@ function buildKitchen(scene, cx, cz) {
     oHandle.position.set(0.08, 0.6, 0);
     window.ovenDoorHinge.add(oHandle);
 
-    // Kapı üstü ile fırın gövdesi arasındaki boşluğu kapat
-    // Kapı hinge y=0.1, kapı yükseklik 0.7 → kapı üstü y=0.1+0.7=0.8
-    // obTop y=0.97, boşluk 0.8→0.97 = 0.17 yükseklik
+    
+    
+    
     const gapFiller = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.18, 1.2), darkOvenMat);
     gapFiller.position.set(fX + 0.55, 0.89, oZ);
     kitchenGroup.add(gapFiller);
@@ -592,16 +699,16 @@ const bowR=new THREE.Mesh(new THREE.ConeGeometry(0.04,0.06,16),bowMat);
     bowC.position.set(0,0.32,0.17);
     bearGroup.add(bowC);
 
-   // --- Duvar İzi (Küçültüldü ve Sağa Alındı) ---
+   
     const duvarIziMat = new THREE.MeshStandardMaterial({ transparent: true, roughness: 0.9, color: 0xeeeeee });
     new THREE.TextureLoader().load('code/duvarizi.png', function(tex) {
         duvarIziMat.map = tex;
         duvarIziMat.needsUpdate = true;
     });
-    // Boyut yarı yarıya küçültüldü (0.8 x 0.8)
+    
     const duvarIziMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.8), duvarIziMat);
     
-    // Yüksekliği biraz aşağı (1.4) ve pozisyonu daha sağa (cz - 2.5) çekildi
+    
     duvarIziMesh.position.set(cx + 5.98, 1.4, cz - 2.5);
     duvarIziMesh.rotation.y = -Math.PI / 2;
     scene.add(duvarIziMesh);
@@ -624,56 +731,56 @@ const bowR=new THREE.Mesh(new THREE.ConeGeometry(0.04,0.06,16),bowMat);
     easelStand.position.set(cx+5.6,0.6,cz);
     scene.add(easelStand);
     
-    // --- Mekanik Kol (Silme Tuşu) ---
+    
     const leverGroup = new THREE.Group();
-    leverGroup.position.set(cx+5.9, 1.5, cz+1.0);
+    leverGroup.position.set(cx+5.9, 1.5, cz-1.0);
     leverGroup.rotation.y = -Math.PI/2;
     scene.add(leverGroup);
 
-    // Kol tabanı (duvardan çıkan plaka)
+    
     const leverBaseMat = new THREE.MeshStandardMaterial({color:0x555566, roughness:0.4, metalness:0.7});
     const leverBase = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.25), leverBaseMat);
     leverBase.position.set(0, 0, 0);
     leverGroup.add(leverBase);
 
-    // Menteşe (sarı halka)
+    
     const hingeMat = new THREE.MeshStandardMaterial({color:0xd4af37, metalness:0.9, roughness:0.2});
     const hinge = new THREE.Mesh(new THREE.TorusGeometry(0.055, 0.02, 16, 32), hingeMat);
     hinge.rotation.y = Math.PI/2;
     hinge.position.set(0.05, 0.08, 0);
     leverGroup.add(hinge);
 
-    // Kol pivot grubu (bu döner)
+    
     window.leverPivot = new THREE.Group();
     window.leverPivot.position.set(0.05, 0.08, 0);
     leverGroup.add(window.leverPivot);
 
-    // Kol çubuğu
+    
     const rodMat = new THREE.MeshStandardMaterial({color:0xcc2244, roughness:0.3, metalness:0.6});
     const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.45, 16), rodMat);
     rod.position.set(0, 0.225, 0);
     window.leverPivot.add(rod);
 
-    // Kol topu (tutacak)
+    
     const ballMat = new THREE.MeshStandardMaterial({color:0xff3366, roughness:0.2, metalness:0.1});
     const ball = new THREE.Mesh(new THREE.SphereGeometry(0.06, 32, 32), ballMat);
     ball.position.set(0, 0.47, 0);
     window.leverPivot.add(ball);
 
-    // Etiket plakası
+    
     const plateMat = new THREE.MeshStandardMaterial({color:0xeeeecc, roughness:0.5});
     const plate = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.12, 0.22), plateMat);
     plate.position.set(0.04, -0.08, 0);
     leverGroup.add(plate);
 
-    // Tıklama hedefi — kol topu ile hizalı, leverPivot üzerinde
+    
     const clrBtn = new THREE.Mesh(
         new THREE.SphereGeometry(0.09, 16, 16),
         new THREE.MeshStandardMaterial({color:0xff3366, transparent:true, opacity:0.0})
     );
     clrBtn.position.set(0, 0.47, 0);
     window.leverPivot.add(clrBtn);
-    // Dünya konumu hesaplamak için referans tutalım
+    
     window.leverPivot.userData = {type:'BTN_CLEAR_DRAW', originalZ: cz+1.0, isPressed:false};
     clrBtn.userData = {type:'BTN_CLEAR_DRAW', originalZ: cz+1.0, isPressed:false};
     scene.add(leverGroup);
@@ -687,7 +794,7 @@ const bowR=new THREE.Mesh(new THREE.ConeGeometry(0.04,0.06,16),bowMat);
     leg.position.y=0.45;
     tableGroup.add(leg);
     
-    const wheelTex=createRouletteTexture(chillGames,true);
+    const wheelTex=createRouletteTexture(window.getFilteredChillGames?window.getFilteredChillGames():chillGames,true);
     const wheelMats=[
         new THREE.MeshStandardMaterial({color:'#ff66b2',roughness:0.5}),
         new THREE.MeshStandardMaterial({map:wheelTex,roughness:0.9}),
@@ -725,6 +832,103 @@ const bowR=new THREE.Mesh(new THREE.ConeGeometry(0.04,0.06,16),bowMat);
     scene.add(cPole);
     
     chillScreens=[cJumbotronMats[0],cJumbotronMats[1],cJumbotronMats[4],cJumbotronMats[5]];
+
+    
+    const chillWallCanvas2=document.createElement('canvas');chillWallCanvas2.width=1024;chillWallCanvas2.height=512;
+    window.chillWallCtx2=chillWallCanvas2.getContext('2d');
+    window.chillWallTex2=new THREE.CanvasTexture(chillWallCanvas2);
+    window.chillWallTex2.magFilter=THREE.LinearFilter;
+    
+    const cwBorder2=new THREE.Mesh(new THREE.PlaneGeometry(4.2,2.2),new THREE.MeshStandardMaterial({color:0xdd44aa,roughness:0.4,metalness:0.3}));
+    cwBorder2.position.set(cx+5.9,2.8,cz+2.5);cwBorder2.rotation.y=-Math.PI/2;scene.add(cwBorder2);
+    const cwMat2=new THREE.MeshBasicMaterial({map:window.chillWallTex2});
+    const cwScreen2=new THREE.Mesh(new THREE.PlaneGeometry(4.0,2.0),cwMat2);
+    cwScreen2.position.set(cx+5.88,2.8,cz+2.5);cwScreen2.rotation.y=-Math.PI/2;scene.add(cwScreen2);
+
+    
+    const chillBtnGroup=new THREE.Group();
+    chillBtnGroup.position.set(cx+5.95,1.2,cz+2.5);
+    chillBtnGroup.rotation.y=-Math.PI/2;
+    scene.add(chillBtnGroup);
+    const chillBtnPanel=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.4,0.1),new THREE.MeshStandardMaterial({color:0xff66b2,roughness:0.4,metalness:0.3}));
+    chillBtnGroup.add(chillBtnPanel);
+    const chillBtn=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.09,0.07,32).rotateX(Math.PI/2),new THREE.MeshStandardMaterial({color:0xffffff,roughness:0.2,metalness:0.2}));
+    chillBtn.position.set(0,0,0.06);
+    chillBtn.userData={type:'BTN_CHILL_LIST',originalZ:0.06,isPressed:false};
+    chillBtnGroup.add(chillBtn);
+    objects.push(chillBtn);
+
+    
+    window.cwImgCache={};
+    function getCWImg(src,cb){
+        if(!src){cb(null);return;}
+        if(window.cwImgCache[src]!==undefined){cb(window.cwImgCache[src]);return;}
+        window.cwImgCache[src]=null;
+        const img=new Image();img.crossOrigin='Anonymous';
+        img.onload=()=>{window.cwImgCache[src]=img;cb(img);};
+        img.onerror=()=>{window.cwImgCache[src]=false;cb(null);};
+        img.src=src;
+    }
+    function stChill(ctx,text,x,y,col,size,font){
+        ctx.font=font||`bold ${size}px 'Courier New',monospace`;ctx.textAlign='center';
+        ctx.fillStyle='rgba(0,0,0,0.85)';ctx.fillText(text,x+1,y+1);
+        ctx.fillStyle=col;ctx.fillText(text,x,y);
+    }
+    window.chillListScrollY=0;
+    window.updateChillWallScreen=function(){
+        const ctx=window.chillWallCtx2;
+        if(window.chillWallMode==='list'){
+            const list=window.getFilteredChillGames?window.getFilteredChillGames():(window.chillWallListData||chillGames);
+            const THUMB_W=130,THUMB_H=62,ITEM_H=74,START_Y=62;
+            const visCount=Math.floor((512-START_Y)/ITEM_H);
+            const startIdx=Math.max(0,Math.floor((window.chillListScrollY||0)/ITEM_H));
+            ctx.fillStyle='#fff0f5';ctx.fillRect(0,0,1024,512);
+            ctx.fillStyle='rgba(255,100,180,0.1)';for(let i=0;i<512;i+=10)ctx.fillRect(0,i,1024,5);
+            stChill(ctx,'✿ ÇARKTAKI OYUNLAR ✿',512,40,'#cc0066',30);
+            ctx.fillStyle='#ff99cc';ctx.fillRect(50,50,924,2);
+            for(let i=startIdx;i<Math.min(list.length,startIdx+visCount+1);i++){
+                const yBase=START_Y+(i-startIdx)*ITEM_H;if(yBase>512)break;
+                const g=list[i];
+                ctx.fillStyle=i%2===0?'rgba(255,200,220,0.5)':'rgba(255,180,210,0.3)';ctx.fillRect(0,yBase,1024,ITEM_H-2);
+                const src=g.img||g.image||(g.steamId&&!isNaN(g.steamId)?`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.steamId}/header.jpg`:null);
+                const ci=src?window.cwImgCache[src]:undefined;
+                if(ci){ctx.drawImage(ci,8,yBase+5,THUMB_W,THUMB_H);}
+                else if(src&&ci===undefined){getCWImg(src,()=>{if(window.chillWallMode==='list')window.updateChillWallScreen();});}
+                else{ctx.fillStyle='#ffccdd';ctx.fillRect(8,yBase+5,THUMB_W,THUMB_H);}
+                const nm=g.name.length>30?g.name.substring(0,28)+'…':g.name;
+                ctx.textAlign='left';
+                ctx.fillStyle='rgba(0,0,0,0.8)';ctx.font="bold 19px 'Courier New',monospace";ctx.fillText(nm,149,yBase+33);
+                ctx.fillStyle='#880044';ctx.fillText(nm,148,yBase+32);
+                const sub=(g.desc||g.type||'').substring(0,40);const sub2=g.time||g.playtime||'';
+                ctx.fillStyle='rgba(0,0,0,0.7)';ctx.font="12px 'Courier New',monospace";ctx.fillText(sub,148.5,yBase+55.5);
+                ctx.fillStyle='#cc0055';ctx.fillText(sub,148,yBase+55);
+                if(sub2){ctx.fillStyle='#ff6699';ctx.fillText(sub2,840,yBase+55);}
+            }
+            if(list.length>visCount){const bH=Math.max(20,(visCount/list.length)*440);const bY=50+((window.chillListScrollY||0)/(Math.max(1,list.length-visCount)*ITEM_H))*360;ctx.fillStyle='rgba(200,0,100,0.5)';ctx.fillRect(1012,bY,12,bH);}
+        }else if(window.chillWallMode==='won'&&window.chillWallWonGame){
+            const g=window.chillWallWonGame;
+            const src=g.img||g.image||(g.steamId&&!isNaN(g.steamId)?`https://cdn.cloudflare.steamstatic.com/steam/apps/${g.steamId}/header.jpg`:null);
+            const renderC=(img)=>{
+                ctx.fillStyle='#ffb3c6';ctx.fillRect(0,0,1024,512);
+                if(img){ctx.drawImage(img,0,0,1024,512);ctx.fillStyle='rgba(255,150,200,0.55)';ctx.fillRect(0,0,1024,512);}
+                stChill(ctx,'♥ KAZANILAN OYUN ♥',512,70,'#ffffff',30);
+                const fs=g.name.length>16?54:72;stChill(ctx,g.name,512,190,'#fff0f5',fs,`bold ${fs}px 'Special Elite',cursive`);
+                stChill(ctx,(g.desc||g.type||'').substring(0,50),512,275,'#ffe0f0',22);
+                stChill(ctx,'Süre: '+(g.time||g.playtime||''),512,315,'#ffe0f0',22);
+                ctx.fillStyle='rgba(200,0,100,0.5)';ctx.fillRect(80,340,864,2);
+                stChill(ctx,'Steam\'de ara: '+g.name.substring(0,30),512,375,'#ffccdd',20);
+                window.chillWallTex2.needsUpdate=true;
+            };
+            getCWImg(src,renderC);return;
+        }else{
+            ctx.fillStyle='#ffe0ee';ctx.fillRect(0,0,1024,512);
+            ctx.fillStyle='rgba(255,150,200,0.15)';for(let i=0;i<512;i+=14)ctx.fillRect(0,i,1024,7);
+            stChill(ctx,'✿',512,170,'#ff66b2',80);stChill(ctx,'ÇARKI ÇEVİR!',512,280,'#cc0055',38);stChill(ctx,'Sonuç burada çıkar',512,340,'#aa0044',28);
+        }
+        window.chillWallTex2.needsUpdate=true;
+    };
+    window.chillWallMode='idle';
+    window.updateChillWallScreen();
 
     buildKitchen(scene, cx, cz);
 }
