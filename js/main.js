@@ -405,7 +405,7 @@ function animate() {
         if (gameState === 'CORRIDOR') {
             if (pos.z > 6 - pad) pos.z = 6 - pad; if (pos.z < -12 + pad) pos.z = -12 + pad; if (pos.x < -2.5 + pad) pos.x = -2.5 + pad; if (pos.x > 2.5 - pad) pos.x = 2.5 - pad;
         } else if (gameState === 'SECRET_ROOM') {
-            if (pos.x < 94 + pad) pos.x = 94 + pad; if (pos.x > 106 - 0.3) pos.x = 106 - 0.3; if (pos.z < -6 + pad) pos.z = -6 + pad; if (pos.z > 6 - pad) pos.z = 6 - pad;
+            if (pos.x < 94 + pad) pos.x = 94 + pad; if (pos.x > 106 - 0.5) pos.x = 106 - 0.5; if (pos.z < -6 + pad) pos.z = -6 + pad; if (pos.z > 6 - pad) pos.z = 6 - pad;
         } else if (gameState === 'CASINO_ROOM') {
             if (pos.x < -106 + pad) pos.x = -106 + pad; if (pos.x > -94 - pad) pos.x = -94 - pad; if (pos.z < -6 + pad) pos.z = -6 + pad; if (pos.z > 6 - pad) pos.z = 6 - pad;
         } else if (gameState === 'CHILL_ROOM') {
