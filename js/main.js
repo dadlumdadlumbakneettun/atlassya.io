@@ -166,7 +166,7 @@ function calculateWinningGame(type) {
         let rad = chillWheelMesh.rotation.y % (2 * Math.PI); if (rad < 0) rad += 2 * Math.PI;
         const sliceAngle = (2 * Math.PI) / filteredChill.length; let pointerAngle = (Math.PI / 2 - rad + 2 * Math.PI) % (2 * Math.PI);
         let index = Math.floor(pointerAngle / sliceAngle);
-        chillWonGame = filteredChill[index]; showScreenMessage("KAZANILAN: " + chillWonGame.name);
+        chillWonGame = filteredChill[index];
         if(window.updateChillWallScreen){window.chillWallMode='won';window.chillWallWonGame=chillWonGame;window.updateChillWallScreen();}
         let img = new Image(); img.crossOrigin = "Anonymous"; img.src = getGameImagePath(chillWonGame);
         img.onload = () => {
@@ -294,10 +294,8 @@ function init() {
     
     const els = document.querySelectorAll('.ui-modal input[type="radio"],.ui-modal input[type="checkbox"]');
     els.forEach(el => {
-        let sv = localStorage.getItem('atl_f_' + el.id); if (sv !== null) el.checked = (sv === 'true');
-        el.addEventListener('change', e => { localStorage.setItem('atl_f_' + el.id, el.checked); if (el.name === 'opt_sound') soundEnabled = document.getElementById('sound_on').checked; else { applyFilters(); window.horrorListScrollY=0; window.chillListScrollY=0; if(window.updateHorrorWallScreen&&window.horrorWallMode==='list'){window.horrorWallListData=gameList;window.updateHorrorWallScreen();} if(window.updateChillWallScreen&&window.chillWallMode==='list'){window.chillWallListData=window.getFilteredChillGames?window.getFilteredChillGames():chillGames;window.updateChillWallScreen();} } });
+        el.addEventListener('change', e => { if (el.name === 'opt_sound') soundEnabled = document.getElementById('sound_on').checked; else { applyFilters(); window.horrorListScrollY=0; window.chillListScrollY=0; if(window.updateHorrorWallScreen&&window.horrorWallMode==='list'){window.horrorWallListData=gameList;window.updateHorrorWallScreen();} if(window.updateChillWallScreen&&window.chillWallMode==='list'){window.chillWallListData=window.getFilteredChillGames?window.getFilteredChillGames():chillGames;window.updateChillWallScreen();} } });
     });
-    if(localStorage.getItem('atl_f_sound_on')===null){document.getElementById('sound_on').checked=true;}
     soundEnabled = document.getElementById('sound_on').checked; applyFilters();
 
     const c1 = document.createElement('canvas'); c1.width = 1024; c1.height = 512;
@@ -470,7 +468,7 @@ function animate() {
 
     
     if(gameState==='SECRET_ROOM'&&window.horrorWallCtx&&window.horrorWallMode==='idle'){
-        const dvdW=320,dvdH=110;
+        const dvdW=200,dvdH=120;
         window.dvdX+=window.dvdVx;window.dvdY+=window.dvdVy;
         let bounced=false;
         if(window.dvdX<=0){window.dvdX=0;window.dvdVx=Math.abs(window.dvdVx);bounced=true;}
