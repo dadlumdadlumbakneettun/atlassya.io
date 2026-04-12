@@ -923,7 +923,7 @@ const bowR=new THREE.Mesh(new THREE.ConeGeometry(0.04,0.06,16),bowMat);
         }else{
             ctx.fillStyle='#ffe0ee';ctx.fillRect(0,0,1024,512);
             ctx.fillStyle='rgba(255,150,200,0.15)';for(let i=0;i<512;i+=14)ctx.fillRect(0,i,1024,7);
-            stChill(ctx,'✿',512,170,'#ff66b2',80);stChill(ctx,'ÇARKI ÇEVİR!',512,280,'#cc0055',38);stChill(ctx,'Sonuç burada çıkar',512,340,'#aa0044',28);
+            stChill(ctx,'✿',512,170,'#ff66b2',80);stChill(ctx,'ÇARKI ÇEVİR!',512,280,'#cc0055',38);stChill(ctx,'Atlassya',512,340,'#aa0044',28);
         }
         window.chillWallTex2.needsUpdate=true;
     };
