@@ -1,4 +1,6 @@
 function getGameImagePath(g){if(g.img)return g.img;if(g.image)return g.image;if(g.steamId&&!isNaN(g.steamId))return `https://cdn.cloudflare.steamstatic.com/steam/apps/${g.steamId}/header.jpg`;return `https://via.placeholder.com/280x130/1a0229/FFD700?text=${encodeURIComponent(g.name)}`;}
+
+
 function getFilteredChillGames(){
   if(!window.chillTagsExcluded||window.chillTagsExcluded.size===0)return chillGames;
   return chillGames.filter(g=>{
@@ -66,3 +68,71 @@ function renderBlackjack(){const pDiv=document.getElementById('playerHand');pDiv
 window.bjHit=function(){if(bjGameOver)return;playerHand.push(deck.pop());renderBlackjack();if(calcScore(playerHand)>21)endBlackjack("Bust! Kaybettin.");}
 window.bjStand=function(){if(bjGameOver)return;while(calcScore(dealerHand)<17)dealerHand.push(deck.pop());let p=calcScore(playerHand),d=calcScore(dealerHand);if(d>21||p>d)endBlackjack("KAZANDIN!");else if(p===d)endBlackjack("Berabere.");else endBlackjack("Kasa Kazandı.");}
 function endBlackjack(msg){bjGameOver=true;renderBlackjack();document.getElementById('bjHit').disabled=true;document.getElementById('bjStand').disabled=true;document.getElementById('bjRestart').style.display='inline-block';const mDiv=document.getElementById('bjMessage');mDiv.innerText=msg;mDiv.style.display='block';if(msg==="KAZANDIN!"){hasWonBlackjack=true;mDiv.innerHTML+="<br><span style='font-size:18px;color:#FFD700;'>Zar Masası Kilidi Açıldı!</span>";}}
+
+window.openPickerUI = function() {
+    document.exitPointerLock();
+    if(activeModal) document.getElementById(activeModal).style.display='none';
+    activeModal = 'pickerUI';
+    document.getElementById('pickerUI').style.display = 'flex';
+    renderPickerUI();
+};
+
+window.closePickerUI = function() {
+    document.getElementById('pickerUI').style.display = 'none';
+    activeModal = null;
+};
+
+function renderPickerUI() {
+    const horrorGrid = document.getElementById('pickerHorrorGrid');
+    const chillGrid = document.getElementById('pickerChillGrid');
+    if (!horrorGrid || !chillGrid) return;
+
+    const horrorBadge = document.getElementById('pickerHorrorBadge');
+    const chillBadge = document.getElementById('pickerChillBadge');
+
+    horrorGrid.innerHTML = '';
+    (typeof gameList !== 'undefined' ? gameList : []).forEach(g => {
+        if (!g || g.type === 'error') return;
+        const isSelected = window.forcedHorrorGame && window.forcedHorrorGame.name === g.name;
+        const card = document.createElement('div');
+        card.style.cssText = `position:relative;width:160px;cursor:pointer;border:3px solid ${isSelected ? '#ff2222' : '#330000'};border-radius:8px;overflow:hidden;transition:0.2s;background:#0a0000;flex-shrink:0;`;
+        card.innerHTML = `
+            <img src="${getGameImagePath(g)}" style="width:100%;height:75px;object-fit:cover;display:block;" onerror="this.src='https://via.placeholder.com/160x75/1a0000/ff2222?text=?'">
+            <div style="padding:6px 8px;font-size:0.72rem;font-family:'Roboto',sans-serif;font-weight:bold;color:${isSelected ? '#ff4444' : '#ccaaaa'};text-transform:uppercase;line-height:1.2;">${g.name}</div>
+            ${isSelected ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(180,0,0,0.45);font-size:3rem;color:#ff2222;pointer-events:none;">✓</div>` : ''}
+        `;
+        card.onmouseenter = () => { card.style.transform = 'scale(1.05)'; card.style.borderColor = '#ff4444'; };
+        card.onmouseleave = () => { card.style.transform = ''; card.style.borderColor = isSelected ? '#ff2222' : '#330000'; };
+        card.onclick = () => {
+            window.forcedHorrorGame = isSelected ? null : g;
+            if (horrorBadge) horrorBadge.textContent = window.forcedHorrorGame ? `✓ ${window.forcedHorrorGame.name}` : 'Seçilmedi';
+            renderPickerUI();
+        };
+        horrorGrid.appendChild(card);
+    });
+
+    chillGrid.innerHTML = '';
+    const chillList = window.getFilteredChillGames ? window.getFilteredChillGames() : (typeof chillGames !== 'undefined' ? chillGames : []);
+    chillList.forEach(g => {
+        if (!g) return;
+        const isSelected = window.forcedChillGame && window.forcedChillGame.name === g.name;
+        const card = document.createElement('div');
+        card.style.cssText = `position:relative;width:160px;cursor:pointer;border:3px solid ${isSelected ? '#ff66b2' : '#1a0029'};border-radius:8px;overflow:hidden;transition:0.2s;background:#0a0015;flex-shrink:0;`;
+        card.innerHTML = `
+            <img src="${getGameImagePath(g)}" style="width:100%;height:75px;object-fit:cover;display:block;" onerror="this.src='https://via.placeholder.com/160x75/1a0029/ff66b2?text=?'">
+            <div style="padding:6px 8px;font-size:0.72rem;font-family:'Roboto',sans-serif;font-weight:bold;color:${isSelected ? '#ff88cc' : '#cc99bb'};text-transform:uppercase;line-height:1.2;">${g.name}</div>
+            ${isSelected ? `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(150,0,80,0.45);font-size:3rem;color:#ff66b2;pointer-events:none;">✓</div>` : ''}
+        `;
+        card.onmouseenter = () => { card.style.transform = 'scale(1.05)'; card.style.borderColor = '#ff66b2'; };
+        card.onmouseleave = () => { card.style.transform = ''; card.style.borderColor = isSelected ? '#ff66b2' : '#1a0029'; };
+        card.onclick = () => {
+            window.forcedChillGame = isSelected ? null : g;
+            if (chillBadge) chillBadge.textContent = window.forcedChillGame ? `✓ ${window.forcedChillGame.name}` : 'Seçilmedi';
+            renderPickerUI();
+        };
+        chillGrid.appendChild(card);
+    });
+
+    if (horrorBadge) horrorBadge.textContent = window.forcedHorrorGame ? `✓ ${window.forcedHorrorGame.name}` : 'Seçilmedi';
+    if (chillBadge) chillBadge.textContent = window.forcedChillGame ? `✓ ${window.forcedChillGame.name}` : 'Seçilmedi';
+}
