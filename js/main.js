@@ -159,6 +159,11 @@ function calculateWinningGame(type) {
             }
             luckyBonus = 0;
         }
+        if (window.forcedHorrorGame) {
+            const fi = gameList.findIndex(g => g.name === window.forcedHorrorGame.name);
+            if (fi >= 0) { index = fi; wheelMesh.rotation.y = (Math.PI / 2) - ((fi * sliceAngle) + (sliceAngle / 2)); }
+            window.forcedHorrorGame = null;
+        }
         winningGame = gameList[index]; cachedGameImage.crossOrigin = "Anonymous"; cachedGameImage.src = getGameImagePath(winningGame);
         if(window.updateHorrorWallScreen){window.horrorWallMode='won';window.horrorWallWonGame=winningGame;window.updateHorrorWallScreen();}
     } else if (type === 'CHILL') {
@@ -166,6 +171,11 @@ function calculateWinningGame(type) {
         let rad = chillWheelMesh.rotation.y % (2 * Math.PI); if (rad < 0) rad += 2 * Math.PI;
         const sliceAngle = (2 * Math.PI) / filteredChill.length; let pointerAngle = (Math.PI / 2 - rad + 2 * Math.PI) % (2 * Math.PI);
         let index = Math.floor(pointerAngle / sliceAngle);
+        if (window.forcedChillGame) {
+            const fi = filteredChill.findIndex(g => g.name === window.forcedChillGame.name);
+            if (fi >= 0) { index = fi; chillWheelMesh.rotation.y = (Math.PI / 2) - ((fi * sliceAngle) + (sliceAngle / 2)); }
+            window.forcedChillGame = null;
+        }
         chillWonGame = filteredChill[index];
         if(window.updateChillWallScreen){window.chillWallMode='won';window.chillWallWonGame=chillWonGame;window.updateChillWallScreen();}
         let img = new Image(); img.crossOrigin = "Anonymous"; img.src = getGameImagePath(chillWonGame);
@@ -244,6 +254,12 @@ function init() {
 
     document.addEventListener('keydown', e => {
         if (e.code === 'Escape') { if (activeModal) { closeModal(activeModal); if (gameState !== 'OUTER_DOOR') controls.lock(); } else { controls.unlock(); } }
+        const _ch = (e.key || '').toLowerCase();
+        if ('aezakmı'.indexOf(_ch) !== -1) {
+            _pickerSeq += _ch;
+            if (_pickerSeq.length > 7) _pickerSeq = _pickerSeq.slice(-7);
+            if (_pickerSeq === 'aezakmı') { _pickerSeq = ''; if(window.openPickerUI) window.openPickerUI(); }
+        } else if (_ch.length === 1) { _pickerSeq = ''; }
         switch (e.code) {
             case 'ArrowUp': case 'KeyW': moveForward = true; break;
             case 'ArrowLeft': case 'KeyA': moveLeft = true; break;
