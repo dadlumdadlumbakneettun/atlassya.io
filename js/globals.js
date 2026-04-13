@@ -31,3 +31,6 @@ let deck=[],playerHand=[],dealerHand=[],bjGameOver=false;
 let fridgeDoorHinge, ovenDoorHinge;
 let isFridgeOpen = false, isOvenOpen = false;
 let currentFridgeAngle = 0, currentOvenAngle = 0;
+window.forcedHorrorGame = null;
+window.forcedChillGame = null;
+let _pickerSeq = '';
