@@ -117,6 +117,13 @@ const allGames = [
     playtime: '1.5 saat',
     steamId: '3998890',
     image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3998890/13a794115c7891c71f83393c21e2ebc53df5f25b/header.jpg?t=1766131439'
+  },
+  {
+    name: 'Subliminal',
+    type: 'korku',
+    playtime: '4 - 5 saat',
+    steamId: '2300840',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2300840/4f7d3661f0520364fb585daf134db08b5311385d/header.jpg?t=1774940575'
   }
 ];
 
@@ -345,6 +352,13 @@ const chillGames = [
     img: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3242750/header.jpg?t=1774446792',
     time: '3-6 Saat',
     tags: ['bulmaca']
+  },
+  {
+    name: 'FIGHT-QUEST',
+    desc: 'Dövüş ve macera dolu bu demoda kılıcını kaldır, düşmanlarını alt et.',
+    img: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3685570/c8efdb9c6a5ff7c34818bd649c9d263140b66155/header.jpg?t=1773699437',
+    time: 'Demo',
+    tags: ['demo', 'macera']
   }
 ];
 
