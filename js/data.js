@@ -124,6 +124,26 @@ const allGames = [
     playtime: '4 - 5 saat',
     steamId: '2300840',
     image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2300840/4f7d3661f0520364fb585daf134db08b5311385d/header.jpg?t=1774940575'
+  },
+  {
+    name: 'Toilet 8',
+    type: 'anomali',
+    playtime: '40 dakika',
+    steamId: '4142980',
+    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4142980/c9b71c6acd939c39044b3c56e51b0f8ab12e93bb/header.jpg?t=1772537552'
+  },
+  {
+    name: "Don't Play This",
+    type: 'korku',
+    playtime: '1 saat',
+    steamId: '3319120',
+    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3319120/07d1ccb485d61cb593b42e8932fecf03e18f4a9c/header.jpg?t=1776353186'
+  },
+  {
+    name: 'Trees Hate You',
+    type: 'korku',
+    playtime: '30 dakika - 1 saat',
+    image: 'https://img.itch.zone/aW1hZ2UvMzY0NDQ2OS8yNDUzMjExNy5wbmc=/794x1000/7yiVeg.png'
   }
 ];
 
@@ -376,47 +396,47 @@ const wishlist = [
   { name: 'cronos', steamId: '2101960' },
   { name: 'madison', steamId: '1670870' },
   { name: 'high on life', steamId: '1583230' },
-  { 
-    name: 'Date or Destiny Kiss or Miss', 
-    steamId: '2127030', 
-    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2127030/f447ac90059534b1397b5de6fc2b004e5729d6cf/header.jpg?t=1751035600' 
+  {
+    name: 'Date or Destiny Kiss or Miss',
+    steamId: '2127030',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2127030/f447ac90059534b1397b5de6fc2b004e5729d6cf/header.jpg?t=1751035600'
   },
-  { 
-    name: 'silent hill f', 
-    steamId: '2947440', 
-    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2947440/7e5d923ac622bd1775ebc9b5d4b5b0a24bf5ed40/header.jpg?t=1770169624' 
+  {
+    name: 'silent hill f',
+    steamId: '2947440',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2947440/7e5d923ac622bd1775ebc9b5d4b5b0a24bf5ed40/header.jpg?t=1770169624'
   },
   { name: 'Katana ZERO', steamId: '460950' },
-  { 
-    name: 'Half-Life (Türkçe)', 
-    steamId: '70', 
-    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/70/header.jpg?t=1745368462', 
-    overlayIcon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Roundel_flag_of_Turkey.svg/500px-Roundel_flag_of_Turkey.svg.png' 
+  {
+    name: 'Half-Life (Türkçe)',
+    steamId: '70',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/70/header.jpg?t=1745368462',
+    overlayIcon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Roundel_flag_of_Turkey.svg/500px-Roundel_flag_of_Turkey.svg.png'
   },
-  { 
-    name: 'Paranormal Tales', 
-    steamId: '2193600', 
-    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2193600/header.jpg?t=1760022653' 
+  {
+    name: 'Paranormal Tales',
+    steamId: '2193600',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2193600/header.jpg?t=1760022653'
   },
-  { 
-    name: 'Perceptum', 
-    steamId: '4124340', 
-    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4124340/6a7fed1f457e84212554c79eaf3e90c25b056b0f/header.jpg?t=1770842900' 
+  {
+    name: 'Perceptum',
+    steamId: '4124340',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4124340/6a7fed1f457e84212554c79eaf3e90c25b056b0f/header.jpg?t=1770842900'
   },
-  { 
-    name: 'Goodnight Universe', 
-    steamId: '2416100', 
-    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2416100/header.jpg?t=1763335395' 
+  {
+    name: 'Goodnight Universe',
+    steamId: '2416100',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2416100/header.jpg?t=1763335395'
   },
-  { 
-    name: 'The Walking Dead', 
-    steamId: '207610', 
-    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/207610/header.jpg?t=1729702559' 
+  {
+    name: 'The Walking Dead',
+    steamId: '207610',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/207610/header.jpg?t=1729702559'
   },
-  { 
-    name: 'High On Life 2', 
-    steamId: '2069250', 
-    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2069250/14a0a45da992ca33d59eb318b5cb9598c070e1c1/header.jpg?t=1771480792' 
+  {
+    name: 'High On Life 2',
+    steamId: '2069250',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2069250/14a0a45da992ca33d59eb318b5cb9598c070e1c1/header.jpg?t=1771480792'
   }
 ];
 
@@ -435,4 +455,68 @@ const favoriteGames = [
 
 
 let gameList = [...allGames];
-const dialogueTree={start:{text:"Hey… yalnız mısın?",choices:[{label:"Evet, yalnızım.",next:'alone'},{label:"Hayır, yalnız değilim.",next:'not_alone'}]},alone:{text:"Şanslısın… Bu sıcakta kalabalık çekilmiyor. Ankara'nın sıcağı artık derimizi yakıyor. İnsan dışarıda beş dakika durunca nefesi kesiliyor.",next:'stream_q'},not_alone:{text:"Öyle mi… İlginç. İçeriden sesler geliyor gibi.",next:'ankara_heat'},ankara_heat:{text:"Bu sıcakta kalabalık çekilmiyor. Ankara'nın sıcağı artık derimizi yakıyor. İnsan dışarıda beş dakika durunca nefesi kesiliyor.",next:'stream_q'},stream_q:{text:"Seni daha önce bir yerde görmüş gibiyim… Yayıncı mısın?",choices:[{label:"Evet, yayın yapıyorum.",next:'stream_yes'},{label:"Hayır.",next:'stream_no'}]},stream_yes:{text:"Vay be… Ben de eskiden yayın yapardım. Ama o günler çok geride kaldı.",next:'final'},stream_no:{text:"Anladım… Eskiden ben de yayın yapardım. Ama o günler çok geride kaldı.",next:'final'},final:{text:"Oyunları seçmende belki sana yardımcı olurum. Neden beni içeri almıyorsun?",choices:[{label:"İçeri gel.",next:'enter'},{label:"Git buradan.",next:'reject'}]},enter:{action:()=>{document.getElementById('narrative-screen').style.display='none';document.getElementById('jumpscare').style.display='block';setTimeout(()=>{alert('ÖLDÜN.');location.reload();},2000);}},reject:{action:()=>{document.getElementById('npcText').innerHTML='"Pişman olacaksın..."';document.getElementById('playerOptions').innerHTML='';setTimeout(()=>{document.getElementById('narrative-screen').style.display='none';gameState='CORRIDOR';controls.lock();},1500);}}};
+
+const dialogueTree = {
+  start: {
+    text: "Hey… yalnız mısın?",
+    choices: [
+      { label: "Evet, yalnızım.", next: 'alone' },
+      { label: "Hayır, yalnız değilim.", next: 'not_alone' }
+    ]
+  },
+  alone: {
+    text: "Şanslısın… Bu sıcakta kalabalık çekilmiyor. Ankara'nın sıcağı artık derimizi yakıyor. İnsan dışarıda beş dakika durunca nefesi kesiliyor.",
+    next: 'stream_q'
+  },
+  not_alone: {
+    text: "Öyle mi… İlginç. İçeriden sesler geliyor gibi.",
+    next: 'ankara_heat'
+  },
+  ankara_heat: {
+    text: "Bu sıcakta kalabalık çekilmiyor. Ankara'nın sıcağı artık derimizi yakıyor. İnsan dışarıda beş dakika durunca nefesi kesiliyor.",
+    next: 'stream_q'
+  },
+  stream_q: {
+    text: "Seni daha önce bir yerde görmüş gibiyim… Yayıncı mısın?",
+    choices: [
+      { label: "Evet, yayın yapıyorum.", next: 'stream_yes' },
+      { label: "Hayır.", next: 'stream_no' }
+    ]
+  },
+  stream_yes: {
+    text: "Vay be… Ben de eskiden yayın yapardım. Ama o günler çok geride kaldı.",
+    next: 'final'
+  },
+  stream_no: {
+    text: "Anladım… Eskiden ben de yayın yapardım. Ama o günler çok geride kaldı.",
+    next: 'final'
+  },
+  final: {
+    text: "Oyunları seçmende belki sana yardımcı olurum. Neden beni içeri almıyorsun?",
+    choices: [
+      { label: "İçeri gel.", next: 'enter' },
+      { label: "Git buradan.", next: 'reject' }
+    ]
+  },
+  enter: {
+    action: () => {
+      document.getElementById('narrative-screen').style.display = 'none';
+      document.getElementById('jumpscare').style.display = 'block';
+      setTimeout(() => {
+        alert('ÖLDÜN.');
+        location.reload();
+      }, 2000);
+    }
+  },
+  reject: {
+    action: () => {
+      document.getElementById('npcText').innerHTML = '"Pişman olacaksın..."';
+      document.getElementById('playerOptions').innerHTML = '';
+      setTimeout(() => {
+        document.getElementById('narrative-screen').style.display = 'none';
+        gameState = 'CORRIDOR';
+        controls.lock();
+      }, 1500);
+    }
+  }
+};
