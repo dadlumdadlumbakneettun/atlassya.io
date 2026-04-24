@@ -37,13 +37,6 @@ const allGames = [
     steamId: '1559720'
   },
   {
-    name: 'THE STALKED 3',
-    type: 'indie demo korku',
-    playtime: '1 saat',
-    steamId: '3565980',
-    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3565980/5ae4094378ae5cc56484afd54a4510b60e0666fa/header.jpg?t=1773345444'
-  },
-  {
     name: 'THE STAIRWAY 7',
     type: 'anomali, kedy',
     playtime: '1 saat',
@@ -119,13 +112,6 @@ const allGames = [
     image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3998890/13a794115c7891c71f83393c21e2ebc53df5f25b/header.jpg?t=1766131439'
   },
   {
-    name: 'Subliminal',
-    type: 'korku',
-    playtime: '4 - 5 saat',
-    steamId: '2300840',
-    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2300840/4f7d3661f0520364fb585daf134db08b5311385d/header.jpg?t=1774940575'
-  },
-  {
     name: 'Toilet 8',
     type: 'anomali',
     playtime: '40 dakika',
@@ -138,12 +124,6 @@ const allGames = [
     playtime: '1 saat',
     steamId: '3319120',
     image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3319120/07d1ccb485d61cb593b42e8932fecf03e18f4a9c/header.jpg?t=1776353186'
-  },
-  {
-    name: 'Trees Hate You',
-    type: 'korku',
-    playtime: '30 dakika - 1 saat',
-    image: 'https://img.itch.zone/aW1hZ2UvMzY0NDQ2OS8yNDUzMjExNy5wbmc=/794x1000/7yiVeg.png'
   }
 ];
 
@@ -169,13 +149,6 @@ const chillGames = [
     img: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1585220/header.jpg?t=1745444179',
     time: '2-3 Saat',
     tags: ['tıklama']
-  },
-  {
-    name: 'Hozy',
-    desc: 'Küçük, sevimli bir karakterle ev dekorasyonu yap ve rahatla.',
-    img: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3326230/abe77fa1d9d2452e2b59d785fd6058e8b33868db/header.jpg?t=1775316300',
-    time: '3-6 Saat',
-    tags: ['ev yap']
   },
   {
     name: 'Assemble with Care',
@@ -442,12 +415,10 @@ const wishlist = [
 
 
 const favoriteGames = [
-  'Subliminal',
   'The Maid',
   'Gas Station Case',
   'Skull Hotel',
   'No, I\'m not a Human',
-  'THE STALKED 3',
   'HELLMART',
   'Last Report',
   'We Used to Play Here'
