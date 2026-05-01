@@ -124,6 +124,120 @@ const allGames = [
     playtime: '1 saat',
     steamId: '3319120',
     image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3319120/07d1ccb485d61cb593b42e8932fecf03e18f4a9c/header.jpg?t=1776353186'
+  },
+  {
+    name: 'The Guest 2',
+    type: 'korku',
+    playtime: '1 saat',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4466990/6d2b90fe3e775a2dcce7254ec0315da4be3e7f86/header.jpg?t=1776927971'
+  },
+  {
+    name: 'The Strange Lights',
+    type: 'korku',
+    playtime: '40 dakika',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3823950/6e090fcb7c2b15dbbdbdc2d78fff00ef053b0032/header.jpg?t=1770474068'
+  },
+  {
+    name: 'The Last Letter',
+    type: 'korku',
+    playtime: '50 dakika',
+    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4508710/f34472f838adc1f0c5f909f98835d5c07e6bcad9/header.jpg?t=1776955886'
+  },
+  {
+    name: 'Empty Gauge',
+    type: 'korku',
+    playtime: '1 saat',
+    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3998790/231429f45e9511324cd000a7ad5485b54d8014b4/header.jpg?t=1776617740'
+  },
+  {
+    name: 'Dread Neighboard',
+    type: 'korku, demo',
+    playtime: '20 dakika',
+    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4111260/84a64fa6dc33458da3a3cdff74d1f140dd3f9896/header.jpg?t=1777361210'
+  },
+  {
+    name: "DON'T OPEN",
+    type: 'korku',
+    playtime: '1 saat',
+    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4498870/ea34ad27ebbf448fddea528f9581b4f1eb008da4/header.jpg?t=1773904304'
+  },
+  {
+    name: 'Tostchu',
+    type: 'korku',
+    playtime: '2.5-3 saat',
+    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2221500/header.jpg?t=1730124471'
+  },
+  {
+    name: 'Halu - The Fracture',
+    type: 'korku',
+    playtime: '1 saat',
+    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3893210/e8c64e4126aa7892741ee9c8de936b3eadb13b33/header.jpg?t=1759002158'
+  },
+  {
+    name: 'The Tall Man Tapes',
+    type: 'korku',
+    playtime: '1 saat',
+    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3369940/1db13731da19cd14a71b6a1c1fc41abf6b496b01/header.jpg?t=1771883392'
+  },
+  {
+    name: 'Let Me In',
+    type: 'korku, demo',
+    playtime: '1 saat',
+    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4224400/68a891560fbdbc57cd0f2ff21ed2fd1ba8d7cdcb/header.jpg?t=1776778481'
+  },
+  {
+    name: 'Lair of Torment',
+    type: 'korku',
+    playtime: '30 dakika',
+    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2508210/header.jpg?t=1776012905'
+  },
+  {
+    name: 'Make Good Choices',
+    type: 'anomali',
+    playtime: '1 saat',
+    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3410310/header.jpg?t=1737678394'
+  },
+  {
+    name: "Willie's Nightfall",
+    type: 'korku',
+    playtime: '40 dakika',
+    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3198320/header.jpg?t=1737268713'
+  },
+  {
+    name: '[Nightmare Files] Clap Clap',
+    type: 'korku',
+    playtime: '25 dakika',
+    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2933290/header.jpg?t=1765139513'
+  },
+  {
+    name: 'Dream Cage',
+    type: 'korku',
+    playtime: '1 saat',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3122170/header.jpg?t=1746970381'
+  },
+  {
+    name: 'Supernormal',
+    type: 'korku',
+    playtime: '1 saat 20 dakika',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2532430/header.jpg?t=1733831256'
+  },
+  {
+    name: 'HorrorCore: Labirent ve Korku Havuzları',
+    type: 'korku',
+    playtime: '50 dakika',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3440410/header.jpg?t=1769786355'
+  },
+  {
+    name: 'İblis 2',
+    type: 'korku',
+    playtime: '1 saat',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/2205460/header.jpg?t=1699556680'
+  },
+  {
+    name: 'Agreee',
+    type: 'korku',
+    playtime: '10 dakika - sonsuz saat',
+    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3757210/ae36ecedeb4d9f65ed7aa58f8f7dc2d47976d745/header.jpg?t=1769849353'
   }
 ];
 
@@ -352,6 +466,20 @@ const chillGames = [
     img: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3685570/c8efdb9c6a5ff7c34818bd649c9d263140b66155/header.jpg?t=1773699437',
     time: 'Demo',
     tags: ['demo', 'macera']
+  },
+  {
+    name: 'White Knuckle',
+    desc: 'Çöken bir dünyada duvarlara tırmanarak hayatta kalmaya çalıştığın yüksek tempolu bir ko-op oyun.',
+    img: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3195790/header.jpg?t=1767974773',
+    time: '1 saat - sonsuz',
+    tags: ['macera']
+  },
+  {
+    name: 'Agreee',
+    desc: 'Ne kadar oynayacağını kendin belirle. 10 dakika da olur, bir ömür de.',
+    img: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3757210/ae36ecedeb4d9f65ed7aa58f8f7dc2d47976d745/header.jpg?t=1769849353',
+    time: '10 dakika - sonsuz',
+    tags: ['tıklama']
   }
 ];
 
@@ -421,7 +549,8 @@ const favoriteGames = [
   'No, I\'m not a Human',
   'HELLMART',
   'Last Report',
-  'We Used to Play Here'
+  'We Used to Play Here',
+  'Agreee'
 ];
 
 
