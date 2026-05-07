@@ -1,7 +1,7 @@
 const allGames = [
   {
     name: 'DREAD FLATS',
-    type: 'korku, bulmaca, japon',
+    type: 'korku, bulmaca',
     playtime: '2 saat',
     steamId: '3114900'
   },
