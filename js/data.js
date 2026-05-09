@@ -210,12 +210,6 @@ const allGames = [
     image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2933290/header.jpg?t=1765139513'
   },
   {
-    name: 'Dream Cage',
-    type: 'korku',
-    playtime: '1 saat',
-    image: 'https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3122170/header.jpg?t=1746970381'
-  },
-  {
     name: 'Supernormal',
     type: 'korku',
     playtime: '1 saat 20 dakika',
